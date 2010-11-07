@@ -13,7 +13,7 @@ from wep_attack import *
 from wpa_attack import *
 from ivs_settings import *
 
-__version__= 1.0
+__version__= 1.1
 
 #
 # Wep Global variables
@@ -180,6 +180,15 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
         global scan_label
         scan_label = self.label_7
+
+        #
+        # Checks privilegde level - for aircrack-ng suite and other dependencies needs it
+        #
+        if os.getenv('LOGNAME','none').lower() == 'root':
+            pass
+        else:
+            QtGui.QMessageBox.warning(self,"Insufficient Priviledge","Aircrack requires root priviledges to function, Please run application as root")
+            sys.exit()
     
     #
     # Execute the wep attack window
