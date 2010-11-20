@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import thread
+import sqlite3
 import subprocess
 from PyQt4 import QtGui,QtCore
 from main_window import *
@@ -12,8 +13,10 @@ from settings import *
 from wep_attack import *
 from wpa_attack import *
 from ivs_settings import *
+from database import *
 
 __version__= 1.1
+
 
 #
 # Wep Global variables
@@ -65,6 +68,51 @@ else:
     os.mkdir('fern-settings')                                   # Create permanent settings directory
 
 #
+# Create database if it does not exist
+#
+def database_create():
+        temp = sqlite3.connect('key-database/Database.db')                 # Database File and Tables are created Here
+        temp_query = temp.cursor()
+        temp_query.execute('''create table if not exists keys \
+                            (access_point text,encryption text,key text,channel int)''')
+        temp.commit()
+        temp.close()
+        
+if 'key-database' not in os.listdir(os.getcwd()):
+    os.mkdir('key-database')
+    if 'Database.db' not in os.listdir('key-database'):
+        database_create()                                   # Database File and Tables are created Here
+    else:
+        database_create()
+else:
+    database_create()
+#
+#   Read database entries and count entries then set Label on main window
+#
+def update_database_label():
+    connection = sqlite3.connect('key-database/Database.db')
+    query = connection.cursor()
+    query.execute('''select * from keys''')
+    items = str(query.fetchall())
+    connection.close()
+    wep_entries = items.count('WEP')
+    wpa_entries = items.count('WPA')
+    if int(wep_entries + wpa_entries) <= 0:
+        entries_label.setText('<font color=red>No Key Entries</font>')
+    else:
+        entries_label.setText('<font color=red>%s Key Entries</font>'%(str(wep_entries + wpa_entries)))
+
+#
+# Add keys to Database with this function
+#
+def set_key_entries(arg,arg1,arg2,arg3):
+    connection = sqlite3.connect('key-database/Database.db')
+    query = connection.cursor()
+    query.execute("insert into keys values ('%s','%s','%s','%s')"%(str(arg),str(arg1),str(arg2),str(arg3)))
+    connection.commit()
+    connection.close()
+    
+#
 # Some globally defined functions for write and read tasks
 #    
 def reader(arg):
@@ -79,6 +127,12 @@ def write(arg,arg2):
 
 def remove(arg,arg2):    
     commands.getstatusoutput('rm -r %s/%s'%(arg,arg2))  #'rm - r /tmp/fern-log/file.log
+
+def original_display(arg,arg2):
+    time.sleep(1)
+    commands.getstatusoutput('xrandr -s %s'%(reader('/tmp/display.txt')))
+    
+thread.start_new_thread(original_display,(0,0))
 
 def client_update():
     global wpa_clients_list                             # Exclusively for WPA getting
@@ -177,9 +231,18 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 	self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
 	self.connect(self.wep_button,QtCore.SIGNAL("clicked()"),self.wep_attack_window)
 	self.connect(self.wpa_button,QtCore.SIGNAL("clicked()"),self.wpa_attack_window)
+	self.connect(self.database_button,QtCore.SIGNAL("clicked()"),self.database_window)
 
         global scan_label
         scan_label = self.label_7
+
+        global entries_label
+        entries_label = self.label_16
+
+        update_database_label()
+        
+        
+        
     
     #
     # Execute the wep attack window
@@ -205,7 +268,12 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             
         wpa_run = wpa_attack_dialog()
         wpa_run.exec_()
-    
+    #
+    # Execute database Window
+    #
+    def database_window(self):
+        database_run = database_dialog()
+        database_run.exec_()
     #
     # Refresh wireless network interface card and update combobo
     #
@@ -1288,20 +1356,21 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
             maximum = self.ivs_progress.setMaximum(ivs_value)
             maximum = self.ivs_progress.setRange(0,ivs_value)
         else:
-            ivs_value = 20000
-            maximum = self.ivs_progress.setMaximum(20000)
-            maximum = self.ivs_progress.setRange(0,20000)
+            ivs_value = 10000
+            maximum = self.ivs_progress.setMaximum(10000)
+            maximum = self.ivs_progress.setRange(0,10000)
 
 
         while ivs_number <= ivs_value:
             time.sleep(0.4)
             self.emit(QtCore.SIGNAL("update_progress_bar"))
             
+        self.ivs_progress.setValue(ivs_value)
         commands.getstatusoutput('touch /tmp/fern-log/WEP-DUMP/wep_key.txt')
         thread.start_new_thread(self.crack_wep,(0,0))                   #Thread for cracking wep
 
         thread.start_new_thread(self.key_check,(0,0))
-        QtCore.SIGNAL("chop-chop injecting")
+        self.emit(QtCore.SIGNAL("chop-chop injecting"))
         self.emit(QtCore.SIGNAL("cracking"))
         time.sleep(13)
         
@@ -1309,6 +1378,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
             self.emit(QtCore.SIGNAL("next_try"))
             QtCore.SIGNAL("update_progress_bar")
             thread.start_new_thread(self.next_phase,(0,0))
+
 
     def updater(self,arg,arg2):
         while 'KEY FOUND!' not in reader('/tmp/fern-log/WEP-DUMP/wep_key.txt'):
@@ -1325,7 +1395,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
             time.sleep(9)
         self.emit(QtCore.SIGNAL("key not found yet"))
         self.emit(QtCore.SIGNAL("wep found"))
-
+        
         ########################################### SPECIAL COMMAND THREADS ######################################
     def dump_thread(self,arg,arg1):
         wep_victim_channel = victim_channel
@@ -1408,6 +1478,11 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         processed_key = process_initial.strip('KEY FOUND! [ ]')
         WEP = processed_key 
         self.emit(QtCore.SIGNAL("wep found"))
+        if len(WEP) > 0:
+            set_key_entries(victim_access_point,'WEP',str(WEP.replace(':','')),victim_channel)      #Add WEP Key to Databse Here
+            update_database_label()
+        else:
+            update_database_label()
             
 
                                                                                                                                  
@@ -1461,6 +1536,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.connect(self,QtCore.SIGNAL("update speed"),self.update_speed_label)
         self.connect(self,QtCore.SIGNAL("wpa key not found"),self.key_not_found)
         self.connect(self,QtCore.SIGNAL("set maximum"),self.set_maximum)
+        self.connect(self,QtCore.SIGNAL("Stop progress display"),self.display_label)
 
         
         combo_temp = reader('/tmp/fern-log/WPA/wpa_details.log')
@@ -1539,6 +1615,9 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.wpa_status_label.setText('<font color=yellow>Wpa Encryption Broken</font>')
         self.wpa_key_label.setEnabled(True)
         self.wpa_key_label.setText('<font color=red>%s</font>'%(wpa_key_read))
+        set_key_entries(wpa_victim_access,'WPA',wpa_key_read,wpa_victim_channel)            #Add WPA Key to Database Here
+        update_database_label()
+
 
     def update_word_label(self):
         self.bruteforce_progress_label.setEnabled(True)
@@ -1551,6 +1630,9 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.wpa_status_label.setEnabled(True)
         self.wpa_status_label.setText('<font color=yellow>Speed: \t %s</font>'%(current_speed))
 
+    def display_label(self):
+        self.wpa_status_label.setEnabled(True)
+        self.wpa_status_label.setText('<font color=yellow>Wpa Encryption Broken</font>')        
 
     def key_not_found(self):
         self.finished_label.setEnabled(True)
@@ -1599,6 +1681,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
 
         self.emit(QtCore.SIGNAL("wpa key found"))
 
+        
     def wordlist_check(self,arg,arg1):
         control_word = 0
         global current_word
@@ -1652,7 +1735,8 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
                 commands.getstatusoutput('rm -r /tmp/fern-log/WPA-DUMP/progress.txt')
             except (IndexError,ValueError,IOError),e:
                 pass
-        self.emit(QtCore.SIGNAL("wpa key found"))
+
+        self.emit(QtCore.SIGNAL("Stop progress display"))
 
 
 
@@ -1785,8 +1869,98 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         filename_split = split_name.splitlines()
         filename = filename_split[-1]
         self.dictionary_label.setEnabled(True)
-        self.dictionary_label.setText('<font color=yellow><b>%s</b></font>'%(filename))      
+        self.dictionary_label.setText('<font color=yellow><b>%s</b></font>'%(filename))
 
+#
+#  Class for Database key entries
+#
+class database_dialog(QtGui.QDialog,database_ui):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        self.setupUi(self)
+        self.retranslateUi(self)
+
+        self.connect(self.insert_button,QtCore.SIGNAL("clicked()"),self.insert_row)
+        self.connect(self.delete_button,QtCore.SIGNAL("clicked()"),self.delete_row)
+        self.connect(self.save_button,QtCore.SIGNAL("clicked()"),self.save_changes)
+
+        connection = sqlite3.connect('key-database/Database.db')
+        query = connection.cursor()
+        query.execute('''select * from keys''')
+        items = query.fetchall()
+        number_decision = str(items)
+        wep_entries = number_decision.count('WEP')
+        wpa_entries = number_decision.count('WPA')
+
+        for iterate in range(0,wep_entries + wpa_entries):              # Update QTable with entries from Database and
+            
+            tuple_sequence = items[iterate]
+            access_point_var = tuple_sequence[0]
+            encryption_var = tuple_sequence[1].upper()
+            key_var = tuple_sequence[2]
+            channel_var = tuple_sequence[3]
+
+            self.key_table.insertRow(iterate)
+
+            access_point_display = QtGui.QTableWidgetItem()
+            encryption_display = QtGui.QTableWidgetItem()
+            key_display = QtGui.QTableWidgetItem()
+            channel_display = QtGui.QTableWidgetItem()
+
+            access_point_display.setText(QtGui.QApplication.translate("Dialog", "%s"%(access_point_var), None, QtGui.QApplication.UnicodeUTF8))
+            self.key_table.setItem(iterate,0,access_point_display) 
+
+            encryption_display.setText(QtGui.QApplication.translate("Dialog", "%s"%(encryption_var), None, QtGui.QApplication.UnicodeUTF8)) 
+            self.key_table.setItem(iterate,1,encryption_display) 
+
+            key_display.setText(QtGui.QApplication.translate("Dialog", "%s"%(key_var), None, QtGui.QApplication.UnicodeUTF8))
+            self.key_table.setItem(iterate,2,key_display) 
+
+            channel_display.setText(QtGui.QApplication.translate("Dialog", "%s"%(channel_var), None, QtGui.QApplication.UnicodeUTF8))
+            self.key_table.setItem(iterate,3,channel_display) 
+            
+        update_database_label()
+        
+
+
+    def insert_row(self):
+        self.key_table.insertRow(0)
+        
+    def delete_row(self):
+        current_row = int(self.key_table.currentRow())
+        self.key_table.removeRow(current_row)
+
+    def save_changes(self):
+        os.system('rm -r key-database/Database.db')
+        database_create()
+        row_number = self.key_table.rowCount()
+        controller = 0
+
+        while controller != row_number:
+            access_point1 = QtGui.QTableWidgetItem(self.key_table.item(controller,0))   # Get Cell content
+            encryption1 = QtGui.QTableWidgetItem(self.key_table.item(controller,1))
+            key1 = QtGui.QTableWidgetItem(self.key_table.item(controller,2))
+            channel1 = QtGui.QTableWidgetItem(self.key_table.item(controller,3))
+
+            access_point = access_point1.text()                                         # Get cell content text
+            encryption2 = str(encryption1.text())
+            encryption = encryption2.upper()
+            key = key1.text()
+            channel = channel1.text()
+
+            set_key_entries(access_point,encryption,key,channel)        # Write enrties to database
+            
+            controller += 1
+                
+        update_database_label()                                         # Update the Entries label on Main window
+                
+      
+
+            
+        
+            
+        
+        
         
 #
 # Class dialog for automatic ivs captupe and limit reference
@@ -1890,5 +2064,6 @@ if __name__ == '__main__':
         run = mainwindow()
         run.show()
         app.exec_()
+
 
 

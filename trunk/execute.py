@@ -11,9 +11,25 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         # Checks privilegde level - for aircrack-ng suite needs those
         #
         if os.getenv('LOGNAME','none').lower() == 'root':
+            resolution = str(commands.getstatusoutput('xrandr | grep \'current\''))
+            resolution_process = resolution.replace(',','\n')
+            resolution_process2 = resolution_process.splitlines()
+            resolution_process3 = resolution_process2[2].strip(' current')
+            original_resolution = resolution_process3.replace(' x ','x')
+            if 'display.txt' in os.listdir('/tmp'):
+                os.system('rm -r /tmp/display.txt')
+                log_display = open('/tmp/display.txt','a+')
+                log_display.write(original_resolution)
+                log_display.close()
+            else:
+                log_display = open('/tmp/display.txt','a+')
+                log_display.write(original_resolution)
+                log_display.close()
+            commands.getstatusoutput('xrandr -s 800x600')
             variable = sys.argv[0]
             direc = variable.replace('execute.py',"")
             os.system('cd %s \n python fern.py'%(direc))
+            sys.exit()
         else:
             QtGui.QMessageBox.warning(self,"Insufficient Priviledge","Aircrack and other dependencies need root priviledge to function, Please run application as root")
             sys.exit()
@@ -22,7 +38,6 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
 app = QtGui.QApplication(sys.argv)
 run = mainwindow()
-run.show()
 app.exec_()
 
 
