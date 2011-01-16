@@ -358,21 +358,23 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         interfaces = str(commands.getoutput("airmon-ng | egrep -e '^[a-z]{2,4}[0-9]'"))
         inter = interfaces.splitlines()
         # Interate over interface output and update combo box
-        try:
-            for iterate in range(0,interfaces.count('\t\t')/2):
-                monitor = inter[iterate]
-                if monitor.startswith('mon'):
-                    pass
-                else:
-                    list_.append(monitor[0:6].strip('\t\t'))
-
+        if interfaces.count('\t') == 0:
             self.interface_combo.addItems(list_)
-            
-            self.mon_label.setText("<font color=red>Select an interface card</font>")
-            x = list_[1]
-        except IndexError:
             self.mon_label.setText("<font color=red>No Wireless Interface was found</font>")
+        else:
+            try:
+                for iterate in range(0,interfaces.count('\t')):
+                    monitor = inter[iterate]
+                    if monitor.startswith('mon'):
+                        pass
+                    else:
+                        list_.append(monitor[0:6].strip('\t\t'))
 
+                self.interface_combo.addItems(list_)
+                self.mon_label.setText("<font color=red>Select an interface card</font>")
+            except IndexError:
+                self.interface_combo.addItems(list_)
+                self.mon_label.setText("<font color=red>Select an interface card</font>")
             
 
     #
@@ -381,7 +383,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     def setmonitor(self):
         monitor_card = str(self.interface_combo.currentText())
 	if monitor_card != 'Select Interface':
-            status = str(commands.getoutput("airmon-ng start %s| egrep -e '^[a-z]{2,4}[0-9]'"%(monitor_card)))
+            status = str(commands.getoutput("airmon-ng start %s"%(monitor_card)))
             if 'monitor mode enabled' in status:
                 monitor_interface_process = str(commands.getoutput("airmon-ng | egrep -e '^[a-z]{2,4}[0-9]'"))
                 monitor_interface = monitor_interface_process.splitlines()
