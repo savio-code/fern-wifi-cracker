@@ -16,7 +16,7 @@ from wpa_attack import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.3
+__version__= 1.21
 
 #
 # Network scan global variable

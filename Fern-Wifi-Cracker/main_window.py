@@ -258,7 +258,7 @@ class Ui_Dialog(object):
         self.label_10.setText(QtGui.QApplication.translate("Dialog", "Click to activate WPA attack", None, QtGui.QApplication.UnicodeUTF8)) 
         self.label_11.setText(QtGui.QApplication.translate("Dialog", "on wpa encrypted victim", None, QtGui.QApplication.UnicodeUTF8)) 
         self.wpa_clientlabel.setText(QtGui.QApplication.translate("Dialog", "Access Points ", None, QtGui.QApplication.UnicodeUTF8)) 
-        self.label_3.setText(QtGui.QApplication.translate("Dialog", "Fern WIFI Cracker 1.3", None, QtGui.QApplication.UnicodeUTF8)) 
+        self.label_3.setText(QtGui.QApplication.translate("Dialog", "Fern WIFI Cracker 1.2", None, QtGui.QApplication.UnicodeUTF8)) 
         self.groupBox.setTitle(QtGui.QApplication.translate("Dialog", "About Fern WIFI Cracker", None, QtGui.QApplication.UnicodeUTF8)) 
         self.label_5s.setText(QtGui.QApplication.translate("Dialog", "Written by Saviour Emmanuel Ekiko", None, QtGui.QApplication.UnicodeUTF8)) 
         self.label_6ss.setText(QtGui.QApplication.translate("Dialog", "GUI suite for wireless  encryption strength testing of 802.11 wireless encryption standard access points", None, QtGui.QApplication.UnicodeUTF8)) 
