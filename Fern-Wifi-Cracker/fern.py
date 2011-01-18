@@ -16,7 +16,7 @@ from wpa_attack import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.2
+__version__= 1.3
 
 #
 # Network scan global variable
@@ -731,7 +731,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
                 
                     
-            except ValueError:
+            except(ValueError,IndexError):
                 pass
                 
 
@@ -1415,7 +1415,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         try:
             filename = filename_split[-1]
         except IndexError:
-            pass
+            self.dictionary_label.setText('<font color=red><b>Select Wordlist</b></font>')
         self.dictionary_label.setEnabled(True)
         self.dictionary_label.setText('<font color=yellow><b>%s</b></font>'%(filename))
 

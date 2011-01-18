@@ -1,5 +1,6 @@
 import os
 import sys
+import commands
 from PyQt4 import QtGui,QtCore
 from main_window import *
 
@@ -29,10 +30,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             variable = sys.argv[0]
             direc = variable.replace('execute.py',"")
             os.system('cd %s \n python fern.py'%(direc))
-	    os.system('killall airodump-ng')
-	    os.system('killall aircrack-ng')
-	    os.system('killall airmon-ng')
-	    os.system('killall aireplay-ng')
+	    commands.getstatusoutput('killall airodump-ng')
+	    commands.getstatusoutput('killall aircrack-ng')
+	    commands.getstatusoutput('killall airmon-ng')
+	    commands.getstatusoutput('killall aireplay-ng')
             sys.exit()
         else:
             QtGui.QMessageBox.warning(self,"Insufficient Priviledge","Aircrack and other dependencies need root priviledge to function, Please run application as root")
