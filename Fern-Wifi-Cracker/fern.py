@@ -328,7 +328,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     # Execute the wep attack window
     #
     def wpa_attack_window(self):
-        os.system('killall aircrack-ng')
+        commands.getstatusoutput('killall aircrack-ng')
         if 'WPA-DUMP' not in os.listdir('/tmp/fern-log'):
             os.mkdir('/tmp/fern-log/WPA-DUMP')
         else:
@@ -647,8 +647,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
         self.label_7.setText("Points<font Color=green>\t Active</font>")
         
-        os.system('touch /tmp/fern-log/wep_details.log')
-        os.system('touch /tmp/fern-log/WPA/wpa_details.log')
+        commands.getstatusoutput('touch /tmp/fern-log/wep_details.log')
+        commands.getstatusoutput('touch /tmp/fern-log/WPA/wpa_details.log')
         
         while scan_control != 1:
             try:
@@ -940,7 +940,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         thread.start_new_thread(self.updater,(0,0))
         while 'KEY FOUND!' not in reader('/tmp/fern-log/WEP-DUMP/wep_key.txt'):
             time.sleep(0.4)
-            os.system('killall aircrack-ng')
+            commands.getstatusoutput('killall aircrack-ng')
             thread.start_new_thread(self.crack_wep,(0,0))
             time.sleep(9)
         self.emit(QtCore.SIGNAL("key not found yet"))
@@ -1034,10 +1034,10 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         processed_key = processed_key_init1.strip('[]')
         WEP = processed_key 
         self.emit(QtCore.SIGNAL("wep found"))
-        os.system('killall aircrack-ng')
-        os.system('killall aireplay-ng')
-        os.system('killall airmon-ng')
-        os.system('killall airodump-ng')
+        commands.getstatusoutput('killall aircrack-ng')
+        commands.getstatusoutput('killall aireplay-ng')
+        commands.getstatusoutput('killall airmon-ng')
+        commands.getstatusoutput('killall airodump-ng')
         if len(WEP) > 0:
             set_key_entries(victim_access_point,'WEP',str(WEP.replace(':','')),victim_channel)      #Add WEP Key to Database Here
             update_database_label()
@@ -1301,8 +1301,8 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
             time.sleep(10)
             thread.start_new_thread(self.capture_check,(0,0))
         self.emit(QtCore.SIGNAL("handshake captured"))                                        # THIS IS THE PROGRAM COUNTINUE
-        os.system('killall airodump-ng')
-        os.system('killall aireplay-ng')
+        commands.getstatusoutput('killall airodump-ng')
+        commands.getstatusoutput('killall aireplay-ng')
         time.sleep(1)
         self.emit(QtCore.SIGNAL("bruteforcing"))
 
