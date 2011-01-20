@@ -268,7 +268,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 else:
                     write('fern-settings/revision_number.dat',response[1].split()[-1])
                 input("\n\n Please Restart Application \n\n")
-        except urllib2.HTTPError:
+        except (urllib2.HTTPError,urllib2.URLError):
             self.emit(QtCore.SIGNAL("failed update"))
 
         online_response_string = ''
