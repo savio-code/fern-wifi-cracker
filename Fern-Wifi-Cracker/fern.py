@@ -16,7 +16,7 @@ from wpa_attack import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.21
+__version__= 1.22
 
 #
 # Network scan global variable
@@ -683,13 +683,11 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     detail_process1 = process[iterate]
                     detail_process2 = detail_process1.replace(',','\n')
                     wep_access = detail_process2.splitlines()
-                    if wep_access[13].strip(' ') in reader('/tmp/fern-log/wep_details.log'):pass
-                    else:
-                        write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[0].strip(' ')))
-                        write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[3].strip(' ')))
-                        write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[4].strip(' ')))
-                        write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[8].strip(' ')))
-                        write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[13].strip(' ')))
+                    write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[0].strip(' ')))
+                    write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[3].strip(' ')))
+                    write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[4].strip(' ')))
+                    write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[8].strip(' ')))
+                    write('/tmp/fern-log/wep_details.log','%s \n'%(wep_access[13].strip(' ')))
 
 
                                  
