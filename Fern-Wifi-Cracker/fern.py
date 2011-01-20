@@ -23,6 +23,10 @@ __version__= 1.22
 #
 scan_control = 0
 #
+# Update checking loop (control variable)
+#
+updater_control = 0
+#
 # Wep Global variables
 #
 victim_mac = ''
@@ -245,6 +249,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         thread.start_new_thread(self.update_launcher,(0,0))
 
     def update_launcher(self,arg,arg1):
+        global updater_control
+        updater_control = 1
         if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
             commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
             time.sleep(4)
@@ -275,7 +281,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     # Update checker Thread
     #
     def update_initializtion_check(self,arg,arg1):
-        while True:
+        global updater_control
+        while updater_control != 1:
             try:
                 online_response_thread = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
                 online_response_string = ''
