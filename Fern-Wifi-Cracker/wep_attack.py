@@ -200,30 +200,111 @@ class wep_window(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        self.groupBox.setEnabled(False)
-        self.label_26.setEnabled(False)
-        self.label_27.setEnabled(False)
-        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Fern WEP Attack", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_23.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Encryption:</b></font>     ", None, QtGui.QApplication.UnicodeUTF8))
-        self.wep_copy_label.setText(QtGui.QApplication.translate("Dialog", "", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Channel:</b></font>         ", None, QtGui.QApplication.UnicodeUTF8))
-        self.channel_label.setText(QtGui.QApplication.translate("Dialog", "12", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Bssid:</b></font>          ", None, QtGui.QApplication.UnicodeUTF8))
-        self.power_label.setText(QtGui.QApplication.translate("Dialog", "34", None, QtGui.QApplication.UnicodeUTF8))
-        self.encrypt_wep_label.setText(QtGui.QApplication.translate("Dialog", "wep", None, QtGui.QApplication.UnicodeUTF8))
-        self.cracking_label.setText(QtGui.QApplication.translate("Dialog", "Cracking Encryption", None, QtGui.QApplication.UnicodeUTF8))
-        self.wep_status_label.setText(QtGui.QApplication.translate("Dialog", "wep encryption status", None, QtGui.QApplication.UnicodeUTF8))
-        self.essid_label.setText(QtGui.QApplication.translate("Dialog", "weee", None, QtGui.QApplication.UnicodeUTF8))
-        self.injecting_label.setText(QtGui.QApplication.translate("Dialog", "Injecting packets", None, QtGui.QApplication.UnicodeUTF8))
-        self.associate_label.setText(QtGui.QApplication.translate("Dialog", "Associating with Access Point", None, QtGui.QApplication.UnicodeUTF8))
-        self.bssid_label.setText(QtGui.QApplication.translate("Dialog", "12", None, QtGui.QApplication.UnicodeUTF8))
-        self.finished_label.setText(QtGui.QApplication.translate("Dialog", "Finished", None, QtGui.QApplication.UnicodeUTF8))
-        self.injection_work_label.setText(QtGui.QApplication.translate("Dialog", " \t Injection capability status ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Power:</b></font>           ", None, QtGui.QApplication.UnicodeUTF8))
-        self.gathering_label.setText(QtGui.QApplication.translate("Dialog", "Gathering packets", None, QtGui.QApplication.UnicodeUTF8))
-        self.ivs_progress_label.setText(QtGui.QApplication.translate("Dialog", "captured IVS status", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox.setTitle(QtGui.QApplication.translate("Dialog", "Access Point Details", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_26.setText(QtGui.QApplication.translate("Dialog", "Access point and specifications are derived on initiation,double click to get  IVS", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("Dialog", " automatic cracking rate", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Essid:</b></font>             ", None, QtGui.QApplication.UnicodeUTF8))
-        self.wep_attack_button.setText(QtGui.QApplication.translate("Dialog", "Attack", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox.setEnabled(False)
+
+
+
+        self.label_26.setEnabled(False)
+
+
+
+        self.label_27.setEnabled(False)
+
+
+
+        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Fern WEP Attack", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.label_23.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Encryption:</b></font>     ", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.wep_copy_label.setText(QtGui.QApplication.translate("Dialog", "", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.label_4.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Channel:</b></font>         ", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.channel_label.setText(QtGui.QApplication.translate("Dialog", "12", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.label_7.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Bssid:</b></font>          ", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.power_label.setText(QtGui.QApplication.translate("Dialog", "34", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.encrypt_wep_label.setText(QtGui.QApplication.translate("Dialog", "wep", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.cracking_label.setText(QtGui.QApplication.translate("Dialog", "Cracking Encryption", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.wep_status_label.setText(QtGui.QApplication.translate("Dialog", "wep encryption status", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.essid_label.setText(QtGui.QApplication.translate("Dialog", "weee", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.injecting_label.setText(QtGui.QApplication.translate("Dialog", "Injecting packets", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.associate_label.setText(QtGui.QApplication.translate("Dialog", "Associating with Access Point", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.bssid_label.setText(QtGui.QApplication.translate("Dialog", "12", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.finished_label.setText(QtGui.QApplication.translate("Dialog", "Finished", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.injection_work_label.setText(QtGui.QApplication.translate("Dialog", " \t Injection capability status ", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.label_5.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Power:</b></font>           ", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.gathering_label.setText(QtGui.QApplication.translate("Dialog", "Injection Status", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.ivs_progress_label.setText(QtGui.QApplication.translate("Dialog", "captured IVS status", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.groupBox.setTitle(QtGui.QApplication.translate("Dialog", "Access Point Details", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.label_26.setText(QtGui.QApplication.translate("Dialog", "Access point and specifications are derived on initiation,double click to get  IVS", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.label_27.setText(QtGui.QApplication.translate("Dialog", " automatic cracking rate", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.label_3.setText(QtGui.QApplication.translate("Dialog", "<font color=green><b>Essid:</b></font>             ", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
+        self.wep_attack_button.setText(QtGui.QApplication.translate("Dialog", "Attack", None, QtGui.QApplication.UnicodeUTF8))
+
+
+
