@@ -212,7 +212,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.update_label.setText('<font color=red>Unable to check for updates,network timeout')
 
     def download_failed(self):
-        self.update_label.setText('<font color=red>Failed to download components,network timeout')
+        self.update_label.setText('<font color=red>Download failed,network timeout')
 
     def downloading_update_files(self):
         self.update_label.setText('<font color=green>Downloading components...</font>')
