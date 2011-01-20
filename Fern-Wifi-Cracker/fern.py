@@ -761,6 +761,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         self.connect(self,QtCore.SIGNAL("injection_not_working"),self.injection_not_working)
         self.connect(self,QtCore.SIGNAL("associating"),self.associating)
         self.connect(self,QtCore.SIGNAL("update_progress_bar"),self.update_bar)
+        self.connect(self,QtCore.SIGNAL("progress maximum"),self.progress_maximum)
         self.connect(self,QtCore.SIGNAL("injecting"),self.injecting)
         self.connect(self,QtCore.SIGNAL("gathering"),self.gathering)
         self.connect(self,QtCore.SIGNAL("chop-chop injecting"),self.chop_chop_attack)
@@ -837,6 +838,10 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         self.associate_label.setEnabled(True)
         self.associate_label.setText('<font color=yellow>Associating with Access Point</font>')
 
+    def progress_maximum(self):
+        global ivs_value
+        self.ivs_progress.setValue(ivs_value)
+
     def update_bar(self):
         global ivs_number
         if 'wep_dump-01.csv' in os.listdir('/tmp/fern-log/WEP-DUMP/'):
@@ -908,6 +913,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
     def update_progress_bar(self,arg,arg1):
         global ivs_number
         global digit
+        global ivs_value
         if 'ivs_settings.log' in os.listdir('/tmp/fern-log'):
             ivs_value = int(reader('/tmp/fern-log/ivs_settings.log'))
             maximum = self.ivs_progress.setMaximum(ivs_value)
@@ -922,7 +928,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
             time.sleep(0.4)
             self.emit(QtCore.SIGNAL("update_progress_bar"))
 
-        self.ivs_progress.setValue(ivs_value - 10)
+        self.emit(QtCore.SIGNAL("progress maximum"))
             
         commands.getstatusoutput('touch /tmp/fern-log/WEP-DUMP/wep_key.txt')
         thread.start_new_thread(self.crack_wep,(0,0))                   #Thread for cracking wep
