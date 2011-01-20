@@ -255,7 +255,6 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             online_response = online_response_check.read()
 	    print response
             if response[0] >= 1:
-                self.emit(QtCore.SIGNAL("download failed"))
                 raise urllib2.HTTPError
             else:
                 self.emit(QtCore.SIGNAL("finished downloading"))
@@ -269,7 +268,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     write('fern-settings/revision_number.dat',response[1].split()[-1])
                 input("\n\n Please Restart Application \n\n")
         except (urllib2.HTTPError,urllib2.URLError):
-            self.emit(QtCore.SIGNAL("failed update"))
+            self.emit(QtCore.SIGNAL("download failed"))
 
         online_response_string = ''
         for version_iterate in online_response.splitlines():
