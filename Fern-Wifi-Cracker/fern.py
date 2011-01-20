@@ -273,7 +273,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 else:
                     write('fern-settings/revision_number.dat',response[1].split()[-1])
                 input("\n\n Please Restart Application \n\n")
-        except Exception:
+        except(urllib2.URLError,urllib2.HTTPError):
             self.emit(QtCore.SIGNAL("download failed"))
     
    
