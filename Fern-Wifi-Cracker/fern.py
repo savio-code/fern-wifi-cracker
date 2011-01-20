@@ -254,7 +254,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
             commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
             time.sleep(4)
-            self.emit(QtCore.SIGNAL("downloading update"))
+        self.emit(QtCore.SIGNAL("downloading update"))
         response = commands.getstatusoutput('cd /tmp/ \n svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/')
         try:
             online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control') #checks and reads new version number
