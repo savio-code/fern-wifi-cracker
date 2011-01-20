@@ -256,7 +256,7 @@ class wep_window(object):
 
 
 
-        self.injecting_label.setText(QtGui.QApplication.translate("Dialog", "Injecting packets", None, QtGui.QApplication.UnicodeUTF8))
+        self.injecting_label.setText(QtGui.QApplication.translate("Dialog", "Gathering packets", None, QtGui.QApplication.UnicodeUTF8))
 
 
 
@@ -280,7 +280,7 @@ class wep_window(object):
 
 
 
-        self.gathering_label.setText(QtGui.QApplication.translate("Dialog", "Injection Status", None, QtGui.QApplication.UnicodeUTF8))
+        self.gathering_label.setText(QtGui.QApplication.translate("Dialog", "Packet injection Status", None, QtGui.QApplication.UnicodeUTF8))
 
 
 
