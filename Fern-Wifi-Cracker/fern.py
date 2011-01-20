@@ -187,6 +187,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 	self.connect(self,QtCore.SIGNAL("previous message"),self.latest_svn)
 	self.connect(self,QtCore.SIGNAL("new update available"),self.new_update_avialable)
 	self.connect(self,QtCore.SIGNAL("current_version"),self.current_update)
+	self.connect(self,QtCore.SIGNAL("download failed"),self.download_failed)
         try:
             self.update_label.setText('<font color=green>Currently installed version: Revision %s</font>'%(str(reader('fern-settings/revision_number.dat'))))
 	except IOError:
@@ -209,6 +210,9 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     #
     def update_fail(self):
         self.update_label.setText('<font color=red>Unable to check for updates,network timeout')
+
+    def download_failed(self):
+        self.update_label.setText('<font color=red>Failed to download components,network timeout')
 
     def downloading_update_files(self):
         self.update_label.setText('<font color=green>Downloading components...</font>')
@@ -251,7 +255,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             online_response = online_response_check.read()
 	    print response
             if response[0] >= 1:
-                self.emit(QtCore.SIGNAL("failed update"))
+                self.emit(QtCore.SIGNAL("download failed"))
                 raise urllib2.HTTPError
             else:
                 self.emit(QtCore.SIGNAL("finished downloading"))
