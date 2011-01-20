@@ -267,21 +267,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 else:
                     write('fern-settings/revision_number.dat',response[1].split()[-1])
                 input("\n\n Please Restart Application \n\n")
-        except (urllib2.HTTPError,urllib2.URLError):
+        except Exception:
             self.emit(QtCore.SIGNAL("download failed"))
-
-        online_response_string = ''
-        for version_iterate in online_response.splitlines():
-            if 'version' in str(version_iterate):
-                online_response_string += version_iterate
-            else:pass
-
-        update_version_number = float(online_response_string.split()[2])
-    
-        if float(__version__) == update_version_number:
-            self.emit(QtCore.SIGNAL("already latest update"))
-        else:
-            pass
     
    
     #
