@@ -16,7 +16,7 @@ from wpa_attack import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.22
+__version__= 1.23
 
 #
 # Network scan global variable
@@ -351,6 +351,18 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             del list_
         except NameError: 
             pass
+        
+        # Disable cards already on monitor modes
+        wireless_interfaces = str(commands.getstatusoutput('airmon-ng'))
+        prev_monitor = os.listdir('/sys/class/net')
+        monitor_interfaces_list = []
+        for monitors in prev_monitor:
+            if monitors in wireless_interfaces:
+                monitor_interfaces_list.append(monitors)
+        for monitored_interfaces in monitor_interfaces_list:
+            commands.getstatusoutput('airmon-ng stop %s'%(monitored_interfaces))
+
+        # List Interface cards
         list_ = ['Select Interface'] 
         interfaces = str(commands.getoutput("airmon-ng | egrep -e '^[a-z]{2,4}[0-9]'"))
         inter = interfaces.splitlines()
