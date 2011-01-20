@@ -243,6 +243,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     def update_launcher(self,arg,arg1):
         if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
             commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
+            time.sleep(4)
+            self.emit(QtCore.SIGNAL("downloading update"))
         response = commands.getstatusoutput('cd /tmp/ \n svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/')
         try:
             online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control') #checks and reads new version number
@@ -252,12 +254,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 self.emit(QtCore.SIGNAL("failed update"))
                 raise urllib2.HTTPError
             else:
-                self.emit(QtCore.SIGNAL("downloading update"))
-                time.sleep(7)
                 self.emit(QtCore.SIGNAL("finished downloading"))
+                commands.getstatusoutput('rm -r *.py *.pyc \n cp /tmp/Fern-Wifi-Cracker/* %s'%(os.getcwd()))
                 time.sleep(3)
                 self.emit(QtCore.SIGNAL("restart application"))
-                commands.getstatusoutput('rm -r *.py *.pyc \n cp /tmp/Fern-Wifi-Cracker/* %s'%(os.getcwd()))
                 if 'revision_number.dat' in os.listdir('fern-settings'):
                     os.remove('fern-settings/revision_number.dat')
                     write('fern-settings/revision_number.dat',response[1].split()[-1])
