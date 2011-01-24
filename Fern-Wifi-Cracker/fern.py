@@ -16,7 +16,7 @@ from wpa_attack import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.23
+__version__= 1.24
 
 #
 # Network scan global variable
@@ -159,7 +159,8 @@ def client_update():
             client1_calc = wpa_clients_list[client1]
             if client1_calc == ' ' or '':pass
             else:
-                if client1_calc in client_list:pass
+                if client1_calc in client_list:
+                    pass
                 else:
                     client_list.append(client1_calc)
                     wpa_clients_list.pop(wpa_clients_list.index(mac_address))
@@ -363,28 +364,25 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             commands.getstatusoutput('airmon-ng stop %s'%(monitored_interfaces))
 
         # List Interface cards
-        list_ = ['Select Interface'] 
-        interfaces = str(commands.getoutput("airmon-ng | egrep -e '^[a-z]{2,4}[0-9]'"))
-        inter = interfaces.splitlines()
+        compatible_interface = str(commands.getoutput("airmon-ng | egrep -e '^[a-z]{2,4}[0-9]'"))
+        interface_list = os.listdir('/sys/class/net')
+        list_ = ['Select Interface']
         # Interate over interface output and update combo box
-        if interfaces.count('\t') == 0:
+        if compatible_interface.count('\t') == 0:
             self.interface_combo.addItems(list_)
             self.mon_label.setText("<font color=red>No Wireless Interface was found</font>")
         else:
-            try:
-                for iterate in range(0,interfaces.count('\t')):
-                    monitor = inter[iterate]
-                    if monitor.startswith('mon'):
+            for interface in interface_list:
+                if interface in compatible_interface:
+                    if interface.startswith('mon'):
                         pass
                     else:
-                        list_.append(monitor[0:6].strip('\t\t'))
+                        list_.append(interface)
+    
+            self.interface_combo.addItems(list_)
+            self.mon_label.setText("<font color=red>Select an interface card</font>")                
 
-                self.interface_combo.addItems(list_)
-                self.mon_label.setText("<font color=red>Select an interface card</font>")
-            except IndexError:
-                self.interface_combo.addItems(list_)
-                self.mon_label.setText("<font color=red>Select an interface card</font>")
-            
+   
 
     #
     # Set monitor mode on selected monitor from combo list
