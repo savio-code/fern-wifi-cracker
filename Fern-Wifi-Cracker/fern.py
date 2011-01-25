@@ -10,13 +10,15 @@ import subprocess
 from PyQt4 import QtGui,QtCore
 from main_window import *
 from tips import *
+from toolbox import *
 from settings import *
 from wep_attack import *
 from wpa_attack import *
+from font_settings import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.24
+__version__= 1.3
 
 #
 # Network scan global variable
@@ -65,8 +67,9 @@ else:
 #
 # Create Sub Temporary directory in /tmp/fern-log
 #
-os.mkdir('/tmp/fern-log/WPA')                                     # Create /tmp/fern-log/WPA   
-                                
+os.mkdir('/tmp/fern-log/WPA')                                     # Create /tmp/fern-log/WPA
+
+
 #
 # Create permanent settings directory
 #
@@ -136,11 +139,6 @@ def write(arg,arg2):
 def remove(arg,arg2):    
     commands.getstatusoutput('rm -r %s/%s'%(arg,arg2))  #'rm - r /tmp/fern-log/file.log
 
-def original_display(arg,arg2):
-    time.sleep(1)
-    commands.getstatusoutput('xrandr -s %s'%(reader('/tmp/display.txt')))
-    
-thread.start_new_thread(original_display,(0,0))
 
 def client_update():
     global wpa_clients_list                             # Exclusively for WPA getting
@@ -182,6 +180,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 	self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
 	self.connect(self.wep_button,QtCore.SIGNAL("clicked()"),self.wep_attack_window)
 	self.connect(self.wpa_button,QtCore.SIGNAL("clicked()"),self.wpa_attack_window)
+	self.connect(self.tool_button,QtCore.SIGNAL("clicked()"),self.tool_box_window)
 	self.connect(self.database_button,QtCore.SIGNAL("clicked()"),self.database_window)
 	self.connect(self.update_button,QtCore.SIGNAL("clicked()"),self.update_fern)
         self.connect(self,QtCore.SIGNAL("finished downloading"),self.finished_downloading_files)
@@ -308,8 +307,13 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             except Exception:
                 self.emit(QtCore.SIGNAL("failed update"))
                 time.sleep(9)
-                
-    
+
+    #
+    # Launches Tool Box window
+    #
+    def tool_box_window(self):
+        tool_box = tool_box_window()
+        tool_box.exec_()
     #
     # Execute the wep attack window
     #
@@ -1516,10 +1520,44 @@ class database_dialog(QtGui.QDialog,database_ui):
       
 
             
+#
+# Tool Box window class
+#
+class tool_box_window(QtGui.QDialog,toolbox_win):
+    def __init__(self):
+	QtGui.QDialog.__init__(self)
+	self.setupUi(self)
+	self.retranslateUi(self)
+
+	self.connect(self.pushButton,QtCore.SIGNAL("clicked()"),self.font_exec)
+
+    def font_exec(self):
+        font_dialog_box = font_dialog()
+        font_dialog_box.exec_()
+
         
-            
         
-        
+class font_dialog(QtGui.QDialog,font_dialog):
+    def __init__(self):
+	QtGui.QDialog.__init__(self)
+	self.setupUi(self)
+	self.retranslateUi(self)
+
+
+        self.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),self.set_font)
+
+        font_range = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20']
+        self.comboBox.addItems(font_range)
+
+    def set_font(self):
+        if 'font_settings.dat' in os.listdir('fern-settings'):
+            os.remove('fern-settings/font_settings.dat')
+            choosen_font = self.comboBox.currentText()
+            font_string  = 'font_size = %s'%(choosen_font)
+            write('fern-settings/font_settings.dat',font_string)
+
+	
+
         
 #
 # Class dialog for automatic ivs captupe and limit reference

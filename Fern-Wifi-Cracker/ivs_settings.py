@@ -6,8 +6,11 @@
 #      by: PyQt4 UI code generator 4.7.7
 #
 # WARNING! All changes made in this file will be lost!
-
+import os
+from main_window import font_size
 from PyQt4 import QtCore, QtGui
+
+font_setting = font_size()
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -24,24 +27,41 @@ class ivs_window(object):
         self.ok_button = QtGui.QPushButton(Dialog)
         self.ok_button.setGeometry(QtCore.QRect(140, 100, 75, 23))
         self.ok_button.setObjectName(_fromUtf8("ok_button"))
+	font = QtGui.QFont()
+        font.setPointSize(font_setting)
+        self.ok_button.setFont(font)
         self.cancel_button = QtGui.QPushButton(Dialog)
         self.cancel_button.setGeometry(QtCore.QRect(250, 100, 75, 23))
         self.cancel_button.setObjectName(_fromUtf8("cancel_button"))
+	font = QtGui.QFont()
+        font.setPointSize(font_setting)
+        self.cancel_button.setFont(font)
         self.ivs_combo = QtGui.QComboBox(Dialog)
         self.ivs_combo.setGeometry(QtCore.QRect(140, 50, 191, 31))
         self.ivs_combo.setObjectName(_fromUtf8("ivs_combo"))
+	font = QtGui.QFont()
+        font.setPointSize(font_setting)
+        self.ivs_combo.setFont(font)
         self.label = QtGui.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(0, 10, 131, 121))
         self.label.setText(_fromUtf8(""))
         self.label.setPixmap(QtGui.QPixmap(_fromUtf8("resources/binary.png")))
         self.label.setObjectName(_fromUtf8("label"))
+	font = QtGui.QFont()
+        font.setPointSize(font_setting)
+        self.label.setFont(font)
         self.label_2 = QtGui.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(140, 10, 221, 16))
         self.label_2.setObjectName(_fromUtf8("label_2"))
+	font = QtGui.QFont()
+        font.setPointSize(font_setting)
+        self.label_2.setFont(font)
         self.label_3 = QtGui.QLabel(Dialog)
         self.label_3.setGeometry(QtCore.QRect(140, 30, 121, 16))
         self.label_3.setObjectName(_fromUtf8("label_3"))
-
+	font = QtGui.QFont()
+        font.setPointSize(font_setting)
+        self.label_3.setFont(font)
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
