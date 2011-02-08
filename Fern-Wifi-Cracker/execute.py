@@ -2,9 +2,9 @@ import os
 import sys
 import commands
 from PyQt4 import QtGui,QtCore
-from main_window import *
+from settings import *
 
-class mainwindow(QtGui.QDialog,Ui_Dialog):
+class initializing_interface(QtGui.QDialog,settings):
     def __init__(self):
         QtGui.QDialog.__init__(self)
         
@@ -27,7 +27,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
    
 
 app = QtGui.QApplication(sys.argv)
-run = mainwindow()
+run = initializing_interface()
 app.exec_()
 
 

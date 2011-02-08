@@ -11,18 +11,17 @@ import sys
 import commands
 from PyQt4 import QtCore, QtGui
 
-if 'fern-settings' not in os.listdir(os.getcwd()):
-    os.mkdir('fern-settings')
+
 #
 # Create default font setting
 #
-if 'font_settings.dat' not in os.listdir('fern-settings'):
-    default_font = open('%s/fern-settings/font_settings.dat'%(os.getcwd()),'a+')
+if '.font_settings.dat' not in os.listdir(os.getcwd()):
+    default_font = open('%s/.font_settings.dat'%(os.getcwd()),'a+')
     default_font.write('font_size = 7')
     default_font.close()
 
 def font_size():
-	font_settings = open('fern-settings/font_settings.dat','r+')
+	font_settings = open('%s/.font_settings.dat'%(os.getcwd()),'r+')
 	font_init = font_settings.read()
 	return int(font_init.split()[2])
 	

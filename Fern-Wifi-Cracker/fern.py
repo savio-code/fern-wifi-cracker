@@ -18,7 +18,7 @@ from font_settings import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.3
+__version__= 1.31
 
 #
 # Network scan global variable
@@ -264,7 +264,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 raise urllib2.HTTPError
             else:
                 self.emit(QtCore.SIGNAL("finished downloading"))
-                commands.getstatusoutput('rm -r *.py *.pyc \n cp /tmp/Fern-Wifi-Cracker/* %s'%(os.getcwd()))
+                commands.getstatusoutput('rm -r *.py *.pyc resources\n cp /tmp/Fern-Wifi-Cracker/* %s'%(os.getcwd()))
                 time.sleep(3)
                 self.emit(QtCore.SIGNAL("restart application"))
                 if 'revision_number.dat' in os.listdir('fern-settings'):
@@ -1550,11 +1550,11 @@ class font_dialog(QtGui.QDialog,font_dialog):
         self.comboBox.addItems(font_range)
 
     def set_font(self):
-        if 'font_settings.dat' in os.listdir('fern-settings'):
-            os.remove('fern-settings/font_settings.dat')
+        if '.font_settings.dat' in os.listdir(os.getcwd()):
+            os.remove('.font_settings.dat')
             choosen_font = self.comboBox.currentText()
             font_string  = 'font_size = %s'%(choosen_font)
-            write('fern-settings/font_settings.dat',font_string)
+            write('.font_settings.dat',font_string)
 
 	
 
