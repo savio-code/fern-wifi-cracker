@@ -264,7 +264,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 raise urllib2.HTTPError
             else:
                 self.emit(QtCore.SIGNAL("finished downloading"))
-                commands.getstatusoutput('rm -r *.py *.pyc resources\n cp /tmp/Fern-Wifi-Cracker/* %s'%(os.getcwd()))
+                commands.getstatusoutput('rm -r *.py *.pyc resources\n cp -r /tmp/Fern-Wifi-Cracker/* %s'%(os.getcwd()))
                 time.sleep(3)
                 self.emit(QtCore.SIGNAL("restart application"))
                 if 'revision_number.dat' in os.listdir('fern-settings'):
