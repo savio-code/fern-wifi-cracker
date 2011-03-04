@@ -18,7 +18,7 @@ from font_settings import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.31
+__version__= 1.32
 
 #
 # Network scan global variable
