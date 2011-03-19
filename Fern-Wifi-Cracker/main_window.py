@@ -24,9 +24,9 @@ def font_size():
 	font_settings = open('%s/.font_settings.dat'%(os.getcwd()),'r+')
 	font_init = font_settings.read()
 	return int(font_init.split()[2])
-	
+
 font_setting = font_size()
-	
+
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -38,9 +38,9 @@ class Ui_Dialog(object):
         Dialog.setObjectName(_fromUtf8("Dialog"))
         Dialog.setEnabled(True)
         Dialog.resize(605, 530)
-	icon = QtGui.QIcon() 
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("%s/resources/wifi_3.png"%(os.getcwd()))), QtGui.QIcon.Normal, QtGui.QIcon.Off) 
-        Dialog.setWindowIcon(icon) 
+	icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8("%s/resources/wifi_3.png"%(os.getcwd()))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        Dialog.setWindowIcon(icon)
         self.wpa_button = QtGui.QPushButton(Dialog)
         self.wpa_button.setEnabled(False)
         self.wpa_button.setGeometry(QtCore.QRect(270, 220, 151, 61))
@@ -174,7 +174,7 @@ class Ui_Dialog(object):
         self.mon_label.setObjectName(_fromUtf8("mon_label"))
         font = QtGui.QFont()
         font.setPointSize(font_setting + 1)
-        self.mon_label.setFont(font)	
+        self.mon_label.setFont(font)
         self.label_2 = QtGui.QLabel(Dialog)
         self.label_2.setEnabled(True)
         self.label_2.setGeometry(QtCore.QRect(-40, -50, 301, 311))
@@ -194,7 +194,7 @@ class Ui_Dialog(object):
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         font = QtGui.QFont()
         font.setPointSize(font_setting + 1)
-        self.groupBox.setFont(font)	
+        self.groupBox.setFont(font)
         self.label_5s = QtGui.QLabel(self.groupBox)
         self.label_5s.setGeometry(QtCore.QRect(10, 40, 251, 21))
         font = QtGui.QFont()
@@ -313,7 +313,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
 	pythonver = str(sys.version)
-	display = str(commands.getstatusoutput('aircrack-ng'))        
+	display = str(commands.getstatusoutput('aircrack-ng'))
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Fern WIFI Cracker", None, QtGui.QApplication.UnicodeUTF8))
         self.wpa_button.setText(QtGui.QApplication.translate("Dialog", "WPA", None, QtGui.QApplication.UnicodeUTF8))
         self.wep_button.setText(QtGui.QApplication.translate("Dialog", "WEP", None, QtGui.QApplication.UnicodeUTF8))
@@ -328,7 +328,7 @@ class Ui_Dialog(object):
         self.label_10.setText(QtGui.QApplication.translate("Dialog", "Click to activate WPA attack", None, QtGui.QApplication.UnicodeUTF8))
         self.label_11.setText(QtGui.QApplication.translate("Dialog", "on wpa encrypted victim", None, QtGui.QApplication.UnicodeUTF8))
         self.wpa_clientlabel.setText(QtGui.QApplication.translate("Dialog", "Access Points ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("Dialog", "Fern WIFI Cracker 1.3", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("Dialog", "Fern WIFI Cracker 1.4", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox.setTitle(QtGui.QApplication.translate("Dialog", "About Fern WIFI Cracker", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5s.setText(QtGui.QApplication.translate("Dialog", "Written by Saviour Emmanuel Ekiko", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6ss.setText(QtGui.QApplication.translate("Dialog", "GUI suite for wireless  encryption strength testing of 802.11 wireless encryption standard access points", None, QtGui.QApplication.UnicodeUTF8))
