@@ -887,7 +887,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
 
     def association_failed(self):
         self.associate_label.setEnabled(True)
-        self.associate_label.setText('<font color=yellow>Router security countermeasure Activated</font>')
+        self.associate_label.setText('<font color=yellow>Security countermeasure Activated</font>')
 
 
     def progress_maximum(self):
