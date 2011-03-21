@@ -1106,7 +1106,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         global wep_string
         while 'KEY FOUND!' not in wep_string:
             wep_string += str(commands.getstatusoutput('aircrack-ng /tmp/fern-log/WEP-DUMP/*.cap'))
-            time.sleep(30)
+            time.sleep(40)
 
 
 
