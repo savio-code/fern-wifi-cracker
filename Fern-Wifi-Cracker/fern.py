@@ -262,7 +262,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         try:
             online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control') #checks and reads new version number
             online_response = online_response_check.read()
-	    print response
+            print response
             if response[0] >= 1:
                 raise urllib2.HTTPError
             else:
