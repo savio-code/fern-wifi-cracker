@@ -681,21 +681,22 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             xterm = ''
 
         # Channel desision block
-        if 'static-channel.log' not in os.listdir('/tmp/fern-log'):
-            if 'xterm-settings.log' not in os.listdir('/tmp/fern-log'):
-                thread.start_new_thread(self.scan_process1_thread,())
-                thread.start_new_thread(self.scan_process1_thread1,())
+        if scan_control == 0:
+            if 'static-channel.log' not in os.listdir('/tmp/fern-log'):
+                if 'xterm-settings.log' not in os.listdir('/tmp/fern-log'):
+                    thread.start_new_thread(self.scan_process1_thread,())
+                    thread.start_new_thread(self.scan_process1_thread1,())
 
+                else:
+                    thread.start_new_thread(self.scan_process2_thread,())
+                    thread.start_new_thread(self.scan_process2_thread1,())
             else:
-                thread.start_new_thread(self.scan_process2_thread,())
-                thread.start_new_thread(self.scan_process2_thread1,())
-        else:
-            if 'xterm-settings.log' not in os.listdir('/tmp/fern-log'):
-                thread.start_new_thread(self.scan_process3_thread,())
-                thread.start_new_thread(self.scan_process3_thread1,())
-            else:
-                thread.start_new_thread(self.scan_process4_thread,())
-                thread.start_new_thread(self.scan_process4_thread1,())
+                if 'xterm-settings.log' not in os.listdir('/tmp/fern-log'):
+                    thread.start_new_thread(self.scan_process3_thread,())
+                    thread.start_new_thread(self.scan_process3_thread1,())
+                else:
+                    thread.start_new_thread(self.scan_process4_thread,())
+                    thread.start_new_thread(self.scan_process4_thread1,())
 
         time.sleep(5)
         if scan_control != 1:
