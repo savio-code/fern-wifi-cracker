@@ -18,7 +18,7 @@ from font_settings import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.4
+__version__= 1.41
 
 #
 # Network scan global variable
@@ -1199,9 +1199,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.connect(self,QtCore.SIGNAL("wpa key not found"),self.key_not_found)
         self.connect(self,QtCore.SIGNAL("set maximum"),self.set_maximum)
         self.connect(self,QtCore.SIGNAL("Stop progress display"),self.display_label)
-        try:
-            client_list[0]
-        except IndexError:
+        if len(client_list) == 0:
             thread.start_new_thread(self.auto_add_clients,())
 
         combo_temp = reader('/tmp/fern-log/WPA/wpa_details.log')
@@ -1229,7 +1227,12 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
 
     def update_client_list(self):
         global client_list
-        self.client_label_combo.addItems(list(frozenset(client_list)))
+        client_mac_addresses = []
+        for mac_address in client_list:
+            if str(mac_address) not in client_mac_addresses:
+                client_mac_addresses.append(str(mac_address))
+        self.client_label_combo.clear()
+        self.client_label_combo.addItems(client_mac_addresses)
 
     def display_client(self):
         self.wpa_status_label.setEnabled(True)
@@ -1299,12 +1302,11 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         global client_list
         temp_mac_address = str(wpa_victim_mac_address.strip(' '))
         while temp_mac_address not in client_list:
-            try:
-                client_list[0]
+            if len(client_list) >= 1:
                 self.emit(QtCore.SIGNAL("client is there"))
                 self.emit(QtCore.SIGNAL("update client"))
                 break
-            except IndexError:
+            else:
                 time.sleep(3)
                 self.emit(QtCore.SIGNAL("client not in list"))
                 client_update()
@@ -1441,9 +1443,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.encrypt_wep_label.setText('<font color=red>WPA</font>')
         client_update()
         self.emit(QtCore.SIGNAL("update client"))
-        try:
-            client_list[0]
-        except IndexError:
+        if len(client_list) == 0:
             thread.start_new_thread(self.auto_add_clients,())
 
 
