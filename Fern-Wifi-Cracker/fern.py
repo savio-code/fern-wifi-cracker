@@ -284,71 +284,33 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
             online_response = online_response_check.read()
 
-            if '.svn' in os.listdir(fern_directory):
-                svn_entries = open(fern_directory + os.sep + '.svn' + os.sep + 'entries')
-                svn_url = svn_entries.read()
-                if str(svn_path) == str(svn_url.splitlines()[4]):
-                    for search in online_response.splitlines():
-                        if 'updated_files' in search:
-                            file_total = int(search.split()[2])
+            for search in online_response.splitlines():
+                if 'total_files' in search:
+                    file_total = int(search.split()[2])
 
-                    os.chdir('/tmp/')
+            if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
+                commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
 
-                    svn_access = subprocess.Popen('svn update '+ fern_directory,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
-                    svn_update = svn_access.stdout
-                    svn_failure = svn_access.stderr
-                    while True:
-                        response = svn_update.readline()
-                        update_failure = svn_failure.read()
-                        if len(response) > 0:
-                            files_downloaded += 1
-                            self.emit(QtCore.SIGNAL('file downloaded'))
-                        else:
-                            update_tries += 1
-
-                        if str('revision') in str(response):
-                            self.emit(QtCore.SIGNAL("finished downloading"))
-                            time.sleep(5)
-                            os.chdir(fern_directory)
-                            self.emit(QtCore.SIGNAL("restart application"))
-                            break
-                        if 'Could not resolve hostname' in update_failure:
-                            self.emit(QtCore.SIGNAL("download failed"))
-                            break
-
-                else:
-                    for search in online_response.splitlines():
-                        if 'total_files' in search:
-                            file_total = int(search.split()[2])
-
-                    os.chdir('/tmp/')
-                    if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
-                        commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
-
-                    update_tries = 0
-                    svn_access = subprocess.Popen('svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/',\
+            svn_access = subprocess.Popen('svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/',\
                     shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
-                    svn_update = svn_access.stdout
-                    svn_failure = svn_access.stderr
-                    while True:
-                        response = svn_update.readline()
-                        update_failure = svn_failure.read()
-                        if len(response) > 0:
-                            files_downloaded += 1
-                            self.emit(QtCore.SIGNAL('file downloaded'))
-                        else:
-                            update_tries += 1
+            svn_update = svn_access.stdout
+            svn_failure = svn_access.stderr
+            while True:
+                response = svn_update.readline()
+                update_failure = svn_failure.read()
+                if len(response) > 0:
+                    files_downloaded += 1
+                    self.emit(QtCore.SIGNAL('file downloaded'))
 
-                        if str('revision') in str(response):
-                            self.emit(QtCore.SIGNAL("finished downloading"))
-                            os.chdir(fern_directory)
-                            commands.getstatusoutput('cd %s \n rm -r *.py *.pyc resources\n cp -r /tmp/Fern-Wifi-Cracker/* %s'%(fern_directory,fern_directory))
-                            time.sleep(5)
-                            self.emit(QtCore.SIGNAL("restart application"))
-                            break
-                        if 'Could not resolve hostname' in update_failure:
-                            self.emit(QtCore.SIGNAL("download failed"))
-                            break
+                if str('revision') in str(response):
+                    self.emit(QtCore.SIGNAL("finished downloading"))
+                    commands.getstatusoutput('cd %s \n rm -r *.py *.pyc resources\n cp -r /tmp/Fern-Wifi-Cracker/* %s'%(fern_directory,fern_directory))
+                    time.sleep(5)
+                    self.emit(QtCore.SIGNAL("restart application"))
+                    break
+                if 'Could not resolve hostname' in update_failure:
+                    self.emit(QtCore.SIGNAL("download failed"))
+                    break
 
         except(urllib2.URLError,urllib2.HTTPError):
             self.emit(QtCore.SIGNAL("download failed"))
