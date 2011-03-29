@@ -336,7 +336,6 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                             update_tries += 1
 
                         if str('revision') in str(response):
-                            self.revision_log(response)
                             self.emit(QtCore.SIGNAL("finished downloading"))
                             os.chdir(fern_directory)
                             commands.getstatusoutput('cd %s \n rm -r *.py *.pyc resources\n cp -r /tmp/Fern-Wifi-Cracker/* %s'%(fern_directory,fern_directory))
