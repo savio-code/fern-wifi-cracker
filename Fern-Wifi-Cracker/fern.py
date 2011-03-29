@@ -293,11 +293,13 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                             file_total = int(search.split()[2])
 
                     os.chdir('/tmp/')
-                    update_tries = 0
+
                     svn_access = subprocess.Popen('svn update '+ fern_directory,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
                     svn_update = svn_access.stdout
+                    svn_failure = svn_access.stderr
                     while True:
                         response = svn_update.readline()
+                        update_failure = svn_failure.read()
                         if len(response) > 0:
                             files_downloaded += 1
                             self.emit(QtCore.SIGNAL('file downloaded'))
@@ -310,7 +312,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                             os.chdir(fern_directory)
                             self.emit(QtCore.SIGNAL("restart application"))
                             break
-                        if update_tries >= 10:
+                        if 'Could not resolve hostname' in update_failure:
                             self.emit(QtCore.SIGNAL("download failed"))
                             break
 
@@ -327,8 +329,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     svn_access = subprocess.Popen('svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/',\
                     shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
                     svn_update = svn_access.stdout
+                    svn_failure = svn_access.stderr
                     while True:
                         response = svn_update.readline()
+                        update_failure = svn_failure.read()
                         if len(response) > 0:
                             files_downloaded += 1
                             self.emit(QtCore.SIGNAL('file downloaded'))
@@ -342,7 +346,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                             time.sleep(5)
                             self.emit(QtCore.SIGNAL("restart application"))
                             break
-                        if update_tries >= 10:
+                        if 'Could not resolve hostname' in update_failure:
                             self.emit(QtCore.SIGNAL("download failed"))
                             break
 
