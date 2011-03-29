@@ -284,16 +284,15 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
             online_response = online_response_check.read()
 
-            for search in online_response.splitlines():
-                if 'updated_files' in search:
-                    file_total = int(search.split()[2])
-
             if '.svn' in os.listdir(fern_directory):
                 svn_entries = open(fern_directory + os.sep + '.svn' + os.sep + 'entries')
                 svn_url = svn_entries.read()
                 if str(svn_path) == str(svn_url.splitlines()[4]):
-                    os.chdir('/tmp/')
+                    for search in online_response.splitlines():
+                        if 'updated_files' in search:
+                            file_total = int(search.split()[2])
 
+                    os.chdir('/tmp/')
                     update_tries = 0
                     svn_access = subprocess.Popen('svn update '+ fern_directory,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
                     svn_update = svn_access.stdout
@@ -306,7 +305,6 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                             update_tries += 1
 
                         if str('revision') in str(response):
-                            self.revision_log(response)
                             self.emit(QtCore.SIGNAL("finished downloading"))
                             time.sleep(5)
                             os.chdir(fern_directory)
