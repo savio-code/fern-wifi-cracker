@@ -306,7 +306,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
                 if str('revision') in str(response):
                     self.emit(QtCore.SIGNAL("finished downloading"))
-                    commands.getstatusoutput('cd %s \n rm -r *.py *.pyc resources\n cp -r /tmp/Fern-Wifi-Cracker/* %s'%(fern_directory,fern_directory))
+                    commands.getstatusoutput('rm -r *.py *.pyc resources\n cp -r /tmp/Fern-Wifi-Cracker/* %s'%(os.getcwd()))
                     time.sleep(5)
                     self.emit(QtCore.SIGNAL("restart application"))
                     break
