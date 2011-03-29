@@ -18,7 +18,7 @@ from font_settings import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.41
+__version__= 1.42
 
 #
 # Network scan global variable
@@ -54,6 +54,7 @@ current_word = ''
 direc = '/tmp/'
 log_direc = 'fern-log'
 tmp_direc = os.listdir(direc)                                    # list/tmp/
+directory = os.getcwd()
 
 #
 # Create temporary log directory
@@ -73,9 +74,7 @@ os.mkdir('/tmp/fern-log/WPA')                                     # Create /tmp/
 #
 # Create permanent settings directory
 #
-if 'fern-settings' in os.listdir(os.getcwd()):
-    pass
-else:
+if 'fern-settings' not in os.listdir(os.getcwd()):
     os.mkdir('fern-settings')                                   # Create permanent settings directory
 
 #
@@ -187,22 +186,20 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.connect(self,QtCore.SIGNAL("finished downloading"),self.finished_downloading_files)
         self.connect(self,QtCore.SIGNAL("restart application"),self.restart_application)
         self.connect(self,QtCore.SIGNAL("failed update"),self.update_fail)
-        self.connect(self,QtCore.SIGNAL("downloading update"),self.downloading_update_files)
         self.connect(self,QtCore.SIGNAL("already latest update"),self.latest_update)
         self.connect(self,QtCore.SIGNAL("previous message"),self.latest_svn)
         self.connect(self,QtCore.SIGNAL("new update available"),self.new_update_avialable)
         self.connect(self,QtCore.SIGNAL("current_version"),self.current_update)
         self.connect(self,QtCore.SIGNAL("download failed"),self.download_failed)
         self.connect(self,QtCore.SIGNAL('internal scan error'),self.scan_error_display)
+        self.connect(self,QtCore.SIGNAL('file downloaded'),self.downloading_update_files)
 
-        try:
-            self.update_label.setText('<font color=green>Currently installed version: Revision %s</font>'%(str(reader('fern-settings/revision_number.dat'))))
-        except IOError:
-            write('fern-settings/revision_number.dat','9.')
-            self.update_label.setText('<font color=green>Currently installed version: Revision %s</font>'%(str(reader('fern-settings/revision_number.dat'))))
 
-	# Display update status on main_windows
-	thread.start_new_thread(self.update_initializtion_check,())
+
+        self.update_label.setText('<font color=green>Currently installed version: Revision %s</font>'%(self.installed_revision()))
+
+        # Display update status on main_windows
+        thread.start_new_thread(self.update_initializtion_check,())
 
         global scan_label
         scan_label = self.label_7
@@ -222,7 +219,16 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.update_label.setText('<font color=red>Download failed,network timeout')
 
     def downloading_update_files(self):
-        self.update_label.setText('<font color=green>Downloading components...</font>')
+        global file_total
+        global files_downloaded
+
+        self.update_label.setText('<font color=green>Downloading.. %s Complete</font>'\
+        %(self.percentage(files_downloaded,file_total)))
+
+    def installed_revision(self):
+        svn_info = commands.getstatusoutput('svn info ' + directory)
+        svn_version = svn_info[1].splitlines()[4].strip('Revision: ')
+        return svn_version
 
     def finished_downloading_files(self):
         self.update_label.setText('<font color=green>Finished Downloading</font>')
@@ -234,11 +240,11 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.update_label.setText('<font color=green>No new update is available for download</font>')
 
     def current_update(self):
-        self.update_label.setText('<font color=green>Currently installed version: Revision %s</font>'%(str(reader('fern-settings/revision_number.dat'))))
+        self.update_label.setText('<font color=green>Currently installed version: Revision %s</font>'%(self.installed_revision()))
 
 
     def latest_svn(self):
-        self.update_label.setText('<font color=green>Latest update is already installed: Revision %s</font>'%(str(reader('fern-settings/revision_number.dat'))))
+        self.update_label.setText('<font color=green>Latest update is already installed: Revision %s</font>'%(self.installed_revision()))
 
     def new_update_avialable(self):
         self.update_label.setText('<font color=green>New Update is Available</font>')
@@ -248,34 +254,101 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     # Update Fern application via SVN,updates at ("svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/")
     #
     def update_fern(self):
+        global updater_control
+        updater_control = 1
         self.update_label.setText('<font color=green>Checking for update...</font>')
         thread.start_new_thread(self.update_launcher,())
 
+
+    def percentage(self,current,total):
+        float_point = float(current)/float(total)
+        calculation = int(float_point * 100)
+        percent = str(calculation) + '%'
+        return percent
+
+
     def update_launcher(self):
-        global updater_control
-        updater_control = 1
-        if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
-            commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
-            time.sleep(4)
-        self.emit(QtCore.SIGNAL("downloading update"))
-        response = commands.getstatusoutput('cd /tmp/ \n svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/')
+        ''' Downloads and installs update files
+        '''
+        global file_total
+        global files_downloaded
+        global fern_directory
+
+        files_downloaded = int()
+        file_total = int()
+
+        fern_directory = os.getcwd()
+        svn_path = 'http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/'
+
         try:
-            online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control') #checks and reads new version number
+            online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
             online_response = online_response_check.read()
-            print response
-            if response[0] >= 1:
-                raise urllib2.HTTPError
-            else:
-                self.emit(QtCore.SIGNAL("finished downloading"))
-                commands.getstatusoutput('rm -r *.py *.pyc resources\n cp -r /tmp/Fern-Wifi-Cracker/* %s'%(os.getcwd()))
-                time.sleep(3)
-                self.emit(QtCore.SIGNAL("restart application"))
-                if 'revision_number.dat' in os.listdir('fern-settings'):
-                    os.remove('fern-settings/revision_number.dat')
-                    write('fern-settings/revision_number.dat',response[1].split()[-1])
+
+            for search in online_response.splitlines():
+                if 'updated_files' in search:
+                    file_total = int(search.split()[2])
+
+            if '.svn' in os.listdir(fern_directory):
+                svn_entries = open(fern_directory + os.sep + '.svn' + os.sep + 'entries')
+                svn_url = svn_entries.read()
+                if str(svn_path) == str(svn_url.splitlines()[4]):
+                    os.chdir('/tmp/')
+
+                    update_tries = 0
+                    svn_access = subprocess.Popen('svn update '+ fern_directory,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+                    svn_update = svn_access.stdout
+                    while True:
+                        response = svn_update.readline()
+                        if len(response) > 0:
+                            files_downloaded += 1
+                            self.emit(QtCore.SIGNAL('file downloaded'))
+                        else:
+                            update_tries += 1
+
+                        if str('revision') in str(response):
+                            self.revision_log(response)
+                            self.emit(QtCore.SIGNAL("finished downloading"))
+                            time.sleep(5)
+                            os.chdir(fern_directory)
+                            self.emit(QtCore.SIGNAL("restart application"))
+                            break
+                        if update_tries >= 10:
+                            self.emit(QtCore.SIGNAL("download failed"))
+                            break
+
                 else:
-                    write('fern-settings/revision_number.dat',response[1].split()[-1])
-                input("\n\n Please Restart Application \n\n")
+                    for search in online_response.splitlines():
+                        if 'total_files' in search:
+                            file_total = int(search.split()[2])
+
+                    os.chdir('/tmp/')
+                    if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
+                        commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
+
+                    update_tries = 0
+                    svn_access = subprocess.Popen('svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/',\
+                    shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+                    svn_update = svn_access.stdout
+                    while True:
+                        response = svn_update.readline()
+                        if len(response) > 0:
+                            files_downloaded += 1
+                            self.emit(QtCore.SIGNAL('file downloaded'))
+                        else:
+                            update_tries += 1
+
+                        if str('revision') in str(response):
+                            self.revision_log(response)
+                            self.emit(QtCore.SIGNAL("finished downloading"))
+                            os.chdir(fern_directory)
+                            commands.getstatusoutput('cd %s \n rm -r *.py *.pyc resources\n cp -r /tmp/Fern-Wifi-Cracker/* %s'%(fern_directory,fern_directory))
+                            time.sleep(5)
+                            self.emit(QtCore.SIGNAL("restart application"))
+                            break
+                        if update_tries >= 10:
+                            self.emit(QtCore.SIGNAL("download failed"))
+                            break
+
         except(urllib2.URLError,urllib2.HTTPError):
             self.emit(QtCore.SIGNAL("download failed"))
 
@@ -285,6 +358,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     #
     def update_initializtion_check(self):
         global updater_control
+        updater_control = 0
         while updater_control != 1:
             try:
                 online_response_thread = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')

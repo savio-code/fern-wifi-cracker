@@ -258,7 +258,7 @@ class Ui_Dialog(object):
         self.label_16.setFont(font)
         self.label_16.setObjectName(_fromUtf8("label_16"))
         self.update_label = QtGui.QLabel(Dialog)
-	self.update_label.setGeometry(QtCore.QRect(20, 280, 231, 20))
+        self.update_label.setGeometry(QtCore.QRect(20, 280, 231, 20))
         font = QtGui.QFont()
         font.setPointSize(font_setting)
         font.setWeight(50)
