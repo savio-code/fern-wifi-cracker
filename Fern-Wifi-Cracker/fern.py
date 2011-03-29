@@ -910,7 +910,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
             else:
                 access_point_value += 5
 
-
+        list_.sort()
         self.wep_access_point_combo.addItems(list_)
         self.attack_type_combo.addItems(attack_type)
 
@@ -1292,6 +1292,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
             else:
                 access_point_value += 5
 
+        list_.sort()
         self.wpa_access_point_combo.addItems(list_)
 
 
