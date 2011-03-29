@@ -291,16 +291,18 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
                 commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
 
+            update_failures = 0
             svn_access = subprocess.Popen('svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/',\
                     shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
             svn_update = svn_access.stdout
-            svn_failure = svn_access.stderr
             while True:
                 response = svn_update.readline()
-                update_failure = svn_failure.read()
                 if len(response) > 0:
                     files_downloaded += 1
                     self.emit(QtCore.SIGNAL('file downloaded'))
+                else:
+                    time.sleep(4)
+                    update_failures += 1
 
                 if str('revision') in str(response):
                     self.emit(QtCore.SIGNAL("finished downloading"))
@@ -308,7 +310,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     time.sleep(5)
                     self.emit(QtCore.SIGNAL("restart application"))
                     break
-                if 'Could not resolve hostname' in update_failure:
+                if update_failures > 10:
                     self.emit(QtCore.SIGNAL("download failed"))
                     break
 
