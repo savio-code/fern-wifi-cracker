@@ -300,7 +300,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
                 commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
 
-            svn_access = subprocess.Popen('svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/',\
+            svn_access = subprocess.Popen('cd /tmp/ \n svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/',\
                     shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
             svn_update = svn_access.stdout
             thread.start_new_thread(self.update_error,())
