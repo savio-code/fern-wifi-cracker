@@ -250,6 +250,14 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.update_label.setText('<font color=green>New Update is Available</font>')
         self.update_button.setFocus()
 
+    def update_error(self):
+        global svn_access
+        global svn_failure_message
+        svn_failure_message = str()
+        svn_failure = svn_access.stderr
+        svn_failure_message = svn_failure.read()
+
+
     #
     # Update Fern application via SVN,updates at ("svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/")
     #
@@ -270,6 +278,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     def update_launcher(self):
         ''' Downloads and installs update files
         '''
+        global svn_access
         global file_total
         global files_downloaded
         global fern_directory
@@ -291,10 +300,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
                 commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
 
-            update_failures = 0
             svn_access = subprocess.Popen('svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/',\
                     shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
             svn_update = svn_access.stdout
+            thread.start_new_thread(self.update_error,())
             while True:
                 response = svn_update.readline()
                 if len(response) > 0:
@@ -310,7 +319,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     time.sleep(5)
                     self.emit(QtCore.SIGNAL("restart application"))
                     break
-                if update_failures > 10:
+                if len(svn_failure_message) > 2:
                     self.emit(QtCore.SIGNAL("download failed"))
                     break
 
