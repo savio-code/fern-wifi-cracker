@@ -1676,10 +1676,11 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
 
 class font_dialog(QtGui.QDialog,font_dialog):
     def __init__(self):
-	QtGui.QDialog.__init__(self)
-	self.setupUi(self)
-	self.retranslateUi(self)
-
+        QtGui.QDialog.__init__(self)
+        self.setupUi(self)
+        self.retranslateUi(self)
+        self.label_2.setText('Current Font: <font color=green><b>%s</b></font>'% \
+                                (reader(os.getcwd() + '/.font_settings.dat' ).split()[2]))
 
         self.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),self.set_font)
 
