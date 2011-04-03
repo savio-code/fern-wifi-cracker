@@ -227,7 +227,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
     def installed_revision(self):
         svn_info = commands.getstatusoutput('svn info ' + directory)
-        svn_version = svn_info[1].splitlines()[4].strip('Revision: ')
+        if svn_info[0] == 0:
+            svn_version = svn_info[1].splitlines()[4].strip('Revision: ')
+        else:
+            svn_version = '94'
         return svn_version
 
     def finished_downloading_files(self):
