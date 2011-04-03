@@ -1682,6 +1682,7 @@ class font_dialog(QtGui.QDialog,font_dialog):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
+        self.setWindowTitle('Font Settings')
         self.label_2.setText('Current Font: <font color=green><b>%s</b></font>'% \
                                 (reader(os.getcwd() + '/.font_settings.dat' ).split()[2]))
 
