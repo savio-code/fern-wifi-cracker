@@ -1455,7 +1455,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.emit(QtCore.SIGNAL("deauthenticating"))
         while '1 handshake' not in reader('/tmp/fern-log/WPA-DUMP/capture_status.log'):
             thread.start_new_thread(self.deauthenticate_client,())
-            time.sleep(10)
+            time.sleep(25)
             thread.start_new_thread(self.capture_check,())
         self.emit(QtCore.SIGNAL("handshake captured"))                                        # THIS IS THE PROGRAM COUNTINUE
         commands.getstatusoutput('killall airodump-ng')
