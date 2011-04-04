@@ -1387,7 +1387,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         global current_word
         while control_word != 1:
             controller = current_word
-            time.sleep(18)
+            time.sleep(30)
             if controller == current_word:
                 control_word = 1
                 self.emit(QtCore.SIGNAL("set maximum"))
