@@ -9,15 +9,6 @@ class initializing_interface(QtGui.QDialog,settings):
     def __init__(self):
         QtGui.QDialog.__init__(self)
 
-    def place_update_png(self,directory):
-        png_files = ['1295905972_tool_kit.png','1295906241_preferences-desktop-font.png','stop.png']
-        for png_file in png_files:
-            if png_file not in os.listdir(directory + os.sep + 'resources'):
-                try:
-                    shutil.copyfile('/tmp/Fern-Wifi-Cracker/resources/' + png_file,directory + '/resources/' + png_file)
-                except IOError:
-                    pass
-
         #
         # Checks privilegde level - for aircrack-ng suite needs those
         #
@@ -40,6 +31,16 @@ class initializing_interface(QtGui.QDialog,settings):
         else:
             QtGui.QMessageBox.warning(self,"Insufficient Priviledge","Aircrack and other dependencies need root priviledge to function, Please run application as root")
             sys.exit()
+
+
+    def place_update_png(self,directory):
+        png_files = ['1295905972_tool_kit.png','1295906241_preferences-desktop-font.png','stop.png']
+        for png_file in png_files:
+            if png_file not in os.listdir(directory + os.sep + 'resources'):
+                try:
+                    shutil.copyfile('/tmp/Fern-Wifi-Cracker/resources/' + png_file,directory + '/resources/' + png_file)
+                except IOError:
+                    pass
 
 
 
