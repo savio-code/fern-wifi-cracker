@@ -1014,6 +1014,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         icon.addPixmap(QtGui.QPixmap("%s/resources/wifi_2.png"%(os.getcwd())))
         self.wep_attack_button.setIcon(icon)
         self.wep_attack_button.setText('Attack')
+        self.cancel_wep_attack()
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
 
@@ -1379,6 +1380,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.wpa_status_label.setEnabled(True)
         self.wpa_status_label.setText('<font color=yellow>Wpa Encryption Broken</font>')
         self.wpa_key_label.setEnabled(True)
+        self.cancel_wpa_attack()
         self.wpa_key_label.setText('<font color=red>%s</font>'%(wpa_key_read))
         set_key_entries(wpa_victim_access,'WPA',wpa_key_read,wpa_victim_channel)            #Add WPA Key to Database Here
         update_database_label()

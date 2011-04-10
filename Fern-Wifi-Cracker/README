@@ -1,20 +1,18 @@
 Prerequisites:
+
 *python 2.4 or higher but with the 2.x
 *python-qt4 
 *macchanger
 *xterm
 *aircrack-ng
+*subversion
 
 
 To launch the program use the icon at "/usr/share/applications" Or From Terminal:
 
-$ python /usr/local/bin/Fern-Wifi-Cracker/execute.py
+$ python execute.py
 
-Please run in the above format if running from terminal, this is because the icons
-used in the software are initialized, and the resolution is also adjusted to fit the applications
-requirement when ran using the above argument..
+Enjoy ;-)
 
-
-Follow me on Backtrack Forums:
-
+Backtrack Forums:
 http://www.backtrack-linux.org/forums/members/savioboyz.htm
