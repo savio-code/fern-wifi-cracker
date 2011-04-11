@@ -160,7 +160,7 @@ def client_update():
                 if client1_calc in client_list:
                     pass
                 else:
-                    if client_list.count(':') == 5:
+                    if client1_calc.count(':') == 5:
                         client_list.append(client1_calc)
                         wpa_clients_list.pop(wpa_clients_list.index(mac_address))
         except(IndexError,ValueError):
