@@ -1108,7 +1108,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
             if'Association successful :-)' in association_string:
                 thread.start_new_thread(self.successful_accociation_process,())
                 break
-            if association_timer >= 2:
+            if association_timer >= 1:
                 thread.start_new_thread(self.unsuccessful_association_process,())
                 break
             if scan_control != 0:
@@ -1119,7 +1119,6 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
     def unsuccessful_association_process(self):
         self.emit(QtCore.SIGNAL('association failed'))
         self.emit(QtCore.SIGNAL("gathering"))
-        thread.start_new_thread(self.dump_thread,())
         time.sleep(4)
         thread.start_new_thread(self.update_progress_bar,())
         self.emit(QtCore.SIGNAL('passive mode'))
