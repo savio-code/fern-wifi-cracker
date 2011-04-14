@@ -18,7 +18,7 @@ from font_settings import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.44
+__version__= 1.45
 
 #
 # Network scan global variable
@@ -119,9 +119,12 @@ def update_database_label():
 def set_key_entries(arg,arg1,arg2,arg3):
     connection = sqlite3.connect('key-database/Database.db')
     query = connection.cursor()
-    query.execute("insert into keys values ('%s','%s','%s','%s')"%(str(arg),str(arg1),str(arg2),str(arg3)))
-    connection.commit()
-    connection.close()
+    query.execute('select * from keys')
+    response = str(query.fetchall())
+    if arg and arg1 and arg2 and arg3 not in response:
+        query.execute("insert into keys values ('%s','%s','%s','%s')"%(str(arg),str(arg1),str(arg2),str(arg3)))
+        connection.commit()
+        connection.close()
 
 #
 # Some globally defined functions for write and read tasks
@@ -1037,56 +1040,6 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         self.emit(QtCore.SIGNAL("injection_working"))
 
 
-    def update_progress_bar(self):
-        global ivs_number
-        global digit
-        global ivs_value
-        global wep_string
-
-        if 'ivs_settings.log' in os.listdir('/tmp/fern-log'):
-            ivs_value = int(reader('/tmp/fern-log/ivs_settings.log'))
-            maximum = self.ivs_progress.setMaximum(ivs_value)
-            maximum = self.ivs_progress.setRange(0,ivs_value)
-        else:
-            ivs_value = 10000
-            maximum = self.ivs_progress.setMaximum(10000)
-            maximum = self.ivs_progress.setRange(0,10000)
-
-
-        while ivs_number <= ivs_value:
-            time.sleep(0.4)
-            self.emit(QtCore.SIGNAL("update_progress_bar"))
-
-        self.emit(QtCore.SIGNAL("progress maximum"))
-        thread.start_new_thread(self.crack_wep,())                   #Thread for cracking wep
-
-        thread.start_new_thread(self.key_check,())
-        self.emit(QtCore.SIGNAL("cracking"))
-        time.sleep(13)
-
-        if 'KEY FOUND!' not in wep_string:
-            self.emit(QtCore.SIGNAL("next_try"))
-            QtCore.SIGNAL("update_progress_bar")
-            thread.start_new_thread(self.next_phase,())
-
-
-    def updater(self):
-        global wep_string
-        while 'KEY FOUND!' not in wep_string:
-            self.emit(QtCore.SIGNAL("update_progress_bar"))
-            time.sleep(1)
-
-    def next_phase(self):
-        global wep_string
-        thread.start_new_thread(self.updater,())
-        while 'KEY FOUND!' not in wep_string:
-            time.sleep(0.4)
-            commands.getstatusoutput('killall aircrack-ng')
-            thread.start_new_thread(self.crack_wep,())
-            time.sleep(9)
-        self.emit(QtCore.SIGNAL("key not found yet"))
-        self.emit(QtCore.SIGNAL("wep found"))
-
         ########################################### SPECIAL COMMAND THREADS ######################################
     def dump_thread(self):
         global xterm_setting
@@ -1178,36 +1131,71 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         commands.getstatusoutput('cd /tmp/fern-log/WEP-DUMP/ \n %s aireplay-ng -2 -F -r /tmp/fern-log/WEP-DUMP/fragmented.cap %s'%(xterm_setting,monitor))
 
 
+
+    ################################################# WEP KEY CRACK ########################################################
+
     def crack_wep(self):
-        global wep_string
-        while 'KEY FOUND!' not in wep_string:
-            wep_string += commands.getstatusoutput('aircrack-ng /tmp/fern-log/WEP-DUMP/*.cap')[1]
+        directory = '/tmp/fern-log/WEP-DUMP/'
+        while 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
+            commands.getstatusoutput('aircrack-ng '+ directory + '*.cap -l '+ directory + 'wep_key.txt')
             time.sleep(40)
 
+
+    def update_progress_bar(self):
+        global ivs_number
+        global digit
+        global ivs_value
+
+        if 'ivs_settings.log' in os.listdir('/tmp/fern-log'):
+            ivs_value = int(reader('/tmp/fern-log/ivs_settings.log'))
+            maximum = self.ivs_progress.setMaximum(ivs_value)
+            maximum = self.ivs_progress.setRange(0,ivs_value)
+        else:
+            ivs_value = 10000
+            maximum = self.ivs_progress.setMaximum(10000)
+            maximum = self.ivs_progress.setRange(0,10000)
+
+
+        while ivs_number <= ivs_value:
+            time.sleep(0.4)
+            self.emit(QtCore.SIGNAL("update_progress_bar"))
+
+        self.emit(QtCore.SIGNAL("progress maximum"))
+        thread.start_new_thread(self.crack_wep,())                   #Thread for cracking wep
+
+        thread.start_new_thread(self.key_check,())
+        self.emit(QtCore.SIGNAL("cracking"))
+        time.sleep(13)
+
+        if 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
+            self.emit(QtCore.SIGNAL("next_try"))
+            QtCore.SIGNAL("update_progress_bar")
+            thread.start_new_thread(self.next_phase,())
+
+
+    def updater(self):
+        global wep_string
+        while 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
+            self.emit(QtCore.SIGNAL("update_progress_bar"))
+            time.sleep(1)
+
+
+    def next_phase(self):
+        thread.start_new_thread(self.updater,())
+        while 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
+            time.sleep(9)
+        self.emit(QtCore.SIGNAL("wep found"))
 
 
     def key_check(self):
         global WEP
-        global wep_string
-        while 'KEY FOUND!' not in wep_string:
+        while 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
             self.emit(QtCore.SIGNAL("key not found yet"))
             time.sleep(2)
 
-        self.emit(QtCore.SIGNAL("key not found yet"))
-        time.sleep(7)
-        while 'KEY FOUND!' not in wep_string:
-            time.sleep(4)
+        key = reader('/tmp/fern-log/WEP-DUMP/wep_key.txt')
 
-        for find_key in wep_string.splitlines():        # SORTS OUT THE WEP KEY
-            if 'KEY FOUND!' in find_key:
-                key = find_key
-
-        process = key[key.index('KEY FOUND!'):-1]
-        process_initial = process.splitlines()[0]
-        processed_key_init = process_initial.index('[')
-        processed_key_init1 = process_initial[processed_key_init:-1]
-        processed_key = processed_key_init1.strip('[]')
-        WEP = processed_key
+        WEP = key
         self.emit(QtCore.SIGNAL("wep found"))
         commands.getstatusoutput('killall aircrack-ng')
         commands.getstatusoutput('killall aireplay-ng')
@@ -1230,14 +1218,12 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
 
 
     def wep_launch_attack(self):
-        global wep_string
         global scan_label
         global ivs_number
         global WEP
 
         ivs_number = 0
         WEP = ''
-        wep_string = ''
         self.wep_disable_items()
         scan_label.setText("Points<font Color=red>\t Stopped</font>")
         commands.getstatusoutput('killall airodump-ng')
