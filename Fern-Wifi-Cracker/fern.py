@@ -1186,6 +1186,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
 
     def key_check(self):
         global WEP
+        global wep_key_commit
         while 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
             self.emit(QtCore.SIGNAL("key not found yet"))
             time.sleep(2)
@@ -1199,10 +1200,11 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         commands.getstatusoutput('killall airmon-ng')
         commands.getstatusoutput('killall airodump-ng')
         if len(WEP) > 0:
-            set_key_entries(victim_access_point,'WEP',str(WEP.replace(':','')),victim_channel)      #Add WEP Key to Database Here
-            update_database_label()
-        else:
-            update_database_label()
+            if wep_key_commit == 0
+                set_key_entries(victim_access_point,'WEP',str(WEP.replace(':','')),victim_channel)      #Add WEP Key to Database Here
+                wep_key_commit = 1
+        update_database_label()
+
 
 
 
@@ -1217,10 +1219,12 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
     def wep_launch_attack(self):
         global scan_label
         global ivs_number
+        global wep_key_commit
         global WEP
 
         ivs_number = 0
         WEP = ''
+        wep_key_commit = 0
         self.wep_disable_items()
         scan_label.setText("Points<font Color=red>\t Stopped</font>")
         commands.getstatusoutput('killall airodump-ng')
@@ -1353,6 +1357,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.bruteforcing_label.setText('<font color=yellow>Bruteforcing WPA Encryption</font>')
 
     def wpa_key_found(self):
+        global wpa_key_commit
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("%s/resources/wifi_6.png"%(os.getcwd())))
         self.wpa_attack_button.setIcon(icon)
@@ -1365,7 +1370,9 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.wpa_key_label.setEnabled(True)
         self.cancel_wpa_attack()
         self.wpa_key_label.setText('<font color=red>%s</font>'%(wpa_key_read))
-        set_key_entries(wpa_victim_access,'WPA',wpa_key_read,wpa_victim_channel)            #Add WPA Key to Database Here
+        if wpa_key_commit == 0:
+            set_key_entries(wpa_victim_access,'WPA',wpa_key_read,wpa_victim_channel)            #Add WPA Key to Database Here
+            wpa_key_commit = 1
         update_database_label()
 
 
@@ -1557,7 +1564,9 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         global select_client
         global progress_bar_max
         global scan_label
+        global wpa_key_commit
         self.wpa_disable_items()
+        wpa_key_commit = 0
         scan_label.setText("Points<font Color=red>\t Stopped</font>")
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
