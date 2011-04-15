@@ -1200,7 +1200,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         commands.getstatusoutput('killall airmon-ng')
         commands.getstatusoutput('killall airodump-ng')
         if len(WEP) > 0:
-            if wep_key_commit == 0
+            if wep_key_commit == 0:
                 set_key_entries(victim_access_point,'WEP',str(WEP.replace(':','')),victim_channel)      #Add WEP Key to Database Here
                 wep_key_commit = 1
         update_database_label()
