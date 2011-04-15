@@ -18,7 +18,7 @@ from font_settings import *
 from ivs_settings import *
 from database import *
 
-__version__= 1.45
+__version__= 1.46
 
 #
 # Network scan global variable
@@ -1131,11 +1131,18 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
 
     ################################################# WEP KEY CRACK ########################################################
 
+
     def crack_wep(self):
         directory = '/tmp/fern-log/WEP-DUMP/'
+        commands.getstatusoutput('killall aircrack-ng')
+        process = subprocess.Popen('aircrack-ng '+ directory + '*.cap -l '+ directory + 'wep_key.txt',shell = True,stdout = subprocess.PIPE,stderr = subprocess.PIPE,stdin = subprocess.PIPE)
+        status = process.stdout
         while 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
-            commands.getstatusoutput('aircrack-ng '+ directory + '*.cap -l '+ directory + 'wep_key.txt')
+            if 'Failed. Next try with' in status.readline():
+                thread.start_new_thread(self.crack_wep,())
+                break
             time.sleep(40)
+
 
 
     def update_progress_bar(self):
@@ -1202,7 +1209,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         if len(WEP) > 0:
             if wep_key_commit == 0:
                 set_key_entries(victim_access_point,'WEP',str(WEP.replace(':','')),victim_channel)      #Add WEP Key to Database Here
-                wep_key_commit = 1
+                wep_key_commit += 1
         update_database_label()
 
 
@@ -1372,7 +1379,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.wpa_key_label.setText('<font color=red>%s</font>'%(wpa_key_read))
         if wpa_key_commit == 0:
             set_key_entries(wpa_victim_access,'WPA',wpa_key_read,wpa_victim_channel)            #Add WPA Key to Database Here
-            wpa_key_commit = 1
+            wpa_key_commit += 1
         update_database_label()
 
 
@@ -1659,6 +1666,7 @@ class database_dialog(QtGui.QDialog,database_ui):
         query = connection.cursor()
         query.execute('''select * from keys''')
         items = query.fetchall()
+        query.close()
         number_decision = str(items)
         wep_entries = number_decision.count('WEP')
         wpa_entries = number_decision.count('WPA')
@@ -1875,7 +1883,3 @@ if __name__ == '__main__':
         run = mainwindow()
         run.show()
         app.exec_()
-
-
-
-
