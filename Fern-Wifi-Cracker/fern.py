@@ -121,7 +121,7 @@ def set_key_entries(arg,arg1,arg2,arg3):
     query = connection.cursor()
     query.execute('select * from keys')
     response = str(query.fetchall())
-    if arg and arg1 and arg2 and arg3 not in response:
+    if str(arg) and str(arg1) and str(arg2) and str(arg3) not in response:
         query.execute("insert into keys values ('%s','%s','%s','%s')"%(str(arg),str(arg1),str(arg2),str(arg3)))
         connection.commit()
         connection.close()
