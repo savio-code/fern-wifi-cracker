@@ -120,11 +120,15 @@ def set_key_entries(arg,arg1,arg2,arg3):
     connection = sqlite3.connect('key-database/Database.db')
     query = connection.cursor()
     query.execute('select * from keys')
-    response = str(query.fetchall())
-    if str(arg) and str(arg1) and str(arg2) and str(arg3) not in response:
+    key_status = ''
+    response = query.fetchall()
+    for key_check in response:
+        if str(arg) and str(arg1) and str(arg2) and str(arg3) in str(key_check):
+            key_status = "exists"
+    if key_status != "exists":
         query.execute("insert into keys values ('%s','%s','%s','%s')"%(str(arg),str(arg1),str(arg2),str(arg3)))
         connection.commit()
-        connection.close()
+    connection.close()
 
 #
 # Some globally defined functions for write and read tasks
