@@ -5,6 +5,7 @@ import sys
 import time
 import thread
 import urllib2
+import shutil
 import sqlite3
 import subprocess
 from PyQt4 import QtGui,QtCore
@@ -288,11 +289,15 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         global files_downloaded
         global fern_directory
 
-        files_downloaded = int()
         file_total = int()
+        files_downloaded = int()
 
         fern_directory = os.getcwd()
+
+        update_directory = '/tmp/Fern-Wifi-Cracker/'
+
         svn_path = 'http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/'
+
 
         try:
             online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
@@ -314,15 +319,25 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 if len(response) > 0:
                     files_downloaded += 1
                     self.emit(QtCore.SIGNAL('file downloaded'))
-                else:
-                    time.sleep(4)
-                    update_failures += 1
 
                 if str('revision') in str(response):
                     self.emit(QtCore.SIGNAL("finished downloading"))
-                    commands.getstatusoutput('rm -r *.py *.pyc resources .svn')
-                    commands.getstatusoutput('cp -r /tmp/Fern-Wifi-Cracker/* '+ os.getcwd())
-                    commands.getstatusoutput('cp -r /tmp/Fern-Wifi-Cracker/.svn '+ os.getcwd())
+
+                    for old_file in os.listdir(os.getcwd()):                        # Delete all old files (*.py,*.py etc)
+                        if os.path.isfile(os.getcwd() + os.sep + old_file):
+                            os.remove(os.getcwd() + os.sep + old_file)
+                                                                                    # Delete all old directories except the "key-database" directory
+                    for old_directory in os.listdir(os.getcwd()):
+                        if os.path.isdir(os.getcwd() + os.sep + old_directory) and old_directory != 'key-database':
+                            shutil.rmtree(os.getcwd() + os.sep + old_directory)
+
+                    for update_file in os.listdir('/tmp/Fern-Wifi-Cracker'):        # Copy New update files to working directory
+                        print update_file
+                        if os.path.isfile(update_directory + update_file):
+                            shutil.copyfile(update_directory + update_file,os.getcwd() + os.sep + update_file)
+                        else:
+                            shutil.copytree(update_directory + update_file,os.getcwd() + os.sep + update_file)
+
                     time.sleep(5)
                     self.emit(QtCore.SIGNAL("restart application"))
                     break
