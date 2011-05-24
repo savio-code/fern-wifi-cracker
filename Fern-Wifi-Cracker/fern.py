@@ -332,7 +332,6 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                             shutil.rmtree(os.getcwd() + os.sep + old_directory)
 
                     for update_file in os.listdir('/tmp/Fern-Wifi-Cracker'):        # Copy New update files to working directory
-                        print update_file
                         if os.path.isfile(update_directory + update_file):
                             shutil.copyfile(update_directory + update_file,os.getcwd() + os.sep + update_file)
                         else:
