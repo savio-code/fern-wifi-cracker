@@ -322,9 +322,9 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
                 if str('revision') in str(response):
                     self.emit(QtCore.SIGNAL("finished downloading"))
-
-                    for old_file in os.listdir(os.getcwd()):                        # Delete all old files (*.py,*.py etc)
-                        if os.path.isfile(os.getcwd() + os.sep + old_file):
+                                                                                    # Delete all old files (*.py,*.py etc) except ".font_setting.dat" file
+                    for old_file in os.listdir(os.getcwd()):
+                        if os.path.isfile(os.getcwd() + os.sep + old_file) and old_file != '.font_settings.dat':
                             os.remove(os.getcwd() + os.sep + old_file)
                                                                                     # Delete all old directories except the "key-database" directory
                     for old_directory in os.listdir(os.getcwd()):
