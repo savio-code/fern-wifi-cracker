@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'untitled.ui'
-#
-# Created: Tue Jan 25 09:27:12 2011
-#      by: PyQt4 UI code generator 4.8.1
-#
-# WARNING! All changes made in this file will be lost!
 import os
 import sys
 import commands

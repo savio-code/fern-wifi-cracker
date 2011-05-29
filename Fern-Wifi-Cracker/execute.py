@@ -2,50 +2,61 @@ import os
 import sys
 import shutil
 import commands
-from PyQt4 import QtGui,QtCore
-from settings import *
-
-class initializing_interface(QtGui.QDialog,settings):
-    def __init__(self):
-        QtGui.QDialog.__init__(self)
-
-        #
-        # Checks privilegde level - for aircrack-ng suite needs those
-        #
-        if os.getenv('LOGNAME','none').lower() == 'root':
-            if 'fern.py' in os.listdir(os.getcwd()):
-                self.place_update_png(os.getcwd())
-                os.system('python fern.py')
-            else:
-                variable = sys.argv[0]
-                direc = variable.replace('execute.py',"")
-                os.chdir(direc)
-                self.place_update_png(os.getcwd())
-                os.system('python fern.py')
-            commands.getstatusoutput('killall airodump-ng')
-            commands.getstatusoutput('killall aircrack-ng')
-            commands.getstatusoutput('killall airmon-ng')
-            commands.getstatusoutput('killall aireplay-ng')
-            sys.exit()
-
-        else:
-            QtGui.QMessageBox.warning(self,"Insufficient Priviledge","Aircrack and other dependencies need root priviledge to function, Please run application as root")
-            sys.exit()
+from PyQt4 import QtGui
 
 
-    def place_update_png(self,directory):
-        png_files = ['1295905972_tool_kit.png','1295906241_preferences-desktop-font.png','stop.png']
-        for png_file in png_files:
-            if png_file not in os.listdir(directory + os.sep + 'resources'):
-                try:
-                    shutil.copyfile('/tmp/Fern-Wifi-Cracker/resources/' + png_file,directory + '/resources/' + png_file)
-                except IOError:
-                    pass
+def initialize():
+    'Set Working directory'
+    if 'core' in os.listdir(os.getcwd()):
+        place_update_png(os.getcwd())
+        create_directory()
+    else:
+        variable = sys.argv[0]
+        direc = variable.replace('execute.py',"")
+        os.chdir(direc)
+        place_update_png(os.getcwd())
+        create_directory()
+
+
+def create_directory():
+    'Create directories and database'
+
+    if not os.path.exists('fern-settings'):
+        os.mkdir('fern-settings')                               # Create permanent settings directory
+    if not os.path.exists('key-database'):                      # Create Database directory if it does not exist
+        os.mkdir('key-database')
 
 
 
-app = QtGui.QApplication(sys.argv)
-run = initializing_interface()
-app.exec_()
+def place_update_png(directory):
+    png_files = ['1295905972_tool_kit.png','1295906241_preferences-desktop-font.png','mac_address.png']
+    for png_file in png_files:
+        if png_file not in os.listdir(directory + os.sep + 'resources'):
+            try:
+                shutil.copyfile('/tmp/Fern-Wifi-Cracker/resources/' + png_file,directory + '/resources/' + png_file)
+            except IOError:
+                pass
+
+def cleanup():
+    'Kill all running processes'
+    commands.getstatusoutput('killall airodump-ng')
+    commands.getstatusoutput('killall aircrack-ng')
+    commands.getstatusoutput('killall airmon-ng')
+    commands.getstatusoutput('killall aireplay-ng')
+
+
+
+initialize()
+from core import *
+variables.database_create()
+from gui import *
+
+
+if __name__ == '__main__':
+    app = QtGui.QApplication(sys.argv)
+    run = fern.mainwindow()
+    run.show()
+    app.exec_()
+    cleanup()
 
 
