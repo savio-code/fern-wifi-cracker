@@ -8,14 +8,35 @@ from PyQt4 import QtGui
 def initialize():
     'Set Working directory'
     if 'core' in os.listdir(os.getcwd()):
-        place_update_png(os.getcwd())
         create_directory()
     else:
         variable = sys.argv[0]
         direc = variable.replace('execute.py',"")
         os.chdir(direc)
-        place_update_png(os.getcwd())
         create_directory()
+
+
+def restore_files():
+    '''Fern 1.2 update algorithm fails to update the new version files
+        therefore this piece of code corrects that defect when running
+        the program after an update from 1.2'''
+
+    update_directory = '/tmp/Fern-Wifi-Cracker/'
+
+    for old_file in os.listdir(os.getcwd()):
+        if os.path.isfile(os.getcwd() + os.sep + old_file) and old_file != '.font_settings.dat':
+            os.remove(os.getcwd() + os.sep + old_file)
+                                                                    # Delete all old directories except the "key-database" directory
+    for old_directory in os.listdir(os.getcwd()):
+        if os.path.isdir(os.getcwd() + os.sep + old_directory) and old_directory != 'key-database':
+            shutil.rmtree(os.getcwd() + os.sep + old_directory)
+
+    for update_file in os.listdir('/tmp/Fern-Wifi-Cracker'):        # Copy New update files to working directory
+        if os.path.isfile(update_directory + update_file):
+            shutil.copyfile(update_directory + update_file,os.getcwd() + os.sep + update_file)
+        else:
+            shutil.copytree(update_directory + update_file,os.getcwd() + os.sep + update_file)
+
 
 
 def create_directory():
@@ -27,16 +48,6 @@ def create_directory():
         os.mkdir('key-database')
 
 
-
-def place_update_png(directory):
-    png_files = ['1295905972_tool_kit.png','1295906241_preferences-desktop-font.png','mac_address.png']
-    for png_file in png_files:
-        if png_file not in os.listdir(directory + os.sep + 'resources'):
-            try:
-                shutil.copyfile('/tmp/Fern-Wifi-Cracker/resources/' + png_file,directory + '/resources/' + png_file)
-            except IOError:
-                pass
-
 def cleanup():
     'Kill all running processes'
     commands.getstatusoutput('killall airodump-ng')
@@ -47,6 +58,10 @@ def cleanup():
 
 
 initialize()
+
+if 'core' not in os.listdir(os.getcwd()):
+    restore_files()
+
 from core import *
 variables.database_create()
 from gui import *
