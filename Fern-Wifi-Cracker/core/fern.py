@@ -116,7 +116,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
 
     def latest_svn(self):
-        self.update_label.setText('<font color=green>Latest update is already installed: Revision %s</font>'%(self.installed_revision()))
+        self.update_label.setText('<font color=green>Latest update is already installed</font>')
 
     def new_update_avialable(self):
         self.update_label.setText('<font color=green>New Update is Available</font>')
