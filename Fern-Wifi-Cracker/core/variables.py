@@ -1,4 +1,6 @@
 from core.fern import *
+
+############# WEP/WPA GLOBAL VARIABLES #################
 #
 # Network scan global variable
 #
@@ -28,6 +30,8 @@ wpa_victim_channel = ''
 wpa_victim_access = ''
 control = 0
 current_word = ''
+
+################### DIRECTORY GLOBAL VARIABLES ##################
 #
 # Creating /tmp/ directory for logging of wireless information
 #
@@ -51,6 +55,8 @@ else:
 #
 os.mkdir('/tmp/fern-log/WPA')                                     # Create /tmp/fern-log/WPA
 
+
+################### DATABASE INSERTION FUNCTIONS ##############
 #
 # Create database if it does not exist
 #
@@ -73,6 +79,7 @@ def set_key_entries(arg,arg1,arg2,arg3,arg4):
     connection.commit()
     connection.close()
 
+########## GENERIC GLOBAL READ/WRITE FUNCTIONS ###############
 #
 # Some globally defined functions for write and read tasks
 #
@@ -88,4 +95,72 @@ def write(arg,arg2):
 
 def remove(arg,arg2):
     commands.getstatusoutput('rm -r %s/%s'%(arg,arg2))  #'rm - r /tmp/fern-log/file.log
+
+
+################## TOOL BOX VARIABLES #######################
+
+# FERN GEOLOCATORY MAC-ADDRESS TRACKER VARIABLES
+
+#
+# Error Strings
+#
+database_null_error = 'There are currently no access points inserted into the database,\
+Access points are added automatically after a successful attack,\
+alternatively you can insert access point details manually using the\
+ "Key Database" section of the main window,you can also input mac-addresses directly.\
+'
+
+invalid_mac_address_error = 'The Mac address inserted is invalid, \
+a valid mac address has 6 segment with 2 hexadecimal values in each segment e.g 00:CA:56:12:8B:90'
+
+#
+# Html strings
+#
+
+html_network_timeout_error = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<style type="text/css">
+body,td,th {
+	font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+<p><img src="file://%s/resources/map.png" alt="" width="108" height="87" /><strong> Fern GeoLocatory Mac Address Tracker
+  </strong>
+</p>
+<p><font color="#FF0000">Network Timeout:</font></p>
+<p>* The current network connection does not have access to the internet.</p>
+<p>* Please check your internet connection to make sure its connected to the internet.</p>
+<p>* Press the &quot;Track&quot; button when you're done.</p>
+</body>
+</html>
+'''%(os.getcwd())
+
+html_instructions_message = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<style type="text/css">
+body,td,th {
+	font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+<p><img src="file://%s/resources/map.png" alt="" width="108" height="87" /> <strong>Fern GeoLocatory Mac Address Tracker </strong></p>
+<p><font color=blue>Instructions:</font></p>
+<p>* Fern Geolocatory Mac Address Tracker allows you track the geographical coordinates of wifi mac-addresses.</p>
+<p>* The geographical co-ordinates are retrived and the corresponding maps are displayed on this very area you are reading from.</p>
+<p>* Mac-addresses can either be inserted from the list of mac-addresses in &quot;Fern Key Database&quot; or otherwise inserted manually.</p>
+<p>* You can insert mac-addresses manually by using the &quot;Insert Mac Address&quot; radio button then inputing it into the combo-box.</p>
+</body>
+</html>
+'''%(os.getcwd())
 

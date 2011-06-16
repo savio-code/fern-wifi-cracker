@@ -3,10 +3,12 @@ from core import variables
 from gui.tips import *
 from gui.toolbox import *
 from gui.settings import *
+from gui.geotrack import *
 from gui.font_settings import *
 from gui.ivs_settings import *
 from core.variables import *
 
+from toolbox.fern_tracker import *
 
 from PyQt4 import QtGui,QtCore
 
@@ -15,15 +17,20 @@ from PyQt4 import QtGui,QtCore
 #
 class tool_box_window(QtGui.QDialog,toolbox_win):
     def __init__(self):
-	QtGui.QDialog.__init__(self)
-	self.setupUi(self)
-	self.retranslateUi(self)
+        QtGui.QDialog.__init__(self)
+        self.setupUi(self)
+        self.retranslateUi(self)
 
-	self.connect(self.pushButton,QtCore.SIGNAL("clicked()"),self.font_exec)
+        self.connect(self.pushButton,QtCore.SIGNAL("clicked()"),self.font_exec)
+        self.connect(self.geotrack_button,QtCore.SIGNAL("clicked()"),self.geotrack_exec)
 
     def font_exec(self):
         font_dialog_box = font_dialog()
         font_dialog_box.exec_()
+
+    def geotrack_exec(self):
+        geotrack_dialog_box = Fern_geolocation_tracker()
+        geotrack_dialog_box.exec_()
 
 
 
