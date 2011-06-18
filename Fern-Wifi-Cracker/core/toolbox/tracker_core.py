@@ -28,19 +28,19 @@
 
 
 import re
-import ast
 import httplib
 
 class Fern_Geolocation(object):
     def __init__(self):
         self.mac_address = str()
+        self.safe_eval= {}
 
     def _fern_geo_access(self):
         api_key='{"version":"1.1.0","request_address":true,"wifi_towers":[{"mac_address":"%s","ssid":"","signal_strength":-50}]}'%(self.mac_address)
         api_data = httplib.HTTPConnection('www.google.com')
         api_data.request('POST','/loc/json',api_key)
         data_ = api_data.getresponse()
-        geo_data = ast.literal_eval(data_.read())
+        geo_data = eval(data_.read(),self.safe_eval)
         return geo_data
 
 
@@ -136,6 +136,4 @@ class Fern_Geolocation(object):
 # mac_location.get_fern_map() // Returns html source with map info
 #
 # mac_location.get_coordinates() // Returns latitude and longitude
-
-
 
