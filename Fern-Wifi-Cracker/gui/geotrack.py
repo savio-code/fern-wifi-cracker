@@ -73,7 +73,6 @@ class Ui_fern_geotrack(object):
         font.setPointSize(font_setting)
         self.map_viewer.setFont(font)
         self.map_viewer.setUrl(QtCore.QUrl(_fromUtf8("")))
-        self.map_viewer.setRenderHints(QtGui.QPainter.TextAntialiasing)
         self.map_viewer.setObjectName(_fromUtf8("map_viewer"))
         self.verticalLayout_5.addWidget(self.map_viewer)
         self.groupBox = QtGui.QGroupBox(fern_geotrack)
