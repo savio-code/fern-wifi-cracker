@@ -91,7 +91,7 @@ class Fern_Geolocation(object):
 
 
     def isValid_Mac(self,mac_address):
-        hex_digits = re.compile('[0-9,:,A-F]')
+        hex_digits = re.compile('[0-9:A-F]')
         if len(mac_address) and len(hex_digits.findall(mac_address.upper())) == 17:
             return True
         else:
