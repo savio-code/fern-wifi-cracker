@@ -1,5 +1,6 @@
 import core
 from gui.database import *
+from core.functions import *
 from core.variables import *
 
 #
@@ -10,6 +11,8 @@ class database_dialog(QtGui.QDialog,database_ui):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
+
         self.display_keys()
 
         self.connect(self.insert_button,QtCore.SIGNAL("clicked()"),self.insert_row)

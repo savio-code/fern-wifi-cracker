@@ -1,5 +1,6 @@
 from core.fern import *
 from gui.wpa_attack import *
+from core.functions import *
 from core.variables import *
 
 from core import variables
@@ -14,7 +15,9 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
         global client_list
+        global access_point
         client_list = []
 
         self.connect(self.wpa_access_point_combo,QtCore.SIGNAL("currentIndexChanged(QString)"),self.selected_wpa_access)
@@ -105,8 +108,14 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.deauthenticate_label.setText('<font color=yellow>Deauthenticating %s</font>'%(select_client))
 
     def handshake_captured(self):
+        global access_point
         self.handshake_label.setEnabled(True)
         self.handshake_label.setText('<font color=yellow>Handshake Captured</font>')
+
+        if settings_exists('capture_directory'):
+            shutil.copyfile('/tmp/fern-log/WPA-DUMP/wpa_dump-01.cap',\
+                read_settings('capture_directory') + '/%s_Capture_File(WPA).cap'%(access_point))
+
 
     def bruteforce_display(self):
         self.bruteforcing_label.setEnabled(True)
@@ -127,6 +136,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.wpa_key_label.setEnabled(True)
         self.cancel_wpa_attack()
         self.wpa_key_label.setText('<font color=red>%s</font>'%(wpa_key_read))
+
         if wpa_key_commit == 0:
             set_key_entries(wpa_victim_access,wpa_victim_mac_address,'WPA',wpa_key_read,wpa_victim_channel)            #Add WPA Key to Database Here
             self.emit(QtCore.SIGNAL('update database label'))

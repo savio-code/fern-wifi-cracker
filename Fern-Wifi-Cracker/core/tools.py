@@ -7,6 +7,8 @@ from gui.geotrack import *
 from gui.font_settings import *
 from gui.ivs_settings import *
 from core.variables import *
+from core.functions import *
+from gui.attack_settings import *
 
 from toolbox.fern_tracker import *
 
@@ -20,9 +22,11 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         self.connect(self.pushButton,QtCore.SIGNAL("clicked()"),self.font_exec)
         self.connect(self.geotrack_button,QtCore.SIGNAL("clicked()"),self.geotrack_exec)
+        self.connect(self.attack_options_button,QtCore.SIGNAL("clicked()"),self.attack_settings_exec)
 
     def font_exec(self):
         font_dialog_box = font_dialog()
@@ -32,7 +36,17 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
         geotrack_dialog_box = Fern_geolocation_tracker()
         geotrack_dialog_box.exec_()
 
+    def attack_settings_exec(self):
+        wifi_attack_settings_box = wifi_attack_settings()
+        wifi_attack_settings_box.exec_()
 
+
+
+################################################################################
+#                                                                              #
+#                             GENERAL SETTINGS                                 #
+#                                                                              #
+################################################################################
 
 class font_dialog(QtGui.QDialog,font_dialog):
     def __init__(self):
@@ -60,6 +74,69 @@ class font_dialog(QtGui.QDialog,font_dialog):
         self.close()
         QtGui.QMessageBox.information(self,'Font Settings','Please restart application to apply changes')
 
+
+
+
+class wifi_attack_settings(QtGui.QDialog,Ui_attack_settings):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        self.setupUi(self)
+        self.retranslateUi(self)
+        create_settings_file()
+        self.display_components()
+
+        self.connect(self.mac_button,QtCore.SIGNAL("clicked()"),self.set_static_mac)
+        self.connect(self.mac_box,QtCore.SIGNAL("clicked()"),self.remove_mac_objects)
+        self.connect(self.capture_box,QtCore.SIGNAL("clicked()"),self.remove_capture_objects)
+        self.connect(self.direc_browse,QtCore.SIGNAL("clicked()"),self.set_capture_directory)
+
+
+    def display_components(self):
+        if settings_exists('capture_directory'):
+            self.capture_box.setChecked(True)
+            self.directory_label.setText('<font color=green><b>' + str(read_settings('capture_directory')) + '</b></font>')
+        if settings_exists('mac_address'):
+            self.mac_box.setChecked(True)
+            self.mac_edit.setText(str(read_settings('mac_address')))
+
+
+
+    def set_static_mac(self):
+        mac_address = str(self.mac_edit.text())
+        if not Check_MAC(mac_address):
+            QtGui.QMessageBox.warning(self,"Invalid MAC Address",variables.invalid_mac_address_error)
+            self.mac_edit.setFocus()
+        else:
+            create_settings('mac_address',mac_address)
+
+
+    def set_capture_directory(self):
+        directory = str(QtGui.QFileDialog.getExistingDirectory(self,"Select Capture Sorage Directory",""))
+        if directory:
+            self.directory_label.setText('<font color=green><b>' + directory)
+            create_settings("capture_directory",directory)
+
+
+    def remove_mac_objects(self):
+        if not self.mac_box.isChecked():
+            self.mac_edit.clear()
+            remove_setting('mac_address')
+
+
+    def remove_capture_objects(self):
+        if not self.capture_box.isChecked():
+            self.directory_label.clear()
+            remove_setting('capture_directory')
+
+
+
+
+
+################################################################################
+#                                                                              #
+#                    WEP ATTACK OPTIONAL SETTINGS                              #
+#                                                                              #
+################################################################################
 
 
 #

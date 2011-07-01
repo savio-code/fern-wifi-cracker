@@ -56,46 +56,6 @@ else:
 os.mkdir('/tmp/fern-log/WPA')                                     # Create /tmp/fern-log/WPA
 
 
-################### DATABASE INSERTION FUNCTIONS ##############
-#
-# Create database if it does not exist
-#
-def database_create():
-    temp = sqlite3.connect(os.getcwd() + '/key-database/Database.db')                 # Database File and Tables are created Here
-    temp_query = temp.cursor()
-    temp_query.execute('''create table if not exists keys \
-                            (access_point text,mac_address text,encryption text,key text,channel int)''')
-    temp.commit()
-    temp.close()
-
-
-#
-# Add keys to Database with this function
-#
-def set_key_entries(arg,arg1,arg2,arg3,arg4):
-    connection = sqlite3.connect('key-database/Database.db')
-    query = connection.cursor()
-    query.execute("insert into keys values ('%s','%s','%s','%s','%s')"%(str(arg),str(arg1),str(arg2),str(arg3),str(arg4)))
-    connection.commit()
-    connection.close()
-
-########## GENERIC GLOBAL READ/WRITE FUNCTIONS ###############
-#
-# Some globally defined functions for write and read tasks
-#
-def reader(arg):
-    open_ = open(arg,'r+')
-    read_file = open_.read()
-    return read_file
-
-def write(arg,arg2):
-    open_ = open(arg,'a+')
-    open_.write(arg2)
-    open_.close()
-
-def remove(arg,arg2):
-    commands.getstatusoutput('rm -r %s/%s'%(arg,arg2))  #'rm - r /tmp/fern-log/file.log
-
 
 ################## TOOL BOX VARIABLES #######################
 

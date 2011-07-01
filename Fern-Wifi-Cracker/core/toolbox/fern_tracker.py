@@ -17,6 +17,7 @@ class Fern_geolocation_tracker(QtGui.QDialog,Ui_fern_geotrack):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         self.database_accesspoint = {}  # Holds all database accesspoint name and mac details
         self.idlelize_items()
@@ -153,7 +154,7 @@ class Fern_geolocation_tracker(QtGui.QDialog,Ui_fern_geotrack):
         self.country_label.setText("Country:")
         self.latitude_label.setText("Latitude:")
         self.city_label.setText("City: ")
-        self.longitude_label.setText("longitude:")
+        self.longitude_label.setText("Longitude:")
         self.street_label.setText("Street:")
         self.accuracy_label.setText("Accuracy:")
         self.country_code_label.setText("Country Code:")
@@ -180,7 +181,7 @@ class Fern_geolocation_tracker(QtGui.QDialog,Ui_fern_geotrack):
                                         (full_geo_details['location']['address']['city']))
         except(KeyError):pass
         try:
-            self.longitude_label.setText("longitude: <font color=green><b>%s</b></font>"%\
+            self.longitude_label.setText("Longitude: <font color=green><b>%s</b></font>"%\
                                         (full_geo_details['location']['longitude']))
         except(KeyError):pass
         try:

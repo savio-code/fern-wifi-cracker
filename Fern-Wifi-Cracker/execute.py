@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import sys
 import shutil
@@ -63,7 +65,7 @@ if 'core' not in os.listdir(os.getcwd()):
     restore_files()
 
 from core import *
-variables.database_create()
+functions.database_create()
 from gui import *
 
 
@@ -73,5 +75,6 @@ if __name__ == '__main__':
     run.show()
     app.exec_()
     cleanup()
+    sys.exit()
 
 

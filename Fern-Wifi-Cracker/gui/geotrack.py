@@ -202,7 +202,7 @@ class Ui_fern_geotrack(object):
         self.country_label.setText(QtGui.QApplication.translate("fern_geotrack", "Country: ", None, QtGui.QApplication.UnicodeUTF8))
         self.latitude_label.setText(QtGui.QApplication.translate("fern_geotrack", "Latitude: ", None, QtGui.QApplication.UnicodeUTF8))
         self.city_label.setText(QtGui.QApplication.translate("fern_geotrack", "City: Lagos", None, QtGui.QApplication.UnicodeUTF8))
-        self.longitude_label.setText(QtGui.QApplication.translate("fern_geotrack", "longitude: ", None, QtGui.QApplication.UnicodeUTF8))
+        self.longitude_label.setText(QtGui.QApplication.translate("fern_geotrack", "Longitude: ", None, QtGui.QApplication.UnicodeUTF8))
         self.street_label.setText(QtGui.QApplication.translate("fern_geotrack", "Street: ", None, QtGui.QApplication.UnicodeUTF8))
         self.accuracy_label.setText(QtGui.QApplication.translate("fern_geotrack", "Accuracy: ", None, QtGui.QApplication.UnicodeUTF8))
         self.country_code_label.setText(QtGui.QApplication.translate("fern_geotrack", "Country Code: ", None, QtGui.QApplication.UnicodeUTF8))

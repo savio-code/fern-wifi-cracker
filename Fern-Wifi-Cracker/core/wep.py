@@ -1,5 +1,6 @@
 from core.fern import *
 from core.tools import*
+from core.functions import *
 from core.variables import *
 from gui.wep_attack import *
 
@@ -15,6 +16,7 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         self.connect(self.label_3,QtCore.SIGNAL("DoubleClicked()"),self.mouseDoubleClickEvent)
         self.connect(self.wep_access_point_combo,QtCore.SIGNAL("currentIndexChanged(QString)"),self.selected_wep_access)
@@ -176,6 +178,8 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         self.cracking_label.setText('<font color=yellow>Cracking Encryption</font>')
 
     def key_found(self):
+        global victim_access_point
+
         self.cracking_label.setEnabled(True)
         self.cracking_label.setText('<font color=yellow>Cracking Encryption</font>')
         self.finished_label.setEnabled(True)
@@ -192,6 +196,9 @@ class wep_attack_dialog(QtGui.QDialog,wep_window):
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
 
+        if settings_exists('capture_directory'):
+            shutil.copyfile('/tmp/fern-log/WEP-DUMP/wep_dump-01.cap',\
+                    read_settings('capture_directory') + '/%s_Capture_File(WEP).cap'%(victim_access_point))
 
     def cracking(self):
         self.wep_status_label.setEnabled(True)

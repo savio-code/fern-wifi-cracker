@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
 import os
+import re
 import sys
 import time
 import thread
@@ -18,10 +17,11 @@ from wpa import *
 from tools import *
 from database import *
 from variables import *
+from functions import *
 
 from gui.main_window import *
 
-__version__= 1.5
+__version__= 1.51
 
 #
 # Main Window Class
@@ -34,7 +34,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.refresh_interface()
         self.evaliate_permissions()
 
-        self.connect(self.label_3,QtCore.SIGNAL("DoubleClicked()"),self.mouseDoubleClickEvent)
+        self.connect(self,QtCore.SIGNAL("DoubleClicked()"),self.mouseDoubleClickEvent)
         self.connect(self.refresh_intfacebutton,QtCore.SIGNAL("clicked()"),self.refresh_interface)
         self.connect(self.interface_combo,QtCore.SIGNAL("currentIndexChanged(QString)"),self.setmonitor)
         self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
@@ -53,7 +53,6 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.connect(self,QtCore.SIGNAL("download failed"),self.download_failed)
         self.connect(self,QtCore.SIGNAL('internal scan error'),self.scan_error_display)
         self.connect(self,QtCore.SIGNAL('file downloaded'),self.downloading_update_files)
-
 
 
         self.update_label.setText('<font color=green>Currently installed version: Revision %s</font>'%(self.installed_revision()))
@@ -75,7 +74,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         if len(items) == 0:
             self.label_16.setText('<font color=red>No Key Entries</font>')
         else:
-            self.label_16.setText('<font color=red>%s Key Entries</font>'%(str(len(items))))
+            self.label_16.setText('<font color=green>%s Key Entries</font>'%(str(len(items))))
 
 
     #
@@ -169,9 +168,11 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
             online_response = online_response_check.read()
 
-            for search in online_response.splitlines():
-                if 'total_files' in search:
-                    file_total = int(search.split()[2])
+            online_files = re.compile('total_files = \d{0,9}',re.IGNORECASE)
+
+            for online_file_total in online_response.splitlines():
+                if re.match(online_files,online_file_total):
+                    file_total = int(online_file_total.split()[2])
 
             if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
                 commands.getstatusoutput('rm -r /tmp/Fern-Wifi-Cracker')
@@ -225,10 +226,12 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 online_response_thread = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
                 online_response_string = ''
                 online_response = online_response_thread.read()
+
+                online_version = re.compile('version = \d{0,9}',re.IGNORECASE)
+
                 for version_iterate in online_response.splitlines():
-                    if 'version' in str(version_iterate):
+                    if re.match(online_version,version_iterate):
                         online_response_string += version_iterate
-                    else:pass
 
                 update_version_number = float(online_response_string.split()[2])
 
@@ -353,7 +356,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 # Create Fake Mac Address and index for use
                 #
                 mon_down = commands.getstatusoutput('ifconfig %s down'%(mon_real))
-                set_fake_mac = commands.getstatusoutput('macchanger -A %s'%(mon_real))
+                if settings_exists('mac_address'):
+                    commands.getstatusoutput('macchanger -m %s %s'%(read_settings('mac_address'),mon_real))
+                else:
+                    commands.getstatusoutput('macchanger -A %s'%(mon_real))
                 mon_up = commands.getstatusoutput('ifconfig %s up'%(mon_real))
                 for iterate in os.listdir('/sys/class/net'):
                     if str(iterate) == str(mon_real):
@@ -422,9 +428,11 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             self.connect(self,QtCore.SIGNAL("wpa_button_false"),self.wpa_button_false)
             self.wpa_button.setEnabled(False)
             self.wep_button.setEnabled(False)
-            self.wep_clientlabel.setText("Access Points ")
-            self.wpa_clientlabel.setText("Access Points ")
-            self.label_7.setText("Points<font Color=green>\t Initializing</font>")
+            self.wep_clientlabel.setEnabled(False)
+            self.wpa_clientlabel.setEnabled(False)
+            self.wep_clientlabel.setText("None Detected")
+            self.wpa_clientlabel.setText("None Detected")
+            self.label_7.setText("<font Color=green>\t Initializing</font>")
             thread.start_new_thread(self.scan_wep,())
             self.disconnect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
             self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.stop_scan_network)
@@ -437,9 +445,9 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         commands.getstatusoutput('rm -r /tmp/fern-log/*.cap')
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
-        self.label_7.setText("Points<font Color=red>\t Stopped</font>")
-        self.wep_clientlabel.setText("Access Points ")
-        self.wpa_clientlabel.setText("Access Points ")
+        self.label_7.setText("<font Color=red>\t Stopped</font>")
+        self.wep_clientlabel.setText("None Detected")
+        self.wpa_clientlabel.setText("None Detected")
         self.disconnect(self.scan_button,QtCore.SIGNAL("clicked()"),self.stop_scan_network)
         self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
 
@@ -450,7 +458,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         scan_control = 1
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
-        self.label_7.setText("Points<font Color=red>\t Stopped</font>")
+        self.label_7.setText("<font Color=red>\t Stopped</font>")
 
     #
     # WEP Thread SLOTS AND SIGNALS
@@ -461,10 +469,12 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
     def wep_button_true(self):
         self.wep_button.setEnabled(True)
+        self.wep_clientlabel.setEnabled(True)
 
     def wep_button_false(self):
         self.wep_button.setEnabled(False)
-        self.wep_clientlabel.setText('Access Points')
+        self.wep_clientlabel.setEnabled(False)
+        self.wep_clientlabel.setText('None Detected')
     #
     # WPA Thread SLOTS AND SIGNALS
     #
@@ -474,10 +484,12 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
     def wpa_button_true(self):
         self.wpa_button.setEnabled(True)
+        self.wpa_clientlabel.setEnabled(True)
 
     def wpa_button_false(self):
         self.wpa_button.setEnabled(False)
-        self.wpa_clientlabel.setText('Access Points')
+        self.wpa_clientlabel.setEnabled(False)
+        self.wpa_clientlabel.setText('None Detected')
 
     #
     # WEP SCAN THREADING FOR AUTOMATIC SCAN OF NETWORK
@@ -640,7 +652,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
         time.sleep(5)
         if scan_control != 1:
-            self.label_7.setText("Points<font Color=green>\t Active</font>")
+            self.label_7.setText("<font Color=green>\t Active</font>")
 
         commands.getstatusoutput('touch /tmp/fern-log/wep_details.log')
         commands.getstatusoutput('touch /tmp/fern-log/WPA/wpa_details.log')
