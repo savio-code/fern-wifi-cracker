@@ -168,7 +168,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
             online_response = online_response_check.read()
 
-            online_files = re.compile('total_files = \d{0,9}',re.IGNORECASE)
+            online_files = re.compile('total_files = \d+',re.IGNORECASE)
 
             for online_file_total in online_response.splitlines():
                 if re.match(online_files,online_file_total):
@@ -227,7 +227,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 online_response_string = ''
                 online_response = online_response_thread.read()
 
-                online_version = re.compile('version = \d{0,9}',re.IGNORECASE)
+                online_version = re.compile('version = \d+.?\d+',re.IGNORECASE)
 
                 for version_iterate in online_response.splitlines():
                     if re.match(online_version,version_iterate):
