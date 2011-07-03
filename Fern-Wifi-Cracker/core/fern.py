@@ -227,7 +227,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 online_response_string = ''
                 online_response = online_response_thread.read()
 
-                online_version = re.compile('version = \d+.?\d+',re.IGNORECASE)
+                online_version = re.compile('version = \d+\.?\d+',re.IGNORECASE)
 
                 for version_iterate in online_response.splitlines():
                     if re.match(online_version,version_iterate):
