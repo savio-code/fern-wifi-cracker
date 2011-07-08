@@ -103,6 +103,7 @@ def create_settings_file():
 
 
 def settings_exists(object_name):
+    create_settings_file()
     settings_file = open('fern-settings/general_settings.dat','r')
     regex = re.compile(object_name)
     if re.search(regex,settings_file.read()):
