@@ -21,7 +21,7 @@ from functions import *
 
 from gui.main_window import *
 
-__version__= 1.51
+__version__= 1.52
 
 #
 # Main Window Class
