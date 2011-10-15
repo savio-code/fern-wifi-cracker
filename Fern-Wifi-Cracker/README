@@ -1,18 +1,18 @@
 Prerequisites:
 
-*python 2.4 or higher but with the 2.x
-*python-qt4 
-*macchanger
-*xterm
-*aircrack-ng
-*subversion
+* python 2.4 or higher but with the 2.x versions
+* python-qt4
+* macchanger
+* xterm
+* aircrack-ng
+* subversion
 
 
-To launch the program use the icon at "/usr/share/applications" Or From Terminal:
+To launch the program use the icon at "/usr/share/applications", Or from Terminal:
 
 $ python execute.py
 
 Enjoy ;-)
 
-Backtrack Forums:
-http://www.backtrack-linux.org/forums/members/savioboyz.htm
+Follow me on Twitter:
+@savioboyz

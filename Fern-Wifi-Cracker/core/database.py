@@ -77,28 +77,33 @@ class database_dialog(QtGui.QDialog,database_ui):
         self.key_table.removeRow(current_row)
 
     def save_changes(self):
-        os.system('rm -r key-database/Database.db')
-        database_create()
         row_number = self.key_table.rowCount()
-        controller = 0
+        fern_database_query('''delete from keys''')    # Truncate the "keys" table
 
-        while controller != row_number:
-            access_point1 = QtGui.QTableWidgetItem(self.key_table.item(controller,0))   # Get Cell content
-            mac_address1 = QtGui.QTableWidgetItem(self.key_table.item(controller,1))
-            encryption1 = QtGui.QTableWidgetItem(self.key_table.item(controller,2))
-            key1 = QtGui.QTableWidgetItem(self.key_table.item(controller,3))
-            channel1 = QtGui.QTableWidgetItem(self.key_table.item(controller,4))
+        for controller in range(row_number):
+            try:
+                access_point1 = QtGui.QTableWidgetItem(self.key_table.item(controller,0))   # Get Cell content
+                mac_address1 = QtGui.QTableWidgetItem(self.key_table.item(controller,1))
+                encryption1 = QtGui.QTableWidgetItem(self.key_table.item(controller,2))
+                key1 = QtGui.QTableWidgetItem(self.key_table.item(controller,3))
+                channel1 = QtGui.QTableWidgetItem(self.key_table.item(controller,4))
 
-            access_point = str(access_point1.text())                                         # Get cell content text
-            mac_address = str(mac_address1.text())
-            encryption2 = str(encryption1.text())
-            encryption = encryption2.upper()
-            key = key1.text()
-            channel = channel1.text()
+                access_point = str(access_point1.text())                                    # Get cell content text
+                mac_address = str(mac_address1.text())
+                encryption2 = str(encryption1.text())
+                encryption = encryption2.upper()
+                key = key1.text()
+                channel = channel1.text()
 
-            set_key_entries(access_point,mac_address,encryption,key,channel)        # Write enrties to database
+                if not bool(access_point) and bool(mac_address) and bool(encryption) and bool(key) and bool(channel):
+                    raise(TypeError)
 
-            controller += 1
+                set_key_entries(access_point,mac_address,encryption,key,channel)       # Write enrties to database
+
+            except(TypeError):
+                QtGui.QMessageBox.warning(self,"Empty Database Entries",\
+                    "There are some fields with whitespaces,Please enter empty spaces with Access Point related data")
+                break
 
         self.emit(QtCore.SIGNAL('update database label'))               # Update the Entries label on Main window
 

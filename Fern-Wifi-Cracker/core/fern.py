@@ -21,7 +21,7 @@ from functions import *
 
 from gui.main_window import *
 
-__version__= 1.52
+__version__= 1.53
 
 #
 # Main Window Class
@@ -143,7 +143,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         float_point = float(current)/float(total)
         calculation = int(float_point * 100)
         percent = str(calculation) + '%'
-        return percent
+        return(percent)
 
 
     def update_launcher(self):
@@ -238,13 +238,13 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 if float(__version__) != update_version_number:
                     self.emit(QtCore.SIGNAL("new update available"))
                     break
-                elif float(__version__) == update_version_number:
+
+                if float(__version__) == update_version_number:
                     self.emit(QtCore.SIGNAL("already latest update"))
                     time.sleep(20)
                     self.emit(QtCore.SIGNAL("previous message"))
                     break
-                else:
-                    pass
+
             except Exception:
                 self.emit(QtCore.SIGNAL("failed update"))
                 time.sleep(9)

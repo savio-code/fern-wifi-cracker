@@ -26,6 +26,16 @@ def set_key_entries(arg,arg1,arg2,arg3,arg4):
     connection.commit()
     connection.close()
 
+
+def fern_database_query(sql_query):
+    connection = sqlite3.connect('key-database/Database.db')
+    query = connection.cursor()
+    query.execute(sql_query)
+    output = query.fetchall()
+    connection.commit()
+    connection.close()
+    return(output)
+
 ########## GENERIC GLOBAL READ/WRITE FUNCTIONS ###############
 #
 # Some globally defined functions for write,copy and read tasks
