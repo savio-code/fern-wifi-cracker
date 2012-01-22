@@ -14,7 +14,8 @@ def initialize():
     else:
         variable = sys.argv[0]
         direc = variable.replace('execute.py',"")
-        os.chdir(direc)
+        if direc:
+            os.chdir(direc)
         create_directory()
 
 
