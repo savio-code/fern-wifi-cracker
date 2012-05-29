@@ -21,7 +21,7 @@ from functions import *
 
 from gui.main_window import *
 
-__version__= 1.55
+__version__= 1.56
 
 #
 # Main Window Class
@@ -165,7 +165,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
 
         try:
-            online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
+            online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/version')
             online_response = online_response_check.read()
 
             online_files = re.compile('total_files = \d+',re.IGNORECASE)
@@ -223,7 +223,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         updater_control = 0
         while updater_control != 1:
             try:
-                online_response_thread = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/files/update_control')
+                online_response_thread = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/version')
                 online_response_string = ''
                 online_response = online_response_thread.read()
 
