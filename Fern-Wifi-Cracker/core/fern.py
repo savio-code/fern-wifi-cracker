@@ -21,7 +21,7 @@ from functions import *
 
 from gui.main_window import *
 
-__version__= 1.54
+__version__= 1.55
 
 #
 # Main Window Class
@@ -340,14 +340,18 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     # Set monitor mode on selected monitor from combo list
     #
     def setmonitor(self):
+        mon_real = str()
         monitor_card = str(self.interface_combo.currentText())
         if monitor_card != 'Select Interface':
             status = str(commands.getoutput("airmon-ng start %s"%(monitor_card)))
             if 'monitor mode enabled' in status:
-                monitor_interface_process = str(commands.getoutput("airmon-ng | egrep -e '^[a-z]{2,4}[0-9]'"))
-                monitor_interface = monitor_interface_process.splitlines()
-                mon_int1 = monitor_interface[-1]
-                mon_real = mon_int1[0:6].strip('\t\t')
+                monitor_interface_process = str(commands.getoutput("airmon-ng"))
+                regex = re.compile("mon\d",re.IGNORECASE)
+                interfaces = regex.findall(monitor_interface_process)
+                if(interfaces):
+                    mon_real = interfaces[0]
+                else:
+                    mon_real = monitor_card
                 remove('/tmp/fern-log','monitor.log')
                 write('/tmp/fern-log/monitor.log',mon_real)     # write monitoring interface like(mon0,mon1)to log
                 self.mon_label.setText("<font color=green>Monitor Mode Enabled on %s</font>"%(mon_real))
