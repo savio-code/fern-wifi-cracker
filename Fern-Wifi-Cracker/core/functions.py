@@ -27,7 +27,7 @@ def set_key_entries(arg,arg1,arg2,arg3,arg4):
     if(len(query.description) < 5):
         temp_backup = query.fetchall()
         query.execute("drop table keys")
-        database_create()
+        query.execute('''create table keys (access_point text,mac_address text,encryption text,key text,channel int)''')
         for values in temp_backup:
             query.execute("insert into keys values ('%s','%s','%s','%s','%s')"%(values[0],str(),values[1],values[2],values[3]))
 
