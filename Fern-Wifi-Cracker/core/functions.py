@@ -22,6 +22,15 @@ def database_create():
 def set_key_entries(arg,arg1,arg2,arg3,arg4):
     connection = sqlite3.connect('key-database/Database.db')
     query = connection.cursor()
+    query.execute("select * from keys")
+
+    if(len(query.description) < 5):
+        temp_backup = query.fetchall()
+        query.execute("drop table keys")
+        database_create()
+        for values in temp_backup:
+            query.execute("insert into keys values ('%s','%s','%s','%s','%s')"%(values[0],str(),values[1],values[2],values[3]))
+
     query.execute("insert into keys values ('%s','%s','%s','%s','%s')"%(str(arg),str(arg1),str(arg2),str(arg3),str(arg4)))
     connection.commit()
     connection.close()
