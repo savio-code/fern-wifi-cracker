@@ -11,6 +11,7 @@ from core.functions import *
 from gui.attack_settings import *
 
 from toolbox.fern_tracker import *
+from toolbox.fern_cookie_hijacker import *
 
 from PyQt4 import QtGui,QtCore
 
@@ -27,6 +28,7 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
         self.connect(self.pushButton,QtCore.SIGNAL("clicked()"),self.font_exec)
         self.connect(self.geotrack_button,QtCore.SIGNAL("clicked()"),self.geotrack_exec)
         self.connect(self.attack_options_button,QtCore.SIGNAL("clicked()"),self.attack_settings_exec)
+        self.connect(self.cookie_hijack_button,QtCore.SIGNAL("clicked()"),self.cookie_hijack_exec)
 
     def font_exec(self):
         font_dialog_box = font_dialog()
@@ -35,6 +37,12 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
     def geotrack_exec(self):
         geotrack_dialog_box = Fern_geolocation_tracker()
         geotrack_dialog_box.exec_()
+
+
+    def cookie_hijack_exec(self):
+        cookie_hijacker = Fern_Cookie_Hijacker()
+        cookie_hijacker.exec_()
+
 
     def attack_settings_exec(self):
         wifi_attack_settings_box = wifi_attack_settings()

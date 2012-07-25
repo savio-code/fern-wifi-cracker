@@ -20,6 +20,8 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         global access_point
         client_list = []
 
+        self.display_current_wordlist()     # Display previous wordlist
+
         self.connect(self.wpa_access_point_combo,QtCore.SIGNAL("currentIndexChanged(QString)"),self.selected_wpa_access)
         self.connect(self.wpa_attack_button,QtCore.SIGNAL("clicked()"),self.launch_attack)
         self.connect(self.dictionary_button,QtCore.SIGNAL("clicked()"),self.dictionary_set)
@@ -62,6 +64,8 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
         self.bruteforcing_label.setEnabled(False)
         self.bruteforce_progress_label.setEnabled(False)
         self.wpa_status_label.setEnabled(False)
+        self.finished_label.setEnabled(False)
+        self.finished_label.setText("Finished")
         self.probe_label.setText( "Probing Access Point")
         self.dictionary_label.setText( "current dictionary file")
         self.handshake_label.setText( "Handshake status")
@@ -185,7 +189,7 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
                 self.emit(QtCore.SIGNAL("update client"))
                 break
             else:
-                time.sleep(3)
+                time.sleep(6)
                 self.emit(QtCore.SIGNAL("client not in list"))
                 self.client_update()
                 self.emit(QtCore.SIGNAL("update client"))
@@ -356,19 +360,47 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
             thread.start_new_thread(self.auto_add_clients,())
 
 
+
+    def display_current_wordlist(self):
+        if(os.path.exists("fern-settings/wordlist-settings.dat")):
+            get_temp_name = reader('fern-settings/wordlist-settings.dat')   #Just for displaying name of wordlist to label area
+            split_name = get_temp_name.replace('/','\n')
+            filename_split = split_name.splitlines()
+            try:
+                filename = filename_split[-1]
+            except IndexError:
+                self.dictionary_label.setEnabled(True)
+                self.dictionary_label.setText('<font color=red><b>Select Wordlist</b></font>')
+
+            self.dictionary_label.setEnabled(True)
+            try:
+                self.dictionary_label.setText('<font color=yellow><b>%s</b></font>'%(filename))
+            except UnboundLocalError:
+                pass
+
+
+
     def launch_attack(self):
         global wordlist
         global select_client
         global progress_bar_max
         global wpa_key_commit
-        self.wpa_disable_items()
         wpa_key_commit = 0
+
+        select_client = self.client_label_combo.currentText()
+
+        if(select_client == str()):
+            QtGui.QMessageBox.warning(self,"WPA Attack","At least one client Mac-Address asscociated with the Access Point is required to successfully attack the WPA Encryption, Please wait for the probing process to detect client addresses")
+            return
+
+        self.wpa_disable_items()
+
         self.emit(QtCore.SIGNAL("stop scan"))
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
         commands.getstatusoutput('rm -r /tmp/fern-log/WPA-DUMP/*')
-        select_client = self.client_label_combo.currentText()
-        if select_client == '':
+
+        if select_client == str():
             self.probe_label.setEnabled(True)
             self.probe_label.setText('<font color=red>Client mac-address is needed</font>')
         else:
@@ -421,20 +453,21 @@ class wpa_attack_dialog(QtGui.QDialog,wpa_window):
 
     def dictionary_set(self):
         filename = QtGui.QFileDialog.getOpenFileName(self,"Select Wordlist","")
-        if 'wordlist-settings.dat' in os.listdir('fern-settings'):
-            remove('fern-settings','wordlist-settings.dat')
-            write('fern-settings/wordlist-settings.dat',filename)
+        if(filename):
+            if 'wordlist-settings.dat' in os.listdir('fern-settings'):
+                remove('fern-settings','wordlist-settings.dat')
+                write('fern-settings/wordlist-settings.dat',filename)
 
-        else:
-            write('fern-settings/wordlist-settings.dat',filename)
+            else:
+                write('fern-settings/wordlist-settings.dat',filename)
 
-        get_temp_name = reader('fern-settings/wordlist-settings.dat')
-        split_name = get_temp_name.replace('/','\n')
-        filename_split = split_name.splitlines()
-        try:
-            filename = filename_split[-1]
-        except IndexError:
-            self.dictionary_label.setText('<font color=red><b>Select Wordlist</b></font>')
-        self.dictionary_label.setEnabled(True)
-        self.dictionary_label.setText('<font color=yellow><b>%s</b></font>'%(filename))
+            get_temp_name = reader('fern-settings/wordlist-settings.dat')
+            split_name = get_temp_name.replace('/','\n')
+            filename_split = split_name.splitlines()
+            try:
+                filename = filename_split[-1]
+            except IndexError:
+                self.dictionary_label.setText('<font color=red><b>Select Wordlist</b></font>')
+            self.dictionary_label.setEnabled(True)
+            self.dictionary_label.setText('<font color=yellow><b>%s</b></font>'%(filename))
 
