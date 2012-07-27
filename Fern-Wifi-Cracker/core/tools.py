@@ -11,7 +11,7 @@ from core.functions import *
 from gui.attack_settings import *
 
 from toolbox.fern_tracker import *
-from toolbox.fern_cookie_hijacker import *
+# from toolbox.fern_cookie_hijacker import *
 
 from PyQt4 import QtGui,QtCore
 
@@ -30,6 +30,7 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
         self.connect(self.attack_options_button,QtCore.SIGNAL("clicked()"),self.attack_settings_exec)
         self.connect(self.cookie_hijack_button,QtCore.SIGNAL("clicked()"),self.cookie_hijack_exec)
 
+
     def font_exec(self):
         font_dialog_box = font_dialog()
         font_dialog_box.exec_()
@@ -40,7 +41,13 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
 
 
     def cookie_hijack_exec(self):
-        cookie_hijacker = Fern_Cookie_Hijacker()
+        try:
+            from toolbox import fern_cookie_hijacker
+        except ImportError:
+            QtGui.QMessageBox.warning(self,"Scapy Dependency","Scapy library is currently not installed \nPlease run \"apt-get install scapy\" to install dependency")
+            return
+
+        cookie_hijacker = fern_cookie_hijacker.Fern_Cookie_Hijacker()
         cookie_hijacker.exec_()
 
 

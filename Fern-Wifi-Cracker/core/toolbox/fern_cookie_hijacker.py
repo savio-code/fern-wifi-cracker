@@ -8,8 +8,8 @@ import webbrowser
 from PyQt4 import QtCore,QtGui
 
 from gui.cookie_hijacker import *
-from cookie_hijacker_core import *
 from mozilla_cookie_core import *
+from cookie_hijacker_core import *
 
 
 class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
