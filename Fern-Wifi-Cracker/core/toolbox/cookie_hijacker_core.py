@@ -30,6 +30,8 @@ import os
 import time
 import thread
 import sqlite3
+import threading
+
 from PyQt4 import QtCore
 
 from scapy.all import *
@@ -38,11 +40,15 @@ class Cookie_Hijack_Core(QtCore.QThread):
     def __init__(self):
         QtCore.QThread.__init__(self)
         self.control = True             # Starts or Stop Thread processes [True = Start,False = Stop]
+        self.maximum_threads= 20        # Thread control -> Issue 30 (http://code.google.com/p/fern-wifi-cracker/issues/detail?id=30)
         self.monitor_interface = str()  # Interface to process 802.11 based packets e.g mon0
         self.decryption_key = str()     # Key to decrypt encrypted packets, if exists
         self.cookie_db_jar = object     # SQlite database for holding captured cookies
         self.cookie_db_cursor = object  # Cursor Object
         self.captured_cookie_count = 0  # Holds number of captured cookies
+
+        self.semaphore = threading.BoundedSemaphore(self.maximum_threads)   # Thread control -> Issue 30 (http://code.google.com/p/fern-wifi-cracker/issues/detail?id=30)
+
 
     def __del__(self):
         typedef = type(self.cookie_db_jar).__name__
@@ -133,6 +139,7 @@ class Cookie_Hijack_Core(QtCore.QThread):
 
 
     def Process_Packet(self,captured_packet):
+        self.semaphore.acquire()                        # Thread control -> Issue 30 (http://code.google.com/p/fern-wifi-cracker/issues/detail?id=30)
         try:
             path = r"/"
             expires = ""
@@ -182,6 +189,9 @@ class Cookie_Hijack_Core(QtCore.QThread):
 
         except AttributeError,message:
             pass
+
+        finally:
+            self.semaphore.release()                                    # Thread control -> Issue 30 (http://code.google.com/p/fern-wifi-cracker/issues/detail?id=30)
 
 
 
