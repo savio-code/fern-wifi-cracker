@@ -25,7 +25,7 @@
 
 # PURPOSE:
 #-------------------------------------------------------------------------------
-# This API was written by reversing engineering the mozilla firefox program using
+# This API was written by reverse engineering the mozilla firefox program using
 # IDA Pro and OllyDBG,This platform independent api allows commuication with mozillas
 # Sqlite databases by hooking into its DLL or SO objects (libmozsqlite3.so  | mozsqlite3.dll)
 # Hooking and using the DLL is important because using the python's sqlite3 library
@@ -77,7 +77,7 @@ class Mozilla_Cookie_Core(object):
         return_code = self._library.sqlite3_prepare_v2(database_ptr,sql_code,0xFFFFFFFF,addressof(ppStmt),0x0)   # Mozilla Firefox offset 0x00F1E106 from xul.dll
         if(return_code == 0):
             return_list = []
-            while(self._library.sqlite3_step(ppStmt) == 100):                                  # 100 = SQLITE_OK ; sqlite3_strp(mem_hash)
+            while(self._library.sqlite3_step(ppStmt) == 100):                                  # 100 = SQLITE_OK ; sqlite3_step(mem_hash)
                 row_count = self._library.sqlite3_column_count(ppStmt)
 
                 temp = []
@@ -97,7 +97,7 @@ class Mozilla_Cookie_Core(object):
 
     # Mozilla Cookie entry format
     #
-    # ('14', 'scorecardresearch.com', 'UID', '2baec64d-23.63.99.90-1342553308', '.scorecardresearch.com', '/', '1404761306', '1342815702 910 000', '1342553306 190 000', '0', '0')
+    # ('14', 'scorecardresearch.com', 'UID', '2baec64d-23.63.99.90-1342553308', '.scorecardresearch.com', '/', '1404761306', '1342815702910000', '1342553306190000', '0', '0')
     # (id_number,baseDomain,name,value,host,path,expiry,lastAccessed,creationTime,isSecure,isHttpOnly)
     #
 
