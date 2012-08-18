@@ -109,6 +109,7 @@ class Fern_MITM_Class:
                 for address in address_func(self.gateway_IP_address):
                     if not self.control:
                         return
+                    time.sleep(0.01)
                     packet = self.ARP_Who_Has(address)
                     sendp(packet,iface = self.interface_card)               # Send Who has packet to all hosts on subnet
 
