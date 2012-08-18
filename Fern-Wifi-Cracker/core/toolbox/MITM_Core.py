@@ -112,7 +112,7 @@ class Fern_MITM_Class:
                     packet = self.ARP_Who_Has(address)
                     sendp(packet,iface = self.interface_card)               # Send Who has packet to all hosts on subnet
 
-                time.sleep(60)
+                time.sleep(20)
 
 
 
