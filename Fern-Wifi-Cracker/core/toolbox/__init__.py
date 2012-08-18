@@ -1,1 +1,1 @@
-__all__ = ['tracker_core','fern_tracker','fern_cookie_hijacker','cookie_hijacker_core','mozilla_cookie_core']
+__all__ = ['tracker_core','fern_tracker','fern_cookie_hijacker','cookie_hijacker_core','mozilla_cookie_core','MITM_Core']

@@ -44,7 +44,7 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
         try:
             from toolbox import fern_cookie_hijacker
         except ImportError:
-            QtGui.QMessageBox.warning(self,"Scapy Dependency","Scapy library is currently not installed \nPlease run \"apt-get install scapy\" to install the dependency")
+            QtGui.QMessageBox.warning(self,"Scapy Dependency","Scapy library is currently not installed \nPlease run \"apt-get install python-scapy\" to install the dependency")
             return
 
         cookie_hijacker = fern_cookie_hijacker.Fern_Cookie_Hijacker()

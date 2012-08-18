@@ -147,6 +147,15 @@ class Mozilla_Cookie_Core(object):
                 return(cookie_path)
 
 
+    def find_mozilla_lib_path(self):
+        '''Finds the path to the dll or shared object'''
+        shared_object_path = str()
+        for root,direc,files in os.walk(os.sep,True):
+            if((self.shared_library in files) and ("firefox" in root.lower())):
+                shared_object_path = root + os.sep
+                self.mozilla_install_path = shared_object_path
+                return(shared_object_path)
+
 
 class Fern_Mozilla_Exception(Exception):
     def __init__(self,value):
@@ -160,7 +169,8 @@ class Fern_Mozilla_Exception(Exception):
 # cookie = Mozilla_Cookie_Core()
 #
 # cookie.shared_library = "mozsqlite3.dll"
-# cookie.get_Cookie_Path("cookies.sqlite")          or      cookie.cookie_database = "D:\\cookies.sqlite"
+# cookie.get_Cookie_Path("cookies.sqlite")  | cookie.cookie_database = "D:\\cookies.sqlite"
+# cookie.find_mozilla_lib_path()            # its best to cache once path is found, might take time to load
 # cookie.mozilla_install_path = "C:\\Program Files (x86)\\Mozilla Firefox\\"
 #
 # retrun_list = cookie.execute_query("select * from moz_cookies")

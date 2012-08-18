@@ -30,6 +30,7 @@ import os
 import time
 import thread
 import sqlite3
+import logging
 import threading
 
 from PyQt4 import QtCore
@@ -63,14 +64,25 @@ class Cookie_Hijack_Core(QtCore.QThread):
 
 
     def create_cookie_cache(self):      # Creates table cookie_cache for logging captured cookies
-        sql_code = '''create table if not exists cookie_cache
+        sql_code_a = '''create table if not exists cookie_cache
         (source TEXT,Referer TEXT,Web_Address TEXT,
         Host TEXT,Name TEXT,Value TEXT,
         Dot_Host Text,Path TEXT,
         IsSecured INTEGER,IsHttpOnly INTEGER
         )'''
-        self.cookie_db_cursor.execute(sql_code)
+        sql_code_b = '''create table if not exists cache_settings
+        (setting TEXT,value TEXT)'''
+
+        self.cookie_db_cursor.execute(sql_code_a)
+        self.cookie_db_cursor.execute(sql_code_b)
         self.cookie_db_jar.commit()
+
+
+    def insert_cache_settings(self,setting,value):
+        sql_code = "insert into cache_settings values ('%s','%s')"
+        self.cookie_db_cursor.execute(sql_code % (setting,value))
+        self.cookie_db_jar.commit()
+
 
 
     # Mozilla Cookie entry format
