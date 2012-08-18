@@ -87,7 +87,7 @@ class Fern_MITM_Class:
             '''Fetches the Gateway MAC address'''
             self._gateway_MAC_addr = str()
             thread.start_new_thread(self._gateway_MAC_Probe,())
-            while(self.control):
+            while not self._gateway_MAC_addr:
                 reply = sniff(filter = "arp",count = 2)[1]
                 if(reply.haslayer(ARP)):
                     if((reply.op == 0x2) and (reply.psrc == self.gateway_IP_address)):
