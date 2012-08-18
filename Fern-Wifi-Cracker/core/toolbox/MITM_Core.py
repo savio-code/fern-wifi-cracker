@@ -143,7 +143,6 @@ class Fern_MITM_Class:
                 for ip_address in self.subnet_hosts.keys():
                     packet = self.ARP_Is_At(ip_address,self.subnet_hosts[ip_address])
                     sendp(packet,iface = self.interface_card)
-                    time.sleep(0.01)
                 time.sleep(5)
 
 
