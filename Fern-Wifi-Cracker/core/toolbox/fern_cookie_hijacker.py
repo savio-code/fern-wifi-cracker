@@ -587,6 +587,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         typedef = type(self.cookie_db_jar).__name__
         if(typedef == "Connection"):
             self.cookie_db_jar.close()                          # Close cookie database connection
+        self.mitm_core._Thread__stop()
         self.cookie_core.terminate()                            # Kill QtCore.QThread
         self.led_control.terminate()
 

