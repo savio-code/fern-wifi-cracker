@@ -208,8 +208,7 @@ class Cookie_Hijack_Core(QtCore.QThread):
 
 
     def Cookie_Capture(self):
-        sniff(filter = "tcp and port http or https",count = 1,iface = self.monitor_interface,
-        prn = self.Process_Packet)                                      # Thread worker speeds up packet processing
+        sniff(filter = "tcp and port http or https",iface = self.monitor_interface,prn = self.Process_Packet) # Thread worker speeds up packet processing
 
 
     def run(self):
