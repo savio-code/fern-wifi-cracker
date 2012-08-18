@@ -87,7 +87,7 @@ class Fern_MITM_Class:
             self._gateway_MAC_addr = str()
             thread.start_new_thread(self._gateway_MAC_Probe,())
             while(self.control):
-                reply = sniff(filter = "arp",count = 2)[1]
+                reply = sniff(filter = "arp",count = 2,store = 0)[1]
                 if(reply.haslayer(ARP)):
                     if((reply.op == 0x2) and (reply.psrc == self.gateway_IP_address)):
                         self._gateway_MAC_addr = reply.hwsrc
@@ -134,7 +134,7 @@ class Fern_MITM_Class:
                 the subnet'''
             packet_count = 1
             thread.start_new_thread(self._network_Hosts_Probe,())
-            sniff(filter = "arp",prn = self._get_Network_Hosts_Worker)
+            sniff(filter = "arp",prn = self._get_Network_Hosts_Worker,store = 0)
 
 
         def _poison_arp_cache(self):
@@ -160,7 +160,7 @@ class Fern_MITM_Class:
 
         def _redirect_network_traffic(self):
             '''Redirect traffic to the Gateway Address'''
-            sniff(prn = self._redirect_network_traffic_worker)
+            sniff(prn = self._redirect_network_traffic_worker,store = 0)
 
 
 
