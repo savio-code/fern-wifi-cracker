@@ -550,8 +550,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.mitm_activated_label.setText("Internal MITM Engine Activated")
             self.mitm_core.control = False
 
-            self.mitm_core._Thread__stop()
-            self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
+            self.kill_MITM_Thread()
 
         self.cookie_core.control = False
 
@@ -568,6 +567,12 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
         self.cookie_core = Cookie_Hijack_Core()
         self.sniffing_status_led.setPixmap(self.red_light)
+
+
+    def kill_MITM_Thread(self):
+        self.mitm_core._Thread__stop()
+        del self.mitm_core
+        self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
 
 
 
@@ -587,7 +592,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         typedef = type(self.cookie_db_jar).__name__
         if(typedef == "Connection"):
             self.cookie_db_jar.close()                          # Close cookie database connection
-        self.mitm_core._Thread__stop()
+        self.kill_MITM_Thread()
+        self.mitm_core.join()
         self.cookie_core.terminate()                            # Kill QtCore.QThread
         self.led_control.terminate()
 
