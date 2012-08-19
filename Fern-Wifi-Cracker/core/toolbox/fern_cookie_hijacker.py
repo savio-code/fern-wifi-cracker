@@ -610,5 +610,5 @@ class Led_Blick_Class(QtCore.QThread):
             self.emit(QtCore.SIGNAL("on sniff green light"))
 
         self.emit(QtCore.SIGNAL("Continue Sniffing"))
-        self.exit(0)
+        return
 
