@@ -562,9 +562,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
         self.cookie_core.control = False
 
-        if(self.cookie_core.isRunning()):
-            self.cookie_core.terminate()                                    # Kill QtCore.QThread
-
         self.wep_key_edit.setEnabled(True)                              # Release WEP/WPA Decryption LineEdit
         self.start_sniffing_button.setText("Start Sniffing")
         self.ethernet_mode_radio.setEnabled(True)
