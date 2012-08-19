@@ -42,7 +42,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.cookie_core = Cookie_Hijack_Core()                 # Cookie Capture and processing core
         self.mozilla_cookie_engine = Mozilla_Cookie_Core()      # Mozilla fierfox cookie engine
 
-        self.led_control = Led_Blick_Class()                    # Thread class for led blibking *
 
         self.connect(self.refresh_button,QtCore.SIGNAL("clicked()"),self.refresh_interface)
         self.connect(self.start_sniffing_button,QtCore.SIGNAL("clicked()"),self.start_Cookie_Attack)
@@ -54,16 +53,15 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.connect_objects()
 
 
-
     def connect_objects(self):
         self.connect(self,QtCore.SIGNAL("creating cache"),self.creating_cache)
         self.connect(self.cookie_core,QtCore.SIGNAL("New Cookie Captured"),self.display_cookie_captured)    # Notification Signal for GUI instance"))
         self.connect(self.cookie_core,QtCore.SIGNAL("cookie buffer detected"),self.emit_led_buffer)         # Notification on new http packet
         self.connect(self,QtCore.SIGNAL("emit buffer red light"),self.emit_buffer_red_light)
 
-        self.connect(self.led_control,QtCore.SIGNAL("on sniff red light"),self.off_sniff_red_light)         # Will bink the sniff led red for some seconds control from blink_light()
-        self.connect(self.led_control,QtCore.SIGNAL("on sniff green light"),self.on_sniff_green_light)      # Will bink the sniff led green for some seconds control from blink_light()
-        self.connect(self.led_control,QtCore.SIGNAL("Continue Sniffing"),self.start_Cookie_Attack_part)
+        self.connect(self,QtCore.SIGNAL("on sniff red light"),self.off_sniff_red_light)         # Will bink the sniff led red for some seconds control from blink_light()
+        self.connect(self,QtCore.SIGNAL("on sniff green light"),self.on_sniff_green_light)      # Will bink the sniff led green for some seconds control from blink_light()
+        self.connect(self,QtCore.SIGNAL("Continue Sniffing"),self.start_Cookie_Attack_part)
 
 
 
@@ -458,6 +456,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.stop_Cookie_Attack()
             return
 
+        self.cookie_core = Cookie_Hijack_Core()                 # Cookie Capture and processing core
         self.sniff_button_control = "STOP"
         selected_interface = str(self.combo_interface.currentText())
         self.cookies_captured_label.clear()
@@ -512,19 +511,19 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             "Mozilla firefox is currently not installed on this computer, you need firefox to browse hijacked sessions, Process will capture cookies for manual analysis")
 
         self.treeWidget.clear()
-        self.connect_objects()
         self.wep_key_edit.setEnabled(False)                             # Lock WEP/WPA LineEdit
 
         self.cookie_core.control = True                                 # Start Core Thread processes
         self.cookie_core.monitor_interface = self.monitor_interface     # Holds the monitor interface e.g mon0,mon1
 
-        self.led_control.start()                                        # Blinks Sniff Led for some number of seconds
+        thread.start_new_thread(self.Led_Blink,())                      # Blinks Sniff Led for some number of seconds
         self.start_sniffing_button.setEnabled(False)
 
 
 
     def start_Cookie_Attack_part(self):
         try:
+            self.connect_objects()
             self.cookie_core.start()
             self.sniffing_status_led.setPixmap(self.green_light)
             self.start_sniffing_button.setEnabled(True)
@@ -540,6 +539,18 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.passive_mode_radio.setEnabled(True)
 
 
+    def Led_Blink(self):
+        for count in range(3):
+            self.emit(QtCore.SIGNAL("on sniff green light"))
+            time.sleep(1)
+            self.emit(QtCore.SIGNAL("on sniff red light"))
+            time.sleep(1)
+            self.emit(QtCore.SIGNAL("on sniff green light"))
+
+        self.start_Cookie_Attack_part()
+        return
+
+
 
     def stop_Cookie_Attack(self):
         self.sniff_button_control = "START"
@@ -553,9 +564,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
         if(self.cookie_core.isRunning()):
             self.cookie_core.terminate()                                    # Kill QtCore.QThread
-
-        if(self.led_control.isRunning()):
-            self.led_control.terminate()
 
         self.wep_key_edit.setEnabled(True)                              # Release WEP/WPA Decryption LineEdit
         self.start_sniffing_button.setText("Start Sniffing")
@@ -593,22 +601,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
         self.kill_MITM_process()
         self.cookie_core.terminate()                            # Kill QtCore.QThread
-        self.led_control.terminate()
 
 
 
-class Led_Blick_Class(QtCore.QThread):
-    def __init__(self):
-        QtCore.QThread.__init__(self)
-
-    def run(self):
-        for count in range(3):
-            self.emit(QtCore.SIGNAL("on sniff green light"))
-            time.sleep(1)
-            self.emit(QtCore.SIGNAL("on sniff red light"))
-            time.sleep(1)
-            self.emit(QtCore.SIGNAL("on sniff green light"))
-
-        self.emit(QtCore.SIGNAL("Continue Sniffing"))
-        return
 
