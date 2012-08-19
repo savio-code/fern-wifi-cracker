@@ -484,6 +484,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                 return
 
             self.monitor_interface_led.setPixmap(self.green_light)
+            self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
             self.mitm_core.interface_card = selected_interface
             self.mitm_core.gateway_IP_address = ip_wep_edit             # Gateway Address
             self.mitm_core.set_Attack_Option("ARP POISON + ROUTE")
@@ -552,7 +553,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
             self.mitm_core._Thread__stop()
             del self.mitm_core
-            self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
 
         self.cookie_core.control = False
 
