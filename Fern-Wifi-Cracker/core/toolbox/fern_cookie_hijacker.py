@@ -547,7 +547,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             time.sleep(1)
             self.emit(QtCore.SIGNAL("on sniff green light"))
 
-        self.start_Cookie_Attack_part()
+        self.emit(QtCore.SIGNAL("Continue Sniffing"))
         return
 
 
