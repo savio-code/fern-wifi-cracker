@@ -1,13 +1,13 @@
 import re
 import os
 import time
+import signal
 import sqlite3
 import commands
-import webbrowser
+import subprocess
 
 from PyQt4 import QtCore,QtGui
 
-from MITM_Core import *
 from gui.cookie_hijacker import *
 from mozilla_cookie_core import *
 from cookie_hijacker_core import *
@@ -37,9 +37,9 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
         self.host_interface = str()                 # Hold the name of the current monitor host interface e.g wlan0
 
+        self.mitm_pid = int()
         self.cookie_db_jar = object                             # Sqlite3 Database object
         self.cookie_core = Cookie_Hijack_Core()                 # Cookie Capture and processing core
-        self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
         self.mozilla_cookie_engine = Mozilla_Cookie_Core()      # Mozilla fierfox cookie engine
 
         self.led_control = Led_Blick_Class()                    # Thread class for led blibking *
@@ -57,7 +57,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
     def connect_objects(self):
         self.connect(self,QtCore.SIGNAL("creating cache"),self.creating_cache)
-        self.connect(self,QtCore.SIGNAL("finished creating cache"),self.finished_creating_cache)
         self.connect(self.cookie_core,QtCore.SIGNAL("New Cookie Captured"),self.display_cookie_captured)    # Notification Signal for GUI instance"))
         self.connect(self.cookie_core,QtCore.SIGNAL("cookie buffer detected"),self.emit_led_buffer)         # Notification on new http packet
         self.connect(self,QtCore.SIGNAL("emit buffer red light"),self.emit_buffer_red_light)
@@ -419,7 +418,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                 database_path = os.getcwd() + "/key-database/Cookie.db"
                 cookie_db_jar = sqlite3.connect(database_path)
                 cookie_db_cursor = cookie_db_jar.cursor()
-
                 cookie_db_cursor.execute(sql_code_a)
                 result = cookie_db_cursor.fetchone()
                 if(result):
@@ -444,20 +442,14 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
                 cookie_db_jar.close()
 
-            self.emit(QtCore.SIGNAL("finished creating cache"))
             self.mozilla_cookie_engine.execute_query("delete from moz_cookies")
+            self.start_Attack()
+
 
 
     def creating_cache(self):
         self.start_sniffing_button.setEnabled(False)
         self.cookies_captured_label.setText("<font color=green>Please wait caching objects...</font>")
-
-
-    def finished_creating_cache(self):
-        self.start_sniffing_button.setEnabled(True)
-        self.cookies_captured_label.clear()
-        self.start_Attack()                                                                             # ATTACK CONTINUES HERE <---
-
 
 
     # Attack starts here on button click()
@@ -484,11 +476,14 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                 return
 
             self.monitor_interface_led.setPixmap(self.green_light)
-            self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
-            self.mitm_core.interface_card = selected_interface
-            self.mitm_core.gateway_IP_address = ip_wep_edit             # Gateway Address
-            self.mitm_core.set_Attack_Option("ARP POISON + ROUTE")
-            self.mitm_core.start()
+
+            os.environ["interface_card"] = selected_interface
+            os.environ["gateway_ip_address"] = ip_wep_edit             # Gateway Address
+
+            path = os.getcwd() + "/core/toolbox/MITM_Core.py"
+            mitm_control = subprocess.Popen("python " + path,shell = True,stdout = subprocess.PIPE,stderr = subprocess.PIPE)
+            self.mitm_pid = mitm_control.pid + 1
+
             self.mitm_activated_label.setEnabled(True)
             self.mitm_activated_label.setText("<font color = green><b>Internal MITM Engine Activated</b></font>")
 
@@ -500,6 +495,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.cookie_core.cookie_db_cursor = self.cookie_core.cookie_db_jar.cursor()
             self.cookie_core.create_cookie_cache()                      # Create Cookie Cache
             self.cookie_core.truncate_database()                        # Delete all old items from database
+
         except Exception,message:
             self.display_error("Failed to create cookie database: " + str(message))
             return
@@ -510,6 +506,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
 
     def start_Attack(self):
+        self.cookies_captured_label.clear()
         if not self.firefox_is_installed():
             QtGui.QMessageBox.warning(self,"Mozilla Firefox Detection",
             "Mozilla firefox is currently not installed on this computer, you need firefox to browse hijacked sessions, Process will capture cookies for manual analysis")
@@ -549,10 +546,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         if(self.ethernet_mode_radio.isChecked()):
             self.mitm_activated_label.setEnabled(False)
             self.mitm_activated_label.setText("Internal MITM Engine Activated")
-            self.mitm_core.control = False
 
-            self.mitm_core._Thread__stop()
-            del self.mitm_core
+            self.kill_MITM_process()
 
         self.cookie_core.control = False
 
@@ -571,6 +566,13 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.sniffing_status_led.setPixmap(self.red_light)
 
 
+    def kill_MITM_process(self):
+        while(True):
+            try:
+                os.kill(self.mitm_pid,signal.SIGINT)
+            except OSError:
+                return
+
 
     def clear_items(self):
         self.treeWidget.clear()
@@ -588,8 +590,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         typedef = type(self.cookie_db_jar).__name__
         if(typedef == "Connection"):
             self.cookie_db_jar.close()                          # Close cookie database connection
-        self.mitm_core._Thread__stop()
-        self.mitm_core.join()
+
+        self.kill_MITM_process()
         self.cookie_core.terminate()                            # Kill QtCore.QThread
         self.led_control.terminate()
 

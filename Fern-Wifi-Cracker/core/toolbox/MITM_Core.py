@@ -35,9 +35,8 @@ from scapy.all import *
 
 class Fern_MITM_Class:
 
-    class ARP_Poisoning(threading.Thread):
+    class ARP_Poisoning(object):
         def __init__(self):
-            threading.Thread.__init__(self)
             self._attack_option = str()                 # "ARP POISON" or "ARP POISON + ROUTE" or "DOS"
             self.interface_card = str()                 # eth0, wlan0
             self.gateway_IP_address = str()             # Router or default gateway address
@@ -253,10 +252,14 @@ class Fern_MITM_Class:
                 raise Exception("Invalid Attack Option")
 
 
-        def run(self):
-            self.run_attack()
 
+instance = Fern_MITM_Class.ARP_Poisoning()
 
+instance.interface_card = os.environ["interface_card"]
+instance.gateway_IP_address = os.environ["gateway_ip_address"]
+
+instance.set_Attack_Option("ARP POISON + ROUTE")
+instance.run_attack()
 
 
 
