@@ -161,7 +161,8 @@ class Cookie_Hijack_Core(QtCore.QThread):
             is_secure = str()
             src_addr = captured_packet.getlayer("IP").src       # Source Mac address
 
-            self.emit(QtCore.SIGNAL("cookie buffer detected"))
+            if(self.control):
+                self.emit(QtCore.SIGNAL("cookie buffer detected"))
 
             if("Cookie:" in captured_packet.load):
 
@@ -197,7 +198,8 @@ class Cookie_Hijack_Core(QtCore.QThread):
                                     self.insert_Cookie_values(src_addr,refer_address,web_address,domain[1:],name,value,domain,path,is_secure,"0")
                                     self.captured_cookie_count += 1
 
-                    self.emit(QtCore.SIGNAL("New Cookie Captured"))     # Notification Signal for GUI instance
+                    if(self.control):
+                        self.emit(QtCore.SIGNAL("New Cookie Captured"))     # Notification Signal for GUI instance
 
         except AttributeError,message:
             pass

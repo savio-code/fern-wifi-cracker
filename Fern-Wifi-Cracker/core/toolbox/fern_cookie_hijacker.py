@@ -569,6 +569,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
         self.cookie_core = Cookie_Hijack_Core()
         self.sniffing_status_led.setPixmap(self.red_light)
+        self.cookie_detection_led.setPixmap(self.red_light)
 
 
     def kill_MITM_process(self):
