@@ -40,7 +40,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.cookie_db_jar = object                             # Sqlite3 Database object
         self.cookie_core = Cookie_Hijack_Core()                 # Cookie Capture and processing core
         self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
-        self.mitm_process = Custom_Thread(target = self.mitm_core.Start_Attack)
         self.mozilla_cookie_engine = Mozilla_Cookie_Core()      # Mozilla fierfox cookie engine
 
         self.led_control = Led_Blick_Class()                    # Thread class for led blibking *
@@ -488,7 +487,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.mitm_core.interface_card = selected_interface
             self.mitm_core.gateway_IP_address = ip_wep_edit             # Gateway Address
             self.mitm_core.set_Attack_Option("ARP POISON + ROUTE")
-            self.mitm_process.start()
+            self.mitm_core.start()
             self.mitm_activated_label.setEnabled(True)
             self.mitm_activated_label.setText("<font color = green><b>Internal MITM Engine Activated</b></font>")
 
@@ -551,7 +550,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.mitm_activated_label.setText("Internal MITM Engine Activated")
             self.mitm_core.control = False
 
-            self.stop_MITM_thread()
+            self.mitm_core._Thread__stop()
+            self.mitm_core = Fern_MITM_Class.ARP_Poisoning()
 
         self.cookie_core.control = False
 
@@ -568,13 +568,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
         self.cookie_core = Cookie_Hijack_Core()
         self.sniffing_status_led.setPixmap(self.red_light)
-
-
-    def stop_MITM_thread(self):
-        while(self.mitm_process.isAlive()):
-            self.mitm_process.terminate()
-            self.mitm_process.join()
-        self.mitm_process = Custom_Thread(target = self.mitm_core.Start_Attack)
 
 
 
@@ -594,7 +587,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         typedef = type(self.cookie_db_jar).__name__
         if(typedef == "Connection"):
             self.cookie_db_jar.close()                          # Close cookie database connection
-        self.stop_MITM_thread()
+        self.mitm_core._Thread__stop()
         self.cookie_core.terminate()                            # Kill QtCore.QThread
         self.led_control.terminate()
 
