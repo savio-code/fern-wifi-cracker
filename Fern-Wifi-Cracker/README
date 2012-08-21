@@ -6,6 +6,7 @@ Prerequisites:
 * xterm
 * aircrack-ng
 * subversion
+* python-scapy
 
 
 To launch the program use the icon at "/usr/share/applications", Or from Terminal:
