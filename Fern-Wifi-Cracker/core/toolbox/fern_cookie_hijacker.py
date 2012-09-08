@@ -420,6 +420,14 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                 result = cookie_db_cursor.fetchone()
                 if(result):
                     self.mozilla_cookie_engine.cookie_database = result[0]
+                    if not os.path.exists(self.mozilla_cookie_engine.cookie_database):
+                        self.emit(QtCore.SIGNAL("creating cache"))
+                        path = self.mozilla_cookie_engine.get_Cookie_Path("cookies.sqlite")
+                        if not path:
+                            raise Exception("cookies.sqlite3 firefox database has not been created on this system, Please run firefox to create")
+                        cookie_db_cursor.execute("delete from cache_settings where setting = 'cookie_path'")
+                        cookie_db_cursor.execute(sql_code_c % ("cookie_path",path))
+                        cookie_db_jar.commit()
                 else:
                     self.emit(QtCore.SIGNAL("creating cache"))
                     path = self.mozilla_cookie_engine.get_Cookie_Path("cookies.sqlite")
@@ -432,9 +440,20 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                 result = cookie_db_cursor.fetchone()
                 if(result):
                     self.mozilla_cookie_engine.mozilla_install_path = result[0]
+                    if not os.path.exists(self.mozilla_cookie_engine.mozilla_install_path + self.mozilla_cookie_engine.shared_library):
+
+                        self.emit(QtCore.SIGNAL("creating cache"))
+                        path = self.mozilla_cookie_engine.find_mozilla_lib_path()
+                        if not path:
+                            raise Exception("The shared library " + self.mozilla_cookie_engine.shared_library + " was not found on this computer, please checks firefoxs libraries to confirm")
+                        cookie_db_cursor.execute("delete from cache_settings where setting = 'library_path'")
+                        cookie_db_cursor.execute(sql_code_c % ("library_path",path))
+                        cookie_db_jar.commit()
                 else:
                     self.emit(QtCore.SIGNAL("creating cache"))
                     path = self.mozilla_cookie_engine.find_mozilla_lib_path()
+                    if not path:
+                        raise Exception("The shared library " + self.mozilla_cookie_engine.shared_library + " was not found on this computer, please checks firefoxs libraries to confirm")
                     cookie_db_cursor.execute(sql_code_c % ("library_path",path))
                     cookie_db_jar.commit()
 

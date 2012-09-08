@@ -211,35 +211,31 @@ class settings_dialog(QtGui.QDialog,settings):
         if len(variables.xterm_setting) > 0:
             self.xterm_checkbox.setChecked(True)
 
+        self.label_4.setText("\t\t<font color=green>%s Activated</font>"%(variables.monitor_interface))
+
         list_ = ['All Channels']
         for list_numbers in range(1,15):
             list_.append(str(list_numbers))
         self.channel_combobox.addItems(list_)
-        self.connect(self.xterm_checkbox,QtCore.SIGNAL("clicked(bool)"),self.xterm)
-        self.connect(self.channel_combobox,QtCore.SIGNAL("currentIndexChanged(QString)"),self.channel_log)
+        self.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),self.change_settings)
+        self.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),QtCore.SLOT("close()"))
 
 
     #
     # Log selected temporary manual channel to fern-log directory
     #
-    def channel_log(self):
-        try:
-            remove('/tmp/fern-log','static-channel.log')
-        except IOError:
-            pass
+    def change_settings(self):
         channel = str(self.channel_combobox.currentText())
-        if channel == 'All Channels':
-            os.system('rm -r /tmp/fern-log/static-channel.log')
-            pass
-        else:
-            write('/tmp/fern-log/static-channel.log',channel)
+        term_settings = self.xterm_checkbox.isChecked()
 
-    #
-    # Log xtern selectionn to fern-settings directory manual channel
-    #
-    def xterm(self):
-        xterm_settings = self.xterm_checkbox.isChecked()
-        if xterm_settings:
+        if channel == 'All Channels':
+            variables.static_channel = str()
+        else:
+            variables.static_channel = channel
+
+        if term_settings:
             variables.xterm_setting = 'xterm -geometry 100 -e'
         else:
             variables.xterm_setting = ''
+
+

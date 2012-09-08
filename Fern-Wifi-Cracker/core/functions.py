@@ -31,9 +31,41 @@ def set_key_entries(arg,arg1,arg2,arg3,arg4):
         for values in temp_backup:
             query.execute("insert into keys values ('%s','%s','%s','%s','%s')"%(values[0],str(),values[1],values[2],values[3]))
 
-    query.execute("insert into keys values ('%s','%s','%s','%s','%s')"%(str(arg),str(arg1),str(arg2),str(arg3),str(arg4)))
+    sql_code = "select key from keys where mac_address ='%s' and encryption = '%s'"
+    query.execute(sql_code % (str(arg1),str(arg2)))
+    result = query.fetchall()
+    if(result):
+        sql_code_2 = "update keys set access_point = '%s',encryption = '%s',key = '%s',channel = '%s' where mac_address = '%s'"
+        query.execute(sql_code_2 % (str(arg),str(arg2),str(arg3),str(arg4),str(arg1)))
+    else:
+        query.execute("insert into keys values ('%s','%s','%s','%s','%s')"%(str(arg),str(arg1),str(arg2),str(arg3),str(arg4)))
     connection.commit()
     connection.close()
+
+
+
+def get_key_from_database(mac_address,encryption):
+    cracked_key = str()
+    sql_code = "select key from keys where mac_address ='%s' and encryption = '%s'"
+    connection = sqlite3.connect('key-database/Database.db')
+    query = connection.cursor()
+    query.execute(sql_code % (mac_address,encryption))
+    result = query.fetchall()
+    if(result):
+        cracked_key = str(result[0][0])
+    return(cracked_key)
+
+
+def is_already_Cracked(mac_address,encryption):
+    sql_code = "select key from keys where mac_address ='%s' and encryption = '%s'"
+    connection = sqlite3.connect('key-database/Database.db')
+    query = connection.cursor()
+    query.execute(sql_code % (mac_address,encryption))
+    result = query.fetchall()
+    if(result):
+        return(True)
+    return(False)
+
 
 
 def fern_database_query(sql_query):
@@ -136,10 +168,17 @@ def settings_exists(object_name):
 def Check_MAC(mac_address):
     hex_digits = re.compile('([0-9a-f]{2}:){5}[0-9a-f]{2}',re.IGNORECASE)
     if re.match(hex_digits,mac_address):
-        return True
-    else:
-        return False
+        return(True)
+    return(False)
 
 
+#################   FILE LINE COUNTER ########################
 
+def line_count(filename):
+    count = 0
+    files = open(filename,'r')
+    for line in files:
+        count += 1
+    files.close()
+    return(count)
 

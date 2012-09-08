@@ -1,10 +1,20 @@
 from core.fern import *
 
-############# WEP/WPA GLOBAL VARIABLES #################
+############# WEP/WPA/WPS GLOBAL VARIABLES #################
+
+#
+# WPS Variables
+#
+wps_functions = object()        # Instance of WPS class
+
+
 #
 # Network scan global variable
 #
 scan_control = 0
+static_channel = str()
+monitor_interface = str()
+monitor_mac_address = str()
 #
 # Update checking loop (control variable)
 #
@@ -55,6 +65,15 @@ else:
 #
 os.mkdir('/tmp/fern-log/WPA')                                     # Create /tmp/fern-log/WPA
 
+#
+# Evecute commands without display to stdout
+#
+def exec_command(command,directory = None):
+    output = open(os.devnull,'w')
+    ret = subprocess.call(command,shell=True,stdout=output,stderr=output,cwd=directory)
+    return(ret)
+
+
 
 
 ################## TOOL BOX VARIABLES #######################
@@ -70,7 +89,7 @@ alternatively you can insert access point details manually using the\
  "Key Database" section of the main window,you can also input mac-addresses directly.\
 '
 
-invalid_mac_address_error = 'The Mac address inserted is invalid, \
+invalid_mac_address_error = 'The MAC address inserted is invalid, \
 a valid mac address has 6 segment with 2 hexadecimal values in each segment e.g 00:CA:56:12:8B:90'
 
 #
