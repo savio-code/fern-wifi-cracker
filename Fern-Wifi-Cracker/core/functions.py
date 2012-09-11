@@ -182,3 +182,9 @@ def line_count(filename):
     files.close()
     return(count)
 
+######################## Font settings #######################
+def font_size():
+	font_settings = open('%s/.font_settings.dat'%(os.getcwd()),'r+')
+	font_init = font_settings.read()
+	return int(font_init.split()[2])
+

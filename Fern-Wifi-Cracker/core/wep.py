@@ -98,7 +98,7 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
         self.keys_cracked_label.setVisible(False)
         self.setStyleSheet('background-image: url("%s/resources/binary_2.png");color:rgb(172,172,172);'%(os.getcwd()))
-        self.attack_type_combo.setStyleSheet('color: rgb(172,172,172);background-color: black;')
+        self.attack_type_combo.setStyleSheet('color: rgb(172,172,172);background-color: black;font: %spt;'%(font_size()))
 
         ############## ATACK PANEL METHODS #####################
 
