@@ -19,7 +19,8 @@ def database_create():
 #
 # Add keys to Database with this function
 #
-def set_key_entries(arg,arg1,arg2,arg3,arg4):
+
+def upgrade_database():
     connection = sqlite3.connect('key-database/Database.db')
     query = connection.cursor()
     query.execute("select * from keys")
@@ -30,7 +31,15 @@ def set_key_entries(arg,arg1,arg2,arg3,arg4):
         query.execute('''create table keys (access_point text,mac_address text,encryption text,key text,channel int)''')
         for values in temp_backup:
             query.execute("insert into keys values ('%s','%s','%s','%s','%s')"%(values[0],str(),values[1],values[2],values[3]))
+    connection.commit()
+    connection.close()
 
+
+
+def set_key_entries(arg,arg1,arg2,arg3,arg4):
+    upgrade_database()
+    connection = sqlite3.connect('key-database/Database.db')
+    query = connection.cursor()
     sql_code = "select key from keys where mac_address ='%s' and encryption = '%s'"
     query.execute(sql_code % (str(arg1),str(arg2)))
     result = query.fetchall()
@@ -46,6 +55,7 @@ def set_key_entries(arg,arg1,arg2,arg3,arg4):
 
 def get_key_from_database(mac_address,encryption):
     cracked_key = str()
+    upgrade_database()
     sql_code = "select key from keys where mac_address ='%s' and encryption = '%s'"
     connection = sqlite3.connect('key-database/Database.db')
     query = connection.cursor()

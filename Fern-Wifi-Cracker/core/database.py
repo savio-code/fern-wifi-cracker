@@ -95,7 +95,7 @@ class database_dialog(QtGui.QDialog,database_ui):
                 key = key1.text()
                 channel = channel1.text()
 
-                if not bool(access_point) and bool(mac_address) and bool(encryption) and bool(key) and bool(channel):
+                if not (bool(access_point) and bool(mac_address) and bool(encryption) and bool(key) and bool(channel)):
                     raise(TypeError)
 
                 set_key_entries(access_point,mac_address,encryption,key,channel)       # Write enrties to database
