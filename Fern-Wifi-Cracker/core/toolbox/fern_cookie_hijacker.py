@@ -499,7 +499,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             os.environ["gateway_ip_address"] = ip_wep_edit             # Gateway Address
 
             path = os.getcwd() + "/core/toolbox/MITM_Core.py"
-            mitm_control = subprocess.Popen("python " + path,shell = True,stdout = subprocess.PIPE,stderr = subprocess.PIPE)
+            open_file = open(os.devnull,"w")
+            mitm_control = subprocess.Popen("python " + path,shell = True,stdout = open_file,stderr = open_file)
             self.mitm_pid = mitm_control.pid + 1
 
             self.mitm_activated_label.setEnabled(True)
