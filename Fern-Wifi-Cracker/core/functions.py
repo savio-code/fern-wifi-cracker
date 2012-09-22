@@ -2,6 +2,7 @@ import os
 import re
 import sqlite3
 import commands
+import subprocess
 
 ################### DATABASE INSERTION FUNCTIONS ##############
 #
@@ -197,4 +198,12 @@ def font_size():
 	font_settings = open('%s/.font_settings.dat'%(os.getcwd()),'r+')
 	font_init = font_settings.read()
 	return int(font_init.split()[2])
+
+
+###################### Process Terminate ######################
+
+
+
+
+
 

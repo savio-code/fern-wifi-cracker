@@ -192,11 +192,12 @@ class Cookie_Hijack_Core(QtCore.QThread):
                             for cookie_and_value in cookie_process:
                                 if(cookie_and_value):
                                     cookie_process_a = cookie_and_value.strip()
-                                    name,value = cookie_process_a.split("=",1)
+                                    if("=" in cookie_process_a):
+                                        name,value = cookie_process_a.split("=",1)
 
-                                    # source,referer,web_address,host,name,value,dot_host,path,isSecure,isHttpOnly
-                                    self.insert_Cookie_values(src_addr,refer_address,web_address,domain[1:],name,value,domain,path,is_secure,"0")
-                                    self.captured_cookie_count += 1
+                                        # source,referer,web_address,host,name,value,dot_host,path,isSecure,isHttpOnly
+                                        self.insert_Cookie_values(src_addr,refer_address,web_address,domain[1:],name,value,domain,path,is_secure,"0")
+                                        self.captured_cookie_count += 1
 
                     if(self.control):
                         self.emit(QtCore.SIGNAL("New Cookie Captured"))     # Notification Signal for GUI instance

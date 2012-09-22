@@ -23,77 +23,47 @@
 # GNU General Public License for more details.
 
 
-# PURPOSE:
-#-------------------------------------------------------------------------------
-# This API was written by reverse engineering the mozilla firefox program using
-# IDA Pro and OllyDBG,This platform independent api allows commuication with mozillas
-# Sqlite databases by hooking into its DLL or SO objects (libmozsqlite3.so  | mozsqlite3.dll)
-# Hooking and using the DLL is important because using the python's sqlite3 library
-# fails to communicate with the cookie database, and also firefox changes its database
-# format on each release. This api communicates with the cookie database no matter
-# what changes are made.
-#
-# Offset 0x00F25210 of xull.dll (windows) <- OllyDBG
-#-------------------------------------------------------------------------------
-
 import os
 import time
-from ctypes import *
+import sqlite3
+import subprocess
 
-# int __cdecl sqlite3_open(const char *filename, sqlite3 **ppDb)
-# sqlite3_mutex *__cdecl sqlite3_db_mutex(sqlite3 *db)
-# int __cdecl sqlite3_prepare_v2(sqlite3 *db, const char *zSql, int nBytes, sqlite3_stmt **ppStmt, const char **pzTail)
 
 # CREATE TABLE moz_cookies (id INTEGER PRIMARY KEY, baseDomain TEXT, name TEXT, value TEXT, host TEXT, path TEXT, expiry INTEGER, lastAccessed INTEGER, creationTime INTEGER, isSecure INTEGER, isHttpOnly INTEGER, CONSTRAINT moz_uniqueid UNIQUE (name, host, path))
 
 class Mozilla_Cookie_Core(object):
     def __init__(self):
-        self.shared_library = "libmozsqlite3.so"                        # Firefox SQlite 3 Database library (Linux = ibmozsqlite3.so || Windows = mozsqlite3.dll)
-        self.cookie_database = str()                                    # /root/.mozilla/firefox/nq474mcm.default/cookies.sqlite (Use self.get_Cookie_Path() to file path)
-        self.mozilla_install_path = "/opt/firefox/"                     # Linux = /opt/firefox/  || Windows = C:\Program Files\Mozilla Firefox\
-        self._library = object()                                        # LoadLibrary("libmozsqlite.so")
+        self.cookie_database = str()             # /root/.mozilla/firefox/nq474mcm.default/cookies.sqlite (Use self.get_Cookie_Path() to file path)
 
 
-    def _get_Database_Pointer(self):
-        '''Returns Database pointer to functions'''
-        return_code = c_int()
-        database_ptr = pointer(c_int())
-        filename = c_char_p(self.cookie_database)
-        self._library = cdll.LoadLibrary(self.mozilla_install_path + self.shared_library)   # LoadLibrary("libmozsqlite.so")
-        return_code = self._library.sqlite3_open(filename,addressof(database_ptr))          # Mozilla Firefox offset 0x00F25210 from xul.dll (firefox uses sqlite3_open_v2())
-        if(return_code):
-            error = cast(self._library.sqlite3_errmsg(database_ptr),c_char_p)
-            raise Fern_Mozilla_Exception(error.value)                                       # (char*)(sqlite_errmsg(database_ptr))
-        return(database_ptr)                                                                # return();  Return pointer to database
+    def _check_database_compatibility(self):
+        sql_code = "CREATE TABLE moz_cookies (id INTEGER PRIMARY KEY, baseDomain TEXT, name TEXT, value TEXT, host TEXT, path TEXT, expiry INTEGER, lastAccessed INTEGER, creationTime INTEGER, isSecure INTEGER, isHttpOnly INTEGER)"
+        try:
+            mozilla_cookie_db = sqlite3.connect(self.cookie_database)
+            mozilla_cursor = mozilla_cookie_db.cursor()
+            mozilla_cursor.execute("select * from moz_cookies limit 1")
+        except sqlite3.DatabaseError,error:
+            self.kill_Process("firefox-bin")
+            os.remove(self.cookie_database)
+            mozilla_cookie_db = sqlite3.connect(self.cookie_database)
+            mozilla_cursor = mozilla_cookie_db.cursor()
+            mozilla_cursor.execute(sql_code)
+            mozilla_cookie_db.commit()
+            mozilla_cookie_db.close()
 
 
     def execute_query(self,sql_statement):
         '''Executes raw query into database and returns entry
             list() if any'''
-        database_ptr = self._get_Database_Pointer()
-        ppStmt = pointer(c_buffer(0x512))
-        sql_code = c_char_p()
-        sql_code.value = sql_statement
-        return_code = self._library.sqlite3_prepare_v2(database_ptr,sql_code,0xFFFFFFFF,addressof(ppStmt),0x0)   # Mozilla Firefox offset 0x00F1E106 from xul.dll
-        if(return_code == 0):
-            return_list = []
-            while(self._library.sqlite3_step(ppStmt) == 100):                                  # 100 = SQLITE_OK ; sqlite3_step(mem_hash)
-                row_count = self._library.sqlite3_column_count(ppStmt)
-
-                temp = []
-                for row in xrange(row_count):
-                    row_data = (cast(self._library.sqlite3_column_text(ppStmt, row),c_char_p)) # char* _cdecl sqlite3_column_text(sqlite3_strp** obj,int row)
-                    temp.append(row_data.value)
-                return_list.append(tuple(temp))
-                temp = []
-
-            return(return_list)
-            self._library.sqlite3_finalize(ppStmt)
-        else:
-            error = cast(self._library.sqlite3_errmsg(database_ptr),c_char_p)
-            raise Fern_Mozilla_Exception(error.value)                                 # (char*)(sqlite_errmsg(database_ptr))
-        self._library.sqlite3_close(addressof(database_ptr))
-
+        self._check_database_compatibility()
+        mozilla_cookie_db = sqlite3.connect(self.cookie_database)
+        mozilla_cursor = mozilla_cookie_db.cursor()
+        mozilla_cursor.execute(sql_statement)
+        return_objects = mozilla_cursor.fetchall()
+        if(return_objects):
+            return(return_objects)
+        mozilla_cookie_db.commit()
+        mozilla_cookie_db.close()
 
     # Mozilla Cookie entry format
     #
@@ -135,10 +105,18 @@ class Mozilla_Cookie_Core(object):
 
 
 
+    def kill_Process(self,process_name):
+        import commands
+        pids = commands.getstatusoutput("pidof " + process_name)[1]
+        for pid in pids.split():
+            commands.getstatusoutput("kill " + pid)
+
+
     def get_Cookie_Path(self,cookie_name):
         '''Finds the cookie path from user's profile
            sets cookie_database variable to cookie path'''
         cookie_path = str()
+        file_object = open(os.devnull,"w")
         userprofile = os.path.expanduser("~")
         for root,direc,files in os.walk(userprofile,True):
             if((cookie_name in files) and ("firefox" in root.lower())):
@@ -147,32 +125,11 @@ class Mozilla_Cookie_Core(object):
                 return(cookie_path)
 
 
-    def find_mozilla_lib_path(self):
-        '''Finds the path to the dll or shared object'''
-        shared_object_path = str()
-        for root,direc,files in os.walk(os.sep,True):
-            if((self.shared_library in files) and ("firefox" in root.lower())):
-                shared_object_path = root + os.sep
-                self.mozilla_install_path = shared_object_path
-                return(shared_object_path)
-
-
-class Fern_Mozilla_Exception(Exception):
-    def __init__(self,value):
-        self.value = value
-    def __str__(self):
-        return(self.value)
-
-
 # USAGE:
 
 # cookie = Mozilla_Cookie_Core()
-#
-# cookie.shared_library = "mozsqlite3.dll"
 # cookie.get_Cookie_Path("cookies.sqlite")  | cookie.cookie_database = "D:\\cookies.sqlite"
-# cookie.find_mozilla_lib_path()            # its best to cache once path is found, might take time to load
-# cookie.mozilla_install_path = "C:\\Program Files (x86)\\Mozilla Firefox\\"
-#
+
 # retrun_list = cookie.execute_query("select * from moz_cookies")
 # for entries in retrun_list:
 #    print(entries)
