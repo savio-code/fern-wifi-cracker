@@ -573,8 +573,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
     def kill_MITM_process(self):
         while(True):
             try:
-                os.kill(self.mitm_pid,signal.SIGINT)
-                os.kill(self.mitm_pid - 1,signal.SIGINT)
+                os.kill(self.mitm_pid,signal.SIGTERM)
             except OSError:
                 return
 
