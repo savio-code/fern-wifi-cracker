@@ -48,7 +48,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.connect(self.ethernet_mode_radio,QtCore.SIGNAL("clicked()"),self.set_attack_option)
         self.connect(self.passive_mode_radio,QtCore.SIGNAL("clicked()"),self.set_attack_option)
         self.connect(self.combo_interface,QtCore.SIGNAL("currentIndexChanged(QString)"),self.reset)
-        self.connect(self,QtCore.SIGNAL("triggered()"),QtCore.SLOT("close()"))
 
         self.connect_objects()
 
@@ -595,8 +594,9 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         if(typedef == "Connection"):
             self.cookie_db_jar.close()                          # Close cookie database connection
 
-        self.kill_MITM_process()
-        self.cookie_core.terminate()                            # Kill QtCore.QThread
+        if(self.sniff_button_control == "STOP"):
+            self.kill_MITM_process()
+            self.cookie_core.terminate()                            # Kill QtCore.QThread
 
 
 

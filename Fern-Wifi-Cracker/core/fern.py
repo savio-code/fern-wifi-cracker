@@ -19,10 +19,11 @@ from tools import *
 from database import *
 from variables import *
 from functions import *
+from settings import *
 
 from gui.main_window import *
 
-__version__= 1.74
+__version__= 1.75
 
 #
 # Main Window Class
@@ -40,6 +41,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.wpa_count = str()
 
         variables.wps_functions = WPS_Attack()          # WPS functions
+
+        self.settings = Fern_settings()
 
         self.connect(self,QtCore.SIGNAL("DoubleClicked()"),self.mouseDoubleClickEvent)
         self.connect(self.refresh_intfacebutton,QtCore.SIGNAL("clicked()"),self.refresh_interface)
@@ -77,6 +80,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         thread.start_new_thread(self.update_initializtion_check,())
 
         self.update_database_label()
+        self.set_xterm_settings()
 
     #
     #   Read database entries and count entries then set Label on main window
@@ -94,6 +98,15 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
 
     #
+    #   Read last xterm settings
+    #
+    def set_xterm_settings(self):
+        if not self.settings.setting_exists("xterm"):
+            self.settings.create_settings("xterm",str())
+        variables.xterm_setting = self.settings.read_last_settings("xterm")
+
+
+    #
     # SIGNALs for update threads
     #
     def update_fail(self):
@@ -108,6 +121,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
         self.update_label.setText('<font color=green>Downloading.. %s Complete</font>'\
         %(self.percentage(files_downloaded,file_total)))
+
 
     def installed_revision(self):
         svn_info = commands.getstatusoutput('svn info ' + directory)
@@ -372,8 +386,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 # Create Fake Mac Address and index for use
                 #
                 mon_down = commands.getstatusoutput('ifconfig %s down'%(self.monitor_interface))
-                if settings_exists('mac_address'):
-                    variables.exec_command('macchanger -m %s %s'%(read_settings('mac_address'),self.monitor_interface))
+                if self.settings.setting_exists('mac_address'):
+                    variables.exec_command('macchanger -m %s %s'%(self.settings.read_last_settings('mac_address'),self.monitor_interface))
                 else:
                     variables.exec_command('macchanger -A %s'%(self.monitor_interface))
                 mon_up = commands.getstatusoutput('ifconfig %s up'%(self.monitor_interface))
@@ -386,14 +400,12 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 #
                 # Execute tips
                 #
-                if 'tips-settings.dat' in os.listdir('fern-settings'):
-                    if reader('fern-settings/tips-settings.dat') == '1':
-                        pass
-                    else:
+                if(self.settings.setting_exists("tips")):
+                    if(self.settings.read_last_settings("tips") == "0"):
                         tips = tips_window()
                         tips.exec_()
                 else:
-                    write('fern-settings/tips-settings.dat','')
+                    self.settings.create_settings("tips","1")
                     tips = tips_window()
                     tips.exec_()
             else:
@@ -404,10 +416,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     # Double click event for poping of settings dialog box
     #
     def mouseDoubleClickEvent(self, event):
-        try:
+        if(len(self.monitor_interface)):
             setting = settings_dialog()
             setting.exec_()
-        except IOError:
+        else:
             self.mon_label.setText("<font color=red>Enable monitor mode to access settings</font>")
 
 

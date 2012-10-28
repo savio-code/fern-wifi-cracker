@@ -9,6 +9,7 @@ from gui.ivs_settings import *
 from core.variables import *
 from core.functions import *
 from gui.attack_settings import *
+from core.settings import *
 
 from toolbox.fern_tracker import *
 # from toolbox.fern_cookie_hijacker import *
@@ -97,7 +98,8 @@ class wifi_attack_settings(QtGui.QDialog,Ui_attack_settings):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
-        create_settings_file()
+
+        self.settings = Fern_settings()
         self.display_components()
 
         self.connect(self.mac_button,QtCore.SIGNAL("clicked()"),self.set_static_mac)
@@ -107,12 +109,12 @@ class wifi_attack_settings(QtGui.QDialog,Ui_attack_settings):
 
 
     def display_components(self):
-        if settings_exists('capture_directory'):
+        if self.settings.setting_exists('capture_directory'):
             self.capture_box.setChecked(True)
-            self.directory_label.setText('<font color=green><b>' + str(read_settings('capture_directory')) + '</b></font>')
-        if settings_exists('mac_address'):
+            self.directory_label.setText('<font color=green><b>' + str(self.settings.read_last_settings('capture_directory')) + '</b></font>')
+        if self.settings.setting_exists('mac_address'):
             self.mac_box.setChecked(True)
-            self.mac_edit.setText(str(read_settings('mac_address')))
+            self.mac_edit.setText(str(self.settings.read_last_settings('mac_address')))
 
 
 
@@ -122,26 +124,26 @@ class wifi_attack_settings(QtGui.QDialog,Ui_attack_settings):
             QtGui.QMessageBox.warning(self,"Invalid MAC Address",variables.invalid_mac_address_error)
             self.mac_edit.setFocus()
         else:
-            create_settings('mac_address',mac_address)
+            self.settings.create_settings('mac_address',mac_address)
 
 
     def set_capture_directory(self):
-        directory = str(QtGui.QFileDialog.getExistingDirectory(self,"Select Capture Sorage Directory",""))
+        directory = str(QtGui.QFileDialog.getExistingDirectory(self,"Select Capture Storage Directory",""))
         if directory:
             self.directory_label.setText('<font color=green><b>' + directory)
-            create_settings("capture_directory",directory)
+            self.settings.create_settings("capture_directory",directory)
 
 
     def remove_mac_objects(self):
         if not self.mac_box.isChecked():
             self.mac_edit.clear()
-            remove_setting('mac_address')
+            self.settings.remove_settings('mac_address')
 
 
     def remove_capture_objects(self):
         if not self.capture_box.isChecked():
             self.directory_label.clear()
-            remove_setting('capture_directory')
+            self.settings.remove_settings('capture_directory')
 
 
 
@@ -155,31 +157,6 @@ class wifi_attack_settings(QtGui.QDialog,Ui_attack_settings):
 
 
 #
-# Class dialog for automatic ivs captupe and limit reference
-#
-class ivs_dialog(QtGui.QDialog,ivs_window):
-    def __init__(self):
-        QtGui.QDialog.__init__(self)
-        self.setupUi(self)
-        self.retranslateUi(self)
-        ivs_list = ['Select IVS Rate','5000','10000','15000','20000','25000','30000','35000','40000','45000','50000','55000','60000','65000','70000']
-        self.ivs_combo.addItems(ivs_list)
-
-        self.connect(self.ok_button,QtCore.SIGNAL("clicked()"),self.ivs_settings)
-        self.connect(self.cancel_button,QtCore.SIGNAL("clicked()"),QtCore.SLOT("close()"))
-
-    def ivs_settings(self):
-        current_ivs = str(self.ivs_combo.currentText())
-        if 'ivs_settings.log' in os.listdir('/tmp/fern-log'):
-            remove('/tmp/fern-log','ivs_settings.log')
-        if current_ivs != 'Select IVS Rate':
-            write('/tmp/fern-log/ivs_settings.log',current_ivs)
-
-        self.close()
-
-
-
-#
 # Tips Dialog, show user tips on how to access settings dialog and set scan preferences
 #
 class tips_window(QtGui.QDialog,tips_dialog):
@@ -187,15 +164,17 @@ class tips_window(QtGui.QDialog,tips_dialog):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
 
+        self.settings = Fern_settings()
+
         self.connect(self.pushButton,QtCore.SIGNAL("clicked()"),self.accept)
 
     def accept(self):
         check_status = self.checkBox.isChecked()
 
         if check_status == True:
-            write('fern-settings/tips-settings.dat','1')
+            self.settings.create_settings("tips","1")
         else:
-            remove('fern-settings','tips-settings.dat')
+            self.settings.create_settings("tips","0")
         self.close()
 
 #Finished Here (tips_window)
@@ -206,6 +185,8 @@ class tips_window(QtGui.QDialog,tips_dialog):
 class settings_dialog(QtGui.QDialog,settings):
     def __init__(self):
         QtGui.QDialog.__init__(self)
+
+        self.settings = Fern_settings()
 
         self.setupUi(self)
         if len(variables.xterm_setting) > 0:
@@ -234,8 +215,9 @@ class settings_dialog(QtGui.QDialog,settings):
             variables.static_channel = channel
 
         if term_settings:
-            variables.xterm_setting = 'xterm -geometry 100 -e'
+            self.settings.create_settings("xterm","xterm -geometry 100 -e")
         else:
-            variables.xterm_setting = ''
+            self.settings.create_settings("xterm",str())
+        variables.xterm_setting = self.settings.read_last_settings("xterm")
 
 
