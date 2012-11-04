@@ -1,6 +1,7 @@
 from core.fern import *
 from core.tools import*
 from core.functions import *
+from core.settings import *
 from core.variables import *
 from gui.attack_panel import *
 
@@ -35,6 +36,8 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.control = True
         self.cracked_keys = 0
         self.thread_control = True
+
+        self.settings = Fern_settings()     # For saving settings
 
         self.wifi_icon = QtGui.QPixmap("%s/resources/radio-wireless-signal-icone-5919-96.png"%os.getcwd())
 
@@ -367,9 +370,9 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         variables.exec_command('killall airodump-ng')
         variables.exec_command('killall airmon-ng')
 
-        if settings_exists('capture_directory'):
+        if self.settings.setting_exists('capture_directory'):
             shutil.copyfile('/tmp/fern-log/WEP-DUMP/wep_dump-01.cap',\
-                    read_settings('capture_directory') + '/%s_Capture_File(WEP).cap'%(victim_access_point))
+                    self.settings.read_last_settings('capture_directory') + '/%s_Capture_File(WEP).cap'%(victim_access_point))
 
     def cracking(self):
         self.finished_label.setEnabled(True)

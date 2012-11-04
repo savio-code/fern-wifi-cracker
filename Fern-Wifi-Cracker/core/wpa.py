@@ -2,6 +2,7 @@ import re
 from core.fern import *
 from gui.attack_panel import *
 from core.functions import *
+from core.settings import *
 from core.variables import *
 
 from core import variables
@@ -22,6 +23,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.started = False
 
         self.wordlist = str()
+
+        self.settings = Fern_settings()     # For saving settings
 
         self.connect(self.attack_button,QtCore.SIGNAL("clicked()"),self.launch_attack)
         self.connect(self.dictionary_set,QtCore.SIGNAL("clicked()"),self.dictionary_setting)
@@ -290,9 +293,9 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.gathering_label.setEnabled(True)
         self.gathering_label.setText('<font color=yellow>Handshake Captured</font>')
 
-        if settings_exists('capture_directory'):
+        if self.settings.setting_exists('capture_directory'):
             shutil.copyfile('/tmp/fern-log/WPA-DUMP/wpa_dump-01.cap',\
-                read_settings('capture_directory') + '/%s_Capture_File(WPA).cap'%(access_point))
+                self.settings.read_last_settings('capture_directory') + '/%s_Capture_File(WPA).cap'%(access_point))
 
 
     def bruteforce_display(self):
