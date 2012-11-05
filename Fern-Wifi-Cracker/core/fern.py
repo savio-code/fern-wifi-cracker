@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 1.77
+__version__= 1.78
 
 #
 # Main Window Class
@@ -40,13 +40,21 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.wep_count = str()
         self.wpa_count = str()
 
+        self.interface_cards = list()
+
         variables.wps_functions = WPS_Attack()          # WPS functions
+
+        self.movie = QtGui.QMovie(self)
+        self.animate_monitor_mode(True)                 # Loading gif animation
 
         self.settings = Fern_settings()
 
         self.connect(self,QtCore.SIGNAL("DoubleClicked()"),self.mouseDoubleClickEvent)
         self.connect(self.refresh_intfacebutton,QtCore.SIGNAL("clicked()"),self.refresh_interface)
         self.connect(self.interface_combo,QtCore.SIGNAL("currentIndexChanged(QString)"),self.setmonitor)
+        self.connect(self,QtCore.SIGNAL("monitor mode enabled"),self.monitor_mode_enabled)
+        self.connect(self,QtCore.SIGNAL("interface cards found"),self.interface_cards_found)
+        self.connect(self,QtCore.SIGNAL("interface cards not found"),self.interface_card_not_found)
         self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
         self.connect(self.wep_button,QtCore.SIGNAL("clicked()"),self.wep_attack_window)
         self.connect(self.wpa_button,QtCore.SIGNAL("clicked()"),self.wpa_attack_window)
@@ -325,13 +333,21 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     #
     # Refresh wireless network interface card and update combobo
     #
+
     def refresh_interface(self):
         variables.exec_command('killall airodump-ng')
         variables.exec_command('killall airmon-ng')
 
+        self.animate_monitor_mode(True)
         self.mon_label.clear()
         self.interface_combo.clear()
+        self.interface_combo.setEnabled(True)
+        self.interface_cards = list()
 
+        thread.start_new_thread(self.refresh_card_thread,())
+
+
+    def refresh_card_thread(self):
         # Disable cards already on monitor modes
         wireless_interfaces = str(commands.getstatusoutput('airmon-ng'))
         prev_monitor = os.listdir('/sys/class/net')
@@ -345,20 +361,50 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         # List Interface cards
         compatible_interface = str(commands.getoutput("airmon-ng | egrep -e '^[a-z]{2,4}[0-9]'"))
         interface_list = os.listdir('/sys/class/net')
-        list_ = ['Select Interface']
         # Interate over interface output and update combo box
         if compatible_interface.count('\t') == 0:
-            self.interface_combo.addItems(list_)
-            self.mon_label.setText("<font color=red>No Wireless Interface was found</font>")
+            self.emit(QtCore.SIGNAL("interface cards not found"))
         else:
             for interface in interface_list:
                 if interface in compatible_interface:
                     if not interface.startswith('mon'):
-                        list_.append(interface)
+                        self.interface_cards.append(interface)
 
-            self.interface_combo.addItems(list_)
-            self.mon_label.setText("<font color=red>Select an interface card</font>")
+            self.emit(QtCore.SIGNAL("interface cards found"))
 
+
+
+    def interface_card_not_found(self):
+        self.interface_combo.setEnabled(False)
+        self.mon_label.setText("<font color=red>No Wireless Interface was found</font>")
+        self.animate_monitor_mode(False)
+
+
+    def interface_cards_found(self):
+        self.interface_combo.addItem('Select Interface')
+        interface_icon = QtGui.QIcon("%s/resources/mac_address.png"%(os.getcwd()))
+        for interface in self.interface_cards:
+            self.interface_combo.addItem(interface_icon,interface)
+        self.mon_label.setText("<font color=red>Select an interface card</font>")
+        self.animate_monitor_mode(False)
+
+
+    #
+    # Animates monitor mode by loading gif
+    #
+    def animate_monitor_mode(self,status):
+        self.movie = QtGui.QMovie("%s/resources/loading.gif"%(os.getcwd()))
+        self.movie.start()
+        self.loading_label.setMovie(self.movie)
+
+        if(status):      # if status == True (monitor loading is in progress)
+            self.interface_combo.setEnabled(False)
+            self.loading_label.setVisible(True)
+            self.mon_label.setVisible(False)
+        else:
+            self.interface_combo.setEnabled(True)
+            self.loading_label.setVisible(False)
+            self.mon_label.setVisible(True)
 
 
     #
@@ -368,48 +414,58 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.monitor_interface = str()
         monitor_card = str(self.interface_combo.currentText())
         if monitor_card != 'Select Interface':
-            status = str(commands.getoutput("airmon-ng start %s"%(monitor_card)))
-            if 'monitor mode enabled' in status:
-                monitor_interface_process = str(commands.getoutput("airmon-ng"))
-                regex = re.compile("mon\d",re.IGNORECASE)
-                interfaces = regex.findall(monitor_interface_process)
-                if(interfaces):
-                    self.monitor_interface = interfaces[0]
-                else:
-                    self.monitor_interface = monitor_card
+            mac_settings = self.settings.setting_exists('mac_address')
+            last_settings = self.settings.read_last_settings('mac_address')
+            thread.start_new_thread(self.set_monitor_thread,(monitor_card,mac_settings,last_settings,))
+            self.animate_monitor_mode(True)
+        else:
+            self.mon_label.setText("<font color=red>Monitor Mode not enabled check manually</font>")
+            self.animate_monitor_mode(False)
 
-                variables.monitor_interface = self.monitor_interface
-                self.mon_label.setText("<font color=green>Monitor Mode Enabled on %s</font>"%(self.monitor_interface))
-                variables.wps_functions.monitor_interface = self.monitor_interface
 
-                #
-                # Create Fake Mac Address and index for use
-                #
-                mon_down = commands.getstatusoutput('ifconfig %s down'%(self.monitor_interface))
-                if self.settings.setting_exists('mac_address'):
-                    variables.exec_command('macchanger -m %s %s'%(self.settings.read_last_settings('mac_address'),self.monitor_interface))
-                else:
-                    variables.exec_command('macchanger -A %s'%(self.monitor_interface))
-                mon_up = commands.getstatusoutput('ifconfig %s up'%(self.monitor_interface))
-                for iterate in os.listdir('/sys/class/net'):
-                    if str(iterate) == str(self.monitor_interface):
-                        os.chmod('/sys/class/net/' + self.monitor_interface + '/address',0777)
-                        variables.monitor_mac_address = reader('/sys/class/net/' + self.monitor_interface + '/address').strip()
-                        variables.wps_functions.monitor_mac_address = variables.monitor_mac_address
-
-                #
-                # Execute tips
-                #
-                if(self.settings.setting_exists("tips")):
-                    if(self.settings.read_last_settings("tips") == "0"):
-                        tips = tips_window()
-                        tips.exec_()
-                else:
-                    self.settings.create_settings("tips","1")
-                    tips = tips_window()
-                    tips.exec_()
+    def set_monitor_thread(self,monitor_card,mac_setting_exists,last_settings):
+        status = str(commands.getoutput("airmon-ng start %s"%(monitor_card)))
+        if 'monitor mode enabled' in status:
+            monitor_interface_process = str(commands.getoutput("airmon-ng"))
+            regex = re.compile("mon\d",re.IGNORECASE)
+            interfaces = regex.findall(monitor_interface_process)
+            if(interfaces):
+                self.monitor_interface = interfaces[0]
             else:
-                self.mon_label.setText("<font color=red>Monitor Mode not enabled check manually</font>")
+                self.monitor_interface = monitor_card
+
+            variables.monitor_interface = self.monitor_interface
+            self.interface_combo.setEnabled(False)
+            variables.wps_functions.monitor_interface = self.monitor_interface
+            self.emit(QtCore.SIGNAL("monitor mode enabled"))
+
+            # Create Fake Mac Address and index for use
+            mon_down = commands.getstatusoutput('ifconfig %s down'%(self.monitor_interface))
+            if mac_setting_exists:
+                variables.exec_command('macchanger -m %s %s'%(last_settings,self.monitor_interface))
+            else:
+                variables.exec_command('macchanger -A %s'%(self.monitor_interface))
+            mon_up = commands.getstatusoutput('ifconfig %s up'%(self.monitor_interface))
+            for iterate in os.listdir('/sys/class/net'):
+                if str(iterate) == str(self.monitor_interface):
+                    os.chmod('/sys/class/net/' + self.monitor_interface + '/address',0777)
+                    variables.monitor_mac_address = reader('/sys/class/net/' + self.monitor_interface + '/address').strip()
+                    variables.wps_functions.monitor_mac_address = variables.monitor_mac_address
+
+
+
+    def monitor_mode_enabled(self):
+        self.mon_label.setText("<font color=green>Monitor Mode Enabled on %s</font>"%(self.monitor_interface))
+        self.animate_monitor_mode(False)
+        # Execute tips
+        if(self.settings.setting_exists("tips")):
+            if(self.settings.read_last_settings("tips") == "0"):
+                tips = tips_window()
+                tips.exec_()
+        else:
+            self.settings.create_settings("tips","1")
+            tips = tips_window()
+            tips.exec_()
 
 
     #
