@@ -411,11 +411,13 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     # Set monitor mode on selected monitor from combo list
     #
     def setmonitor(self):
+        last_settings = str()
         self.monitor_interface = str()
         monitor_card = str(self.interface_combo.currentText())
         if monitor_card != 'Select Interface':
             mac_settings = self.settings.setting_exists('mac_address')
-            last_settings = self.settings.read_last_settings('mac_address')
+            if(mac_settings):
+                last_settings = self.settings.read_last_settings('mac_address')
             thread.start_new_thread(self.set_monitor_thread,(monitor_card,mac_settings,last_settings,))
             self.animate_monitor_mode(True)
         else:
