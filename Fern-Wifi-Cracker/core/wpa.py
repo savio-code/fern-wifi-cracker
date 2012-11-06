@@ -510,8 +510,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
     def display_current_wordlist(self):
-        if(os.path.exists("fern-settings/wordlist-settings.dat")):
-            get_temp_name = reader('fern-settings/wordlist-settings.dat')   #Just for displaying name of wordlist to label area
+        if(self.settings.setting_exists("wordlist")):
+            get_temp_name = self.settings.read_last_settings("wordlist")   #Just for displaying name of wordlist to label area
             self.wordlist = get_temp_name
             split_name = get_temp_name.split(os.sep)
             if(split_name):
@@ -625,11 +625,11 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             self.associate_label.setEnabled(True)
             self.associate_label.setText('<font color=red>Client mac-address is needed</font>')
         else:
-            if 'wordlist-settings.dat' not in os.listdir('fern-settings'):
+            if not self.settings.setting_exists("wordlist"):
                 self.injection_work_label_2.setEnabled(True)
                 self.injection_work_label_2.setText('<font color=red><b>Select Wordlist</b></font>')
             else:
-                get_temp_name = reader('fern-settings/wordlist-settings.dat')   #Just for displaying name of wordlist to label area
+                get_temp_name = self.settings.read_last_settings("wordlist")   #Just for displaying name of wordlist to label area
                 split_name = get_temp_name.split(os.sep)
                 if(split_name):
                     filename = split_name[-1]
@@ -665,11 +665,10 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
     def dictionary_setting(self):
         filename = QtGui.QFileDialog.getOpenFileName(self,"Select Wordlist","")
         if(filename):
-            if 'wordlist-settings.dat' in os.listdir('fern-settings'):
-                remove('fern-settings','wordlist-settings.dat')
-            write('fern-settings/wordlist-settings.dat',filename)
 
-            get_temp_name = reader('fern-settings/wordlist-settings.dat')
+            self.settings.create_settings("wordlist",filename)
+
+            get_temp_name = self.settings.read_last_settings("wordlist")
             self.wordlist = get_temp_name
             split_name = get_temp_name.replace('/','\n')
             filename_split = split_name.splitlines()
