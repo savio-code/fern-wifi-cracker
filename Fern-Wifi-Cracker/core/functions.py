@@ -122,11 +122,10 @@ def Check_MAC(mac_address):
 #################   FILE LINE COUNTER ########################
 
 def line_count(filename):
-    count = 0
-    files = open(filename,'r')
-    for line in files:
-        count += 1
-    files.close()
+    '''Returns estimated value of line'''
+    sizeof = os.path.getsize(filename)
+    byte_divisor = 3494313 * sizeof
+    count = byte_divisor/27954506
     return(count)
 
 ######################## Font settings #######################
