@@ -96,6 +96,8 @@ a valid mac address has 6 segment with 2 hexadecimal values in each segment e.g 
 # Html strings
 #
 
+# TOOLBOX OBJECTS
+
 html_network_timeout_error = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -142,4 +144,56 @@ body,td,th {
 </body>
 </html>
 '''%(os.getcwd())
+
+
+
+
+ray_fusion_reports_html = '''<html>
+    <head>
+        <title>Fern - Ray Fusion Report</title>
+        <style type="text/css">
+            h1{
+                text-align: center;
+            }
+            h2{
+                font-size: larger;
+                text-decoration: underline;
+            }
+            .center{
+                text-align: center;
+                font-size: large;
+            }
+            #credentials{
+                position: absolute;
+            }
+
+        </style>
+    </head>
+    <body>
+        <h1>Ray Fusion Report</h1>
+        <hr>
+        <h2>Target Details</h2>
+        <table>
+            <tr>
+                <td><b>Remote Address</b>:</td>
+                <td>&nbsp; %s</td>
+            </tr>
+            <tr>
+                <td><b>Remote Port</b>:</td>
+                <td>&nbsp; %s</td>
+            </tr>
+            <tr>
+                <td><b>Remote Service</b>:</td>
+                <td>&nbsp; %s</td>
+            </tr>
+        </table>
+        <hr>
+        <h2 class="center">Report Details</h2>
+        <table id="credentials" class="center">
+            <tr>
+                <td><b>Username</b></td>
+                <td><b>Password</b></td>
+            </tr>
+'''
+
 

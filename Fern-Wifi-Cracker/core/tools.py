@@ -13,6 +13,7 @@ from core.settings import *
 
 from toolbox.fern_tracker import *
 # from toolbox.fern_cookie_hijacker import *
+from toolbox.fern_ray_fusion import *
 
 from PyQt4 import QtGui,QtCore
 
@@ -30,16 +31,16 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
         self.connect(self.geotrack_button,QtCore.SIGNAL("clicked()"),self.geotrack_exec)
         self.connect(self.attack_options_button,QtCore.SIGNAL("clicked()"),self.attack_settings_exec)
         self.connect(self.cookie_hijack_button,QtCore.SIGNAL("clicked()"),self.cookie_hijack_exec)
+        self.connect(self.ray_fusion_button,QtCore.SIGNAL("clicked()"),self.ray_fusion_exec)
 
 
-    def font_exec(self):
-        font_dialog_box = font_dialog()
-        font_dialog_box.exec_()
 
+    #
+    #   TOOLBOX FEATURES
+    #
     def geotrack_exec(self):
         geotrack_dialog_box = Fern_geolocation_tracker()
         geotrack_dialog_box.exec_()
-
 
     def cookie_hijack_exec(self):
         try:
@@ -51,6 +52,19 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
         cookie_hijacker = fern_cookie_hijacker.Fern_Cookie_Hijacker()
         cookie_hijacker.exec_()
 
+
+    def ray_fusion_exec(self):
+        ray_fusion = Ray_Fusion()
+        ray_fusion.exec_()
+
+
+
+    #
+    #   SETTINGS
+    #
+    def font_exec(self):
+        font_dialog_box = font_dialog()
+        font_dialog_box.exec_()
 
     def attack_settings_exec(self):
         wifi_attack_settings_box = wifi_attack_settings()

