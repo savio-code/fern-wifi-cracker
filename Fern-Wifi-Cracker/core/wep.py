@@ -39,6 +39,10 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
         self.settings = Fern_settings()     # For saving settings
 
+        self.wps_update_timer = QtCore.QTimer(self)
+        self.connect(self.wps_update_timer,QtCore.SIGNAL("timeout()"),self.set_if_WPS_Support)
+        self.wps_update_timer.start(1000)
+
         self.wifi_icon = QtGui.QPixmap("%s/resources/radio-wireless-signal-icone-5919-96.png"%os.getcwd())
 
         self.connect(self,QtCore.SIGNAL("new access point detected"),self.display_new_access_point)
@@ -108,6 +112,20 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.wep_disable_items()
         self.ap_listwidget.clear()
         thread.start_new_thread(self.Check_New_Access_Point,())
+
+
+    def set_Progressbar_color(self,color):
+        COLOR_STYLE = '''
+        QProgressBar {
+             border: 2px solid %s;
+             border-radius: 10px;
+         }
+
+         QProgressBar::chunk {
+             background-color: %s;
+         }
+        '''
+        self.progressBar.setStyleSheet(COLOR_STYLE % (color,color))
 
 
     def display_selected_target(self):
@@ -190,6 +208,7 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.injection_work_label_2.setEnabled(False)
         self.gathering_label.setEnabled(False)
         self.progressBar.setValue(0)
+        self.set_Progressbar_color("#8B0000")   # RED
         self.ivs_progress_label.setEnabled(False)
         self.dictionary_set.setVisible(False)
         self.injecting_label.setText("Gathering packets")
@@ -309,6 +328,14 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
                 self.ivs_number = update_progress
                 self.ivs_progress_label.setEnabled(True)
                 self.ivs_progress_label.setText('<font color=yellow>%s ivs</font>'%(str(update_progress)))
+
+                if(self.ivs_number < 3333):
+                    self.set_Progressbar_color("#8B0000")   # RED
+                elif(self.ivs_number < 6666):
+                    self.set_Progressbar_color("#CCCC00")   # YELLOW
+                else:
+                    self.set_Progressbar_color("green")
+
             except UnboundLocalError:time.sleep(1)
         else:
             pass
@@ -706,7 +733,16 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
     def updating_progress(self):
         self.ivs_progress_label.setEnabled(True)
         self.cracking_label_2.setEnabled(True)
-        self.progressBar.setValue(int(float(variables.wps_functions.progress)))
+
+        value = int(float(variables.wps_functions.progress))
+        self.progressBar.setValue(value)
+        if(value < 33):
+            self.set_Progressbar_color("#8B0000")   # RED
+        elif(value < 66):
+            self.set_Progressbar_color("#CCCC00")   # YELLOW
+        else:
+            self.set_Progressbar_color("green")
+
         self.ivs_progress_label.setText("<font color=yellow>" + variables.wps_functions.progress + "% Complete</font>")
         self.cracking_label_2.setText("<font color=yellow>Updating Progress</font>")
 
@@ -721,6 +757,7 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.key_label.setEnabled(True)
         self.key_label.setVisible(True)
         self.key_label.setText("<font color=red>WEP KEY: " + variables.wps_functions.get_keys()[1] + "</font>" )
+        self.set_Progressbar_color("green")
         set_key_entries(variables.victim_access_point,variables.victim_mac,'WEP',variables.wps_functions.get_keys()[1],variables.victim_channel)
         self.emit(QtCore.SIGNAL('update database label'))
         self.finished_label.setText("<font color=yellow>Finished</font>")
@@ -729,3 +766,5 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.isfinished = True
 
 
+    def closeEvent(self,event):
+        self.wps_update_timer.stop()

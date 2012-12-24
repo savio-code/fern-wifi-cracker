@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 1.8
+__version__= 1.81
 
 #
 # Main Window Class
@@ -522,6 +522,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             thread.start_new_thread(self.scan_wep,())
             self.disconnect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
             self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.stop_scan_network)
+
 
 
     def stop_scan_network(self):

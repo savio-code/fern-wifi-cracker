@@ -26,6 +26,10 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
         self.settings = Fern_settings()     # For saving settings
 
+        self.wps_update_timer = QtCore.QTimer(self)
+        self.connect(self.wps_update_timer,QtCore.SIGNAL("timeout()"),self.set_if_WPS_Support)
+        self.wps_update_timer.start(1000)
+
         self.connect(self.attack_button,QtCore.SIGNAL("clicked()"),self.launch_attack)
         self.connect(self.dictionary_set,QtCore.SIGNAL("clicked()"),self.dictionary_setting)
         self.connect(self,QtCore.SIGNAL("update client"),self.update_client_list)
@@ -36,9 +40,9 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.connect(self,QtCore.SIGNAL("handshake captured"),self.handshake_captured)
         self.connect(self,QtCore.SIGNAL("bruteforcing"),self.bruteforce_display)
         self.connect(self,QtCore.SIGNAL("wpa key found"),self.wpa_key_found)
-        self.connect(self,QtCore.SIGNAL("update word"),self.update_word_label)
-        self.connect(self,QtCore.SIGNAL("update progress bar"),self.update_progress_bar)
-        self.connect(self,QtCore.SIGNAL("update speed"),self.update_speed_label)
+        self.connect(self,QtCore.SIGNAL("update_word(QString)"),self.update_word_label)
+        self.connect(self,QtCore.SIGNAL("update_progressbar"),self.update_progress_bar)
+        self.connect(self,QtCore.SIGNAL("update_speed(QString)"),self.update_speed_label)
         self.connect(self,QtCore.SIGNAL("wpa key not found"),self.key_not_found)
         self.connect(self,QtCore.SIGNAL("set maximum"),self.set_maximum)
         self.connect(self,QtCore.SIGNAL("Stop progress display"),self.display_label)
@@ -86,7 +90,6 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.current_word= str()
         self.word_number = int()
         self.current_speed = str()
-        self.word_number = int()
 
         self.access_points = set()
         self.mac_address = str()
@@ -109,6 +112,18 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
 
+    def set_Progressbar_color(self,color):
+        COLOR_STYLE = '''
+        QProgressBar {
+             border: 2px solid %s;
+             border-radius: 10px;
+         }
+
+         QProgressBar::chunk {
+             background-color: %s;
+         }
+        '''
+        self.progressBar.setStyleSheet(COLOR_STYLE % (color,color))
 
 
     def display_selected_target(self):
@@ -199,6 +214,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.injection_work_label_2.setEnabled(False)
         self.gathering_label.setEnabled(False)
         self.progressBar.setValue(0)
+        self.set_Progressbar_color("#8B0000")       # RED
         self.ivs_progress_label.setEnabled(False)
         self.dictionary_set.setVisible(False)
         self.injecting_label.setText("Deauthentication Status")
@@ -324,6 +340,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.cancel_wpa_attack()
         self.key_label.setVisible(True)
         self.key_label.setText('<font color=red>WPA KEY: %s</font>'%(wpa_key_read))
+        self.set_Progressbar_color("green")
 
         if self.wpa_key_commit == 0:
             set_key_entries(variables.victim_access_point,variables.victim_mac,'WPA',wpa_key_read,variables.victim_channel)            #Add WPA Key to Database Here
@@ -333,16 +350,17 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
 
-    def update_word_label(self):
+    def update_word_label(self,current_word):
         self.ivs_progress_label.setEnabled(True)
-        self.ivs_progress_label.setText('<font color=yellow>%s</font>'%(self.current_word))
+        self.ivs_progress_label.setText('<font color=yellow>%s</font>'%(current_word))
 
     def update_progress_bar(self):
         self.progressBar.setValue(self.word_number)
 
-    def update_speed_label(self):
+
+    def update_speed_label(self,current_speed):
         self.finished_label.setEnabled(True)
-        self.finished_label.setText('<font color=yellow>Speed: \t %s k/s</font>'%(self.current_speed))
+        self.finished_label.setText('<font color=yellow>Speed: \t %s k/s</font>'%(current_speed))
 
     def display_label(self):
         self.finished_label.setEnabled(True)
@@ -427,17 +445,17 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             current_word = current_word_regex.findall(stdout_read)
             if(current_word):
                 self.current_word = current_word[0]
-                self.emit(QtCore.SIGNAL("update word"))
+                self.emit(QtCore.SIGNAL("update_word(QString)"),self.current_word)
 
             word_number = keys_tested_regex.findall(stdout_read)
             if(word_number):
                 self.word_number = int(word_number[0])
-                self.emit(QtCore.SIGNAL("update progress bar"))
+                self.emit(QtCore.SIGNAL("update_progressbar"))
 
             current_speed = keys_speed_regex.findall(stdout_read)
             if(current_speed):
                 self.current_speed = current_speed[0]
-                self.emit(QtCore.SIGNAL("update speed"))
+                self.emit(QtCore.SIGNAL("update_speed(QString)"),self.current_speed)
 
         self.emit(QtCore.SIGNAL("wpa key found"))
 
@@ -677,7 +695,16 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
     def updating_progress(self):
         self.ivs_progress_label.setEnabled(True)
         self.cracking_label_2.setEnabled(True)
-        self.progressBar.setValue(int(float(variables.wps_functions.progress)))
+
+        value = int(float(variables.wps_functions.progress))
+        self.progressBar.setValue(value)
+        if(value < 33):
+            self.set_Progressbar_color("#8B0000")   # RED
+        elif(value < 66):
+            self.set_Progressbar_color("#CCCC00")   # YELLOW
+        else:
+            self.set_Progressbar_color("green")
+
         self.ivs_progress_label.setText("<font color=yellow>" + variables.wps_functions.progress + "% Complete</font>")
         self.cracking_label_2.setText("<font color=yellow>Updating Progress</font>")
 
@@ -692,9 +719,15 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.key_label.setEnabled(True)
         self.key_label.setVisible(True)
         self.key_label.setText("<font color=red>WPA KEY: " + variables.wps_functions.get_keys()[1] + "</font>" )
+        self.set_Progressbar_color("green")
         set_key_entries(variables.victim_access_point,variables.victim_mac,'WPA',variables.wps_functions.get_keys()[1],variables.victim_channel)
         self.emit(QtCore.SIGNAL('update database label'))
         self.finished_label.setText("<font color=yellow>Finished</font>")
         self.new_automate_key()
         self.cancel_wpa_attack()
         self.isfinished = True
+
+
+    def closeEvent(self,event):
+        self.wps_update_timer.stop()
+

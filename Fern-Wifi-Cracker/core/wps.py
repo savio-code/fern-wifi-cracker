@@ -84,7 +84,7 @@ class WPS_Attack(QtCore.QThread):
 
     def _scan_WPS_Devices_Worker(self):
         regex = re.compile("([0-9a-f]{2}:){5}[0-9a-f]{2}",re.IGNORECASE)
-        sys_proc = subprocess.Popen("wash -i " + self.monitor_interface,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+        sys_proc = subprocess.Popen("sudo wash -i " + self.monitor_interface,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
         sys_file = sys_proc.stdout
         while(self._scan_control):
             response = sys_file.readline()

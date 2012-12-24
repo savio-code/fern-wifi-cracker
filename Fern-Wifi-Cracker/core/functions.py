@@ -93,9 +93,12 @@ def fern_database_query(sql_query):
 # Some globally defined functions for write,copy and read tasks
 #
 def reader(arg):
-    open_ = open(arg,'r+')
-    read_file = open_.read()
-    return read_file
+    read_file = str()
+    try:
+        open_ = open(arg,'r+')
+        read_file = open_.read()
+    finally:
+        return read_file
 
 def write(arg,arg2):
     open_ = open(arg,'a+')
