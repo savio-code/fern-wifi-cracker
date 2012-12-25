@@ -121,7 +121,7 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.convert_flag = False
         self.conversion_type = "WEP"
         self.clipboard_key = str()
-        self.original_key = str(self.key_label.text())
+        self.original_key = str()
         self.clipbord = QtGui.QApplication.clipboard()
         self.key_label.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.wps_pin_label.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -133,6 +133,8 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
     def Convert_Key_to_Acsii(self):
         key_string = str(self.key_label.text())
+        if not self.original_key:
+            self.original_key = key_string
         actual_key = re.findall("WEP KEY: ([\S \w]+)</font>",key_string)
         if(actual_key):
             key = actual_key[0]
@@ -143,8 +145,6 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
     def Convert_to_Hex(self):
-        if not self.original_key:
-            self.original_key = str(self.key_label.text())
         self.key_label.setText(self.original_key)
         actual_key = re.findall("WEP KEY: ([\S \w]+)</font>",self.original_key)
         self.clipboard_key = actual_key[0]
