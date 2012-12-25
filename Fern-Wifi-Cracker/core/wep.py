@@ -112,6 +112,95 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.wep_disable_items()
         self.ap_listwidget.clear()
         thread.start_new_thread(self.Check_New_Access_Point,())
+        self.set_Key_Clipbord()
+
+
+     ############## CLIPBOARD AND CONTEXT METHODS #####################
+
+    def set_Key_Clipbord(self):
+        self.convert_flag = False
+        self.conversion_type = "WEP"
+        self.clipboard_key = str()
+        self.original_key = str(self.key_label.text())
+        self.clipbord = QtGui.QApplication.clipboard()
+        self.key_label.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.wps_pin_label.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+
+        self.connect(self.key_label,QtCore.SIGNAL("customContextMenuRequested(QPoint)"),self.show_key_menu)
+        self.connect(self.wps_pin_label,QtCore.SIGNAL("customContextMenuRequested(QPoint)"),self.show_wps_key_menu)
+
+
+
+    def Convert_Key_to_Acsii(self):
+        key_string = str(self.key_label.text())
+        actual_key = re.findall("WEP KEY: ([\S \w]+)</font>",key_string)
+        if(actual_key):
+            key = actual_key[0]
+        converted_key = key.decode("hex")
+        self.clipboard_key = converted_key
+        self.key_label.setText("<font color=red>ASCII KEY: %s</font>" % (converted_key))
+        self.convert_flag = True
+
+
+    def Convert_to_Hex(self):
+        if not self.original_key:
+            self.original_key = str(self.key_label.text())
+        self.key_label.setText(self.original_key)
+        actual_key = re.findall("WEP KEY: ([\S \w]+)</font>",self.original_key)
+        self.clipboard_key = actual_key[0]
+        self.convert_flag = False
+
+
+    def Copy_Key(self,key_type):
+        key = str()
+        key_string = str()
+
+        if(key_type == "WPS PIN"):
+            key_string = self.wps_pin_label.text()
+            actual_key = re.findall("WPS PIN: ([\S \w]+)</font>",key_string)
+            if(actual_key):
+                self.clipboard_key = actual_key[0]
+        self.clipbord.setText(self.clipboard_key)
+
+
+    def show_key_menu(self,pos):
+        menu = QtGui.QMenu()
+
+        copy_action = object()
+        convert_ascii_action = object()
+        convert_hex_action = object()
+
+        copy_action = menu.addAction("Copy Key")
+        menu.addSeparator()
+
+        if(self.conversion_type == "WEP"):                                         # Converting WPA is unnecessary
+            if(self.convert_flag == False):
+                convert_ascii_action = menu.addAction("Convert To ASCII")
+            else:
+                convert_hex_action = menu.addAction("Convert To HEX")
+
+        selected_action = menu.exec_(self.key_label.mapToGlobal(pos))
+
+        if(selected_action == copy_action):
+            self.Copy_Key("OTHER KEY")
+
+        if(selected_action == convert_ascii_action):
+            self.Convert_Key_to_Acsii()
+
+        if(selected_action == convert_hex_action):
+                self.Convert_to_Hex()
+
+
+    def show_wps_key_menu(self,pos):
+        menu = QtGui.QMenu()
+        copy_action = menu.addAction("Copy WPS Pin")
+
+        selected_action = menu.exec_(self.key_label.mapToGlobal(pos))
+        if(selected_action == copy_action):
+            self.Copy_Key("WPS PIN")
+
+
+    ############## END OF CLIPBOARD AND CONTEXT METHODS #################
 
 
     def set_Progressbar_color(self,color):
@@ -145,6 +234,7 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         if(cracked_key):
             self.key_label.setVisible(True)
             self.key_label.setText('<font color=red>WEP KEY: %s</font>'%(cracked_key))
+            self.tip_display()
         else:
             self.key_label.setVisible(False)
 
@@ -157,7 +247,25 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.set_if_WPS_Support()
 
 
+    def show_tips(self):
+        tips = tips_window()
+        tips.type = 2
+        tips.setWindowTitle("Tips")
+        tips.label_2.setText("To copy the successfully cracked keys to clipboard, Please right click")
+        tips.label_3.setText("on the cracked key of your choice and select \"Copy\".")
+        tips.label_4.setText("You can also convert between ASCII to HEX keys for WEP.")
+        tips.label_5.setVisible(False)
+        tips.exec_()
 
+
+
+    def tip_display(self):
+        if(self.settings.setting_exists("copy key tips")):
+            if(self.settings.read_last_settings("copy key tips") == "0"):
+                self.show_tips()
+        else:
+            self.settings.create_settings("copy key tips","1")
+            self.show_tips()
 
     def display_access_points(self):
         self.ap_listwidget.clear()
@@ -258,11 +366,6 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
     ############## ATACK PANEL METHODS #####################
-
-
-    def mouseDoubleClickEvent(self,event):
-        ivs = ivs_dialog()
-        ivs.exec_()
 
     #
     # SIGNALS AND SLOTS FOR THE WEP CRACK STATUS
@@ -400,6 +503,8 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         if self.settings.setting_exists('capture_directory'):
             shutil.copyfile('/tmp/fern-log/WEP-DUMP/wep_dump-01.cap',\
                     self.settings.read_last_settings('capture_directory') + '/%s_Capture_File(WEP).cap'%(victim_access_point))
+
+        self.tip_display()      # Display Tips
 
     def cracking(self):
         self.finished_label.setEnabled(True)
@@ -614,6 +719,8 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
 
+
+
         ############################################# END OF THREAD ################################
 
     def run_wep_attack(self):
@@ -764,6 +871,8 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.new_automate_key()
         self.cancel_wep_attack()
         self.isfinished = True
+
+        self.tip_display()      # Display Tips
 
 
     def closeEvent(self,event):

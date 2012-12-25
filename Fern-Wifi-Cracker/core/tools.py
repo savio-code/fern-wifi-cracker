@@ -177,6 +177,7 @@ class tips_window(QtGui.QDialog,tips_dialog):
     def __init__(self):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
+        self.type = int()           # Type of tip display e.g tip from mainwindow = 1
 
         self.settings = Fern_settings()
 
@@ -185,10 +186,18 @@ class tips_window(QtGui.QDialog,tips_dialog):
     def accept(self):
         check_status = self.checkBox.isChecked()
 
-        if check_status == True:
-            self.settings.create_settings("tips","1")
-        else:
-            self.settings.create_settings("tips","0")
+        if(self.type == 1):         # From Main Window
+            if check_status == True:
+                self.settings.create_settings("tips","1")
+            else:
+                self.settings.create_settings("tips","0")
+
+        if(self.type == 2):
+            if check_status == True:
+                self.settings.create_settings("copy key tips","1")
+            else:
+                self.settings.create_settings("copy key tips","0")
+
         self.close()
 
 #Finished Here (tips_window)

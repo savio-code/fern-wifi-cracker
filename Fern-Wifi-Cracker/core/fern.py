@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 1.81
+__version__= 1.82
 
 #
 # Main Window Class
@@ -455,6 +455,12 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     variables.wps_functions.monitor_mac_address = variables.monitor_mac_address
 
 
+    def tip_display(self):
+        tips = tips_window()
+        tips.type = 1
+        tips.exec_()
+
+
 
     def monitor_mode_enabled(self):
         self.mon_label.setText("<font color=green>Monitor Mode Enabled on %s</font>"%(self.monitor_interface))
@@ -462,12 +468,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         # Execute tips
         if(self.settings.setting_exists("tips")):
             if(self.settings.read_last_settings("tips") == "0"):
-                tips = tips_window()
-                tips.exec_()
+                self.tip_display()
         else:
             self.settings.create_settings("tips","1")
-            tips = tips_window()
-            tips.exec_()
+            self.tip_display()
 
 
     #

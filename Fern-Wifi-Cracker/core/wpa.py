@@ -109,7 +109,62 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.display_current_wordlist()                                                             # Display previous wordlist
         self.setStyleSheet('background-image: url("%s/resources/binary_2.png");color:rgb(172,172,172);'%(os.getcwd()))
         self.attack_type_combo.setStyleSheet('color: rgb(172,172,172);background-color: black;font: %spt;'%(font_size()))
+        self.set_Key_Clipbord()
 
+     ############## CLIPBOARD AND CONTEXT METHODS #####################
+
+    def set_Key_Clipbord(self):
+        self.clipboard_key = str()
+        self.clipbord = QtGui.QApplication.clipboard()
+        self.key_label.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.wps_pin_label.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+
+        self.connect(self.key_label,QtCore.SIGNAL("customContextMenuRequested(QPoint)"),self.show_key_menu)
+        self.connect(self.wps_pin_label,QtCore.SIGNAL("customContextMenuRequested(QPoint)"),self.show_wps_key_menu)
+
+
+    def Copy_Key(self,key_type):
+        key_string = str()
+
+        if(key_type == "WPS PIN"):
+            key_string = self.wps_pin_label.text()
+            actual_key = re.findall("WPS PIN: ([\S \w]+)</font>",key_string)
+            if(actual_key):
+                self.clipboard_key = actual_key[0]
+        else:
+            key_string = self.key_label.text()
+            actual_key = re.findall("WPA KEY: ([\S \w]+)</font>",key_string)
+            if(actual_key):
+                self.clipboard_key = actual_key[0]
+        self.clipbord.setText(self.clipboard_key)
+
+
+    def show_key_menu(self,pos):
+        menu = QtGui.QMenu()
+
+        copy_action = object()
+        convert_ascii_action = object()
+        convert_hex_action = object()
+
+        copy_action = menu.addAction("Copy Key")
+
+        selected_action = menu.exec_(self.key_label.mapToGlobal(pos))
+
+        if(selected_action == copy_action):
+            self.Copy_Key("OTHER KEY")
+
+
+
+    def show_wps_key_menu(self,pos):
+        menu = QtGui.QMenu()
+        copy_action = menu.addAction("Copy WPS Pin")
+
+        selected_action = menu.exec_(self.key_label.mapToGlobal(pos))
+        if(selected_action == copy_action):
+            self.Copy_Key("WPS PIN")
+
+
+    ############## END OF CLIPBOARD AND CONTEXT METHODS #################
 
 
     def set_Progressbar_color(self,color):
@@ -153,6 +208,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         if(cracked_key):
             self.key_label.setVisible(True)
             self.key_label.setText('<font color=red>WPA KEY: %s</font>'%(cracked_key))
+            self.tip_display()
         else:
             self.key_label.setVisible(False)
 
@@ -162,6 +218,25 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             thread.start_new_thread(self.auto_add_clients,())
 
 
+    def show_tips(self):
+        tips = tips_window()
+        tips.type = 2
+        tips.setWindowTitle("Tips")
+        tips.label_2.setText("To copy the successfully cracked keys to clipboard, Please right click")
+        tips.label_3.setText("on the key of your choice and select \"Copy\".")
+        tips.label_4.setText("You can also convert between ASCII to HEX keys for WEP.")
+        tips.label_5.setVisible(False)
+        tips.exec_()
+
+
+
+    def tip_display(self):
+        if(self.settings.setting_exists("copy key tips")):
+            if(self.settings.read_last_settings("copy key tips") == "0"):
+                self.show_tips()
+        else:
+            self.settings.create_settings("copy key tips","1")
+            self.show_tips()
 
 
     def display_access_points(self):
@@ -347,6 +422,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             self.emit(QtCore.SIGNAL('update database label'))
             self.wpa_key_commit += 1
             self.isfinished = True
+
+        self.tip_display()      # Display tips
 
 
 
@@ -726,6 +803,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.new_automate_key()
         self.cancel_wpa_attack()
         self.isfinished = True
+        self.tip_display()          # Display Tips
 
 
     def closeEvent(self,event):
