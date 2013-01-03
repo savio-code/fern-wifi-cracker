@@ -28,19 +28,19 @@
 
 
 import re
+import json
 import httplib
 
 class Fern_Geolocation(object):
     def __init__(self):
         self.mac_address = str()
-        self.safe_eval= {}
 
     def _fern_geo_access(self):
         api_key='{"version":"1.1.0","request_address":true,"wifi_towers":[{"mac_address":"%s","ssid":"","signal_strength":-50}]}'%(self.mac_address)
         api_data = httplib.HTTPConnection('www.google.com')
         api_data.request('POST','/loc/json',api_key)
         data_ = api_data.getresponse()
-        geo_data = eval(data_.read(),self.safe_eval)
+        geo_data = json.loads(data_.read())
         return geo_data
 
 
