@@ -50,6 +50,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.connect(self.combo_interface,QtCore.SIGNAL("currentIndexChanged(QString)"),self.reset)
 
         self.connect_objects()
+        self.set_channel_options()
+
 
 
     def connect_objects(self):
@@ -63,12 +65,23 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.connect(self,QtCore.SIGNAL("Continue Sniffing"),self.start_Cookie_Attack_part)
 
 
+    def set_channel_options(self):
+        self.channel_dict = {1:"2.412 GZ",2:"2.417 GZ",3:"2.422 GZ",4:"2.427 GZ",5:"2.432 GZ",6:"2.437 GZ",7:"2.442 GZ",8:"2.447 GZ",9:"2.452 GZ",10:"2.457 GZ"
+                            ,11:"2.462 GZ",12:"2.467 GZ",13:"2.472 GZ",14:"2.484 GZ"}
+
+        self.active_monitor_mode = str()            # This will hold channel information
+        self.promiscious_mode = "All Channels"
+        self.channel_combo.addItem(self.promiscious_mode)
+        for channel in self.channel_dict.keys():
+            self.channel_combo.addItem(str(channel))
+
 
     def reset(self):
         selected_card = str(self.combo_interface.currentText())
         if(selected_card == "Select Interface Card"):
             self.ethernet_mode_radio.setChecked(True)
             self.label.setText("Gateway IP Address / Router IP Address:")
+            self.channel_display_option(False)
             self.enable_control(False)
             return
 
@@ -77,6 +90,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             if(self.interface_card_info[selected_card] != "WIFI"):
                 self.ethernet_mode_radio.setChecked(True)
                 self.label.setText("Gateway IP Address / Router IP Address:")
+                self.channel_display_option(False)
 
 
     def enable_control(self,status):
@@ -96,6 +110,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         if(self.ethernet_mode_radio.isChecked()):
             self.monitor_interface_label.setText("Ethernet Mode")
             self.label.setText("Gateway IP Address / Router IP Address:")
+            self.channel_display_option(False)
         else:
             if(self.interface_card_info[selected_card] == "ETHERNET"):
                 QtGui.QMessageBox.warning(self,"Interface Option","The selected mode only works with WIFI enabled interface cards")
@@ -105,9 +120,11 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                 if(self.passive_mode_radio.isChecked()):
                     self.monitor_interface_label.setText("Monitor Mode")
                     self.label.setText("WEP Decryption Key:")
+                    self.channel_display_option(True)
                 else:
                     self.monitor_interface_label.setText("Ethernet Mode")
                     self.label.setText("Gateway IP Address / Router IP Address:")
+                    self.channel_display_option(False)
 
 
     def set_Window_Max(self):
@@ -130,6 +147,17 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         return(True)
 
 
+    def channel_display_option(self,status):
+        self.channel_label.setVisible(status)
+        self.channel_combo.setVisible(status)
+
+
+    def reset_card_state(self):
+        for card in os.listdir("/sys/class/net"):
+            if(card.startswith("mon")):
+                commands.getoutput("airmon-ng stop " + card)
+
+
     def refresh_interface(self):
         interface_cards = []
         self.interface_card_info = {}
@@ -137,9 +165,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.host_interface = str()
         interfaces = commands.getoutput("iwconfig").splitlines()
 
-        for card in os.listdir("/sys/class/net"):
-            if(card.startswith("mon")):
-                commands.getoutput("airmon-ng stop " + card)
+        self.channel_display_option(False)
+        self.reset_card_state()
 
         sys_interface_cards = os.listdir("/sys/class/net")
 
@@ -177,26 +204,35 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
     def set_monitor_mode(self):
         selected_interface = str(self.combo_interface.currentText())
+        selected_channel = str(self.channel_combo.currentText())
+
         self.cookies_captured_label.clear()
         if((selected_interface == "Select Interface Card") or (selected_interface == str())):
             self.clear_items()
             return
         else:
             monitor_status = commands.getoutput("iwconfig " + selected_interface)
-            if("Monitor" in monitor_status):
+
+            if(("Monitor" in monitor_status) and ((selected_interface,selected_channel) == self.host_interface)):
                 self.monitor_interface = selected_interface
                 self.monitor_interface_led.setPixmap(self.green_light)
-                self.host_interface = selected_interface
+                self.host_interface = (selected_interface,selected_channel)
+                return
 
-            elif(selected_interface == self.host_interface):
+            elif((selected_interface,selected_channel) == self.host_interface):
                 self.monitor_interface_led.setPixmap(self.green_light)
                 return
 
             else:
+                self.reset_card_state()
                 display = '''%s is currently not on monitor mode, should a monitor interface be created using the selected interface'''%(selected_interface)
                 answer = QtGui.QMessageBox.question(self,"Enable Monitor Mode",display,QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
                 if(answer == QtGui.QMessageBox.Yes):
-                    monitor_output = commands.getstatusoutput("airmon-ng start " + selected_interface)
+                    if(selected_channel == self.promiscious_mode):
+                        self.active_monitor_mode = "Promiscious Mode"
+                        monitor_output = commands.getstatusoutput("airmon-ng start " + selected_interface)
+                    else:
+                        monitor_output = commands.getstatusoutput("airmon-ng start %s %s" % (selected_interface,selected_channel))
 
                     if(monitor_output[0] == 0):
                         monitor_interface = re.findall("mon\d+",monitor_output[1])
@@ -204,12 +240,12 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                         if(monitor_interface):
                             self.monitor_interface = monitor_interface[0]
                             self.monitor_interface_led.setPixmap(self.green_light)
-                            self.host_interface = selected_interface
+                            self.host_interface = (selected_interface,selected_channel)
 
                         elif("monitor mode enabled" in monitor_output[1]):
                             self.monitor_interface = selected_interface
                             self.monitor_interface_led.setPixmap(self.green_light)
-                            self.host_interface = selected_interface
+                            self.host_interface = (selected_interface,selected_channel)
                         else:
                             self.display_error(monitor_output[1])
                     else:
@@ -448,6 +484,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
     # Attack starts here on button click()
     def start_Cookie_Attack(self):
+        channel = str(self.channel_combo.currentText())
+
         if(self.sniff_button_control == "STOP"):
             self.stop_Cookie_Attack()
             return
@@ -462,7 +500,12 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.set_monitor_mode()
             self.cookie_core.decryption_key = ip_wep_edit                # Pipes key (WEP) into cookie process API for processing encrypted frames
             self.mitm_activated_label.setEnabled(False)
-            self.mitm_activated_label.setText("Internal MITM Engine Activated")
+
+            if(channel == self.promiscious_mode):
+                self.mitm_activated_label.setText("<font color = green><b>Promiscious Mode</b></font>")
+            else:
+                channel_info = self.channel_dict[int(channel)]
+                self.mitm_activated_label.setText("<font color = green><b>Active Frequency: %s</b></font>" % (channel_info))
 
         if(self.ethernet_mode_radio.isChecked()):
             if(not re.match("(\d+.){3}\d+",ip_wep_edit)):
@@ -509,6 +552,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
         self.treeWidget.clear()
         self.wep_key_edit.setEnabled(False)                             # Lock WEP/WPA LineEdit
+        self.channel_combo.setEnabled(False)
 
         self.cookie_core.control = True                                 # Start Core Thread processes
         self.cookie_core.monitor_interface = self.monitor_interface     # Holds the monitor interface e.g mon0,mon1
@@ -560,6 +604,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.cookie_core.control = False
 
         self.wep_key_edit.setEnabled(True)                              # Release WEP/WPA Decryption LineEdit
+        self.channel_combo.setEnabled(True)
         self.start_sniffing_button.setText("Start Sniffing")
         self.ethernet_mode_radio.setEnabled(True)
         self.passive_mode_radio.setEnabled(True)

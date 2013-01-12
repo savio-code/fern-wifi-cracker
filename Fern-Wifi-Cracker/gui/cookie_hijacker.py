@@ -11,6 +11,7 @@ try:
 except AttributeError:
     _fromUtf8 = lambda s: s
 
+
 class Ui_cookie_hijacker(object):
     def setupUi(self, cookie_hijacker):
         cookie_hijacker.setObjectName(_fromUtf8("cookie_hijacker"))
@@ -226,6 +227,12 @@ class Ui_cookie_hijacker(object):
         self.wep_key_edit.setFont(font)
         self.wep_key_edit.setObjectName(_fromUtf8("wep_key_edit"))
         self.horizontalLayout_15.addWidget(self.wep_key_edit)
+        self.channel_label = QtGui.QLabel(self.groupBox_2)
+        self.channel_label.setObjectName(_fromUtf8("channel_label"))
+        self.horizontalLayout_15.addWidget(self.channel_label)
+        self.channel_combo = QtGui.QComboBox(self.groupBox_2)
+        self.channel_combo.setObjectName(_fromUtf8("channel_combo"))
+        self.horizontalLayout_15.addWidget(self.channel_combo)
         self.horizontalLayout_7.addLayout(self.horizontalLayout_15)
         self.verticalLayout_2.addLayout(self.horizontalLayout_7)
         spacerItem13 = QtGui.QSpacerItem(20, 6, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
@@ -243,6 +250,7 @@ class Ui_cookie_hijacker(object):
         item_0 = QtGui.QTreeWidgetItem(self.treeWidget)
         font = QtGui.QFont()
         font.setPointSize(10)
+        item_0.setFont(0, font)
         item_1 = QtGui.QTreeWidgetItem(item_0)
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(_fromUtf8("%s/resources/green_led.png"%(os.getcwd()))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -254,6 +262,7 @@ class Ui_cookie_hijacker(object):
         item_0 = QtGui.QTreeWidgetItem(self.treeWidget)
         font = QtGui.QFont()
         font.setPointSize(10)
+        item_0.setFont(0, font)
         item_1 = QtGui.QTreeWidgetItem(item_0)
         item_1.setIcon(0, icon1)
         item_2 = QtGui.QTreeWidgetItem(item_1)
@@ -300,19 +309,20 @@ class Ui_cookie_hijacker(object):
         self.sniffing_status_label.setText(QtGui.QApplication.translate("cookie_hijacker", "Sniffing Status", None, QtGui.QApplication.UnicodeUTF8))
         self.cookie_detection_label.setText(QtGui.QApplication.translate("cookie_hijacker", "Cookie Detection Buffer", None, QtGui.QApplication.UnicodeUTF8))
         self.mitm_activated_label.setText(QtGui.QApplication.translate("cookie_hijacker", "Internal MITM Engine Activated", None, QtGui.QApplication.UnicodeUTF8))
-        self.ethernet_mode_radio.setText(QtGui.QApplication.translate("cookie_hijacker", "Ethernet Mode", None, QtGui.QApplication.UnicodeUTF8))
         self.ethernet_mode_radio.setToolTip(QtGui.QApplication.translate("cookie_hijacker", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-        "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-        "p, li { white-space: pre-wrap; }\n"
-        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7pt; font-weight:400; font-style:normal;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Use this option if you are currently connected to the ethernet gateway/access point</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Use this option if you are currently connected to the ethernet gateway/access point</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.ethernet_mode_radio.setText(QtGui.QApplication.translate("cookie_hijacker", "Ethernet Mode", None, QtGui.QApplication.UnicodeUTF8))
         self.passive_mode_radio.setToolTip(QtGui.QApplication.translate("cookie_hijacker", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-        "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-        "p, li { white-space: pre-wrap; }\n"
-        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7pt; font-weight:400; font-style:normal;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Use this option if you are not connected to access point</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Use this option if you are not connected to access point</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.passive_mode_radio.setText(QtGui.QApplication.translate("cookie_hijacker", "Passive Mode", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("cookie_hijacker", "Gateway IP Address / Router IP Address:", None, QtGui.QApplication.UnicodeUTF8))
+        self.channel_label.setText(QtGui.QApplication.translate("cookie_hijacker", "Channel:", None, QtGui.QApplication.UnicodeUTF8))
         self.treeWidget.headerItem().setText(0, QtGui.QApplication.translate("cookie_hijacker", " ", None, QtGui.QApplication.UnicodeUTF8))
         __sortingEnabled = self.treeWidget.isSortingEnabled()
         self.treeWidget.setSortingEnabled(False)
