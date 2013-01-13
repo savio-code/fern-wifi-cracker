@@ -502,7 +502,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.mitm_activated_label.setEnabled(False)
 
             if(channel == self.promiscious_mode):
-                self.mitm_activated_label.setText("<font color = green><b>Promiscious Mode</b></font>")
+                self.mitm_activated_label.setText("<font color = green><b>Active Frequency: 2.412 GZ - 2.484 GZ</b></font>")
             else:
                 channel_info = self.channel_dict[int(channel)]
                 self.mitm_activated_label.setText("<font color = green><b>Active Frequency: %s</b></font>" % (channel_info))
