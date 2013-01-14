@@ -66,8 +66,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
 
     def set_channel_options(self):
-        self.channel_dict = {1:"2.412 GZ",2:"2.417 GZ",3:"2.422 GZ",4:"2.427 GZ",5:"2.432 GZ",6:"2.437 GZ",7:"2.442 GZ",8:"2.447 GZ",9:"2.452 GZ",10:"2.457 GZ"
-                            ,11:"2.462 GZ",12:"2.467 GZ",13:"2.472 GZ",14:"2.484 GZ"}
+        self.channel_dict = {1:"2.412 GHZ",2:"2.417 GHZ",3:"2.422 GHZ",4:"2.427 GHZ",5:"2.432 GHZ",6:"2.437 GHZ",7:"2.442 GHZ",8:"2.447 GHZ",9:"2.452 GHZ",10:"2.457 GHZ"
+                            ,11:"2.462 GHZ",12:"2.467 GHZ",13:"2.472 GHZ",14:"2.484 GHZ"}
 
         self.active_monitor_mode = str()            # This will hold channel information
         self.promiscious_mode = "All Channels"
@@ -502,7 +502,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.mitm_activated_label.setEnabled(False)
 
             if(channel == self.promiscious_mode):
-                self.mitm_activated_label.setText("<font color = green><b>Active Frequency: 2.412 GZ - 2.484 GZ</b></font>")
+                self.mitm_activated_label.setText("<font color = green><b>Active Frequency: 2.412 GHZ - 2.484 GHZ</b></font>")
             else:
                 channel_info = self.channel_dict[int(channel)]
                 self.mitm_activated_label.setText("<font color = green><b>Active Frequency: %s</b></font>" % (channel_info))
