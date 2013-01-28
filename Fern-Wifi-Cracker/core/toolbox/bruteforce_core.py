@@ -227,6 +227,11 @@ class Bruteforce_Attack(QtCore.QThread):
                         self.emit(QtCore.SIGNAL("We Got Error"))
                         return
 
+                    if("no address associated" in str(message).lower()):
+                        self._error_message = "No address is associated with the target hostname"
+                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        return
+
                 if(self.control == False):
                     return
 
@@ -273,6 +278,11 @@ class Bruteforce_Attack(QtCore.QThread):
                         self.emit(QtCore.SIGNAL("We Got Error"))
                         return
 
+                    if("no address associated" in str(message).lower()):
+                        self._error_message = "No address is associated with the target hostname"
+                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        return
+
                 if(self.control == False):
                     return
 
@@ -316,6 +326,12 @@ class Bruteforce_Attack(QtCore.QThread):
 
                     if("connection refused" in str(message).lower()):
                         self._error_message = "The connection was refused by the remote service, Please try again"
+                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        return
+
+
+                    if("no address associated" in str(message).lower()):
+                        self._error_message = "No address is associated with the target hostname"
                         self.emit(QtCore.SIGNAL("We Got Error"))
                         return
 

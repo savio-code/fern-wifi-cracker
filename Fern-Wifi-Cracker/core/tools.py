@@ -5,7 +5,6 @@ from gui.toolbox import *
 from gui.settings import *
 from gui.geotrack import *
 from gui.font_settings import *
-from gui.ivs_settings import *
 from core.variables import *
 from core.functions import *
 from gui.attack_settings import *
