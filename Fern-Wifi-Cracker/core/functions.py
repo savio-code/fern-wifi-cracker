@@ -124,12 +124,19 @@ def Check_MAC(mac_address):
 
 #################   FILE LINE COUNTER ########################
 
+def blocks(files, size=65536):
+    '''yields file stream in block sections'''
+    while True:
+        b = files.read(size)
+        if not b: break
+        yield b
+
 def line_count(filename):
     '''Returns estimated value of line'''
-    sizeof = os.path.getsize(filename)
-    byte_divisor = 3494313 * sizeof
-    count = byte_divisor/27954506
-    return(count)
+    with open(filename, "r") as f:
+        count =  sum(bl.count("\n") for bl in blocks(f))
+        return(count + 1)
+
 
 ######################## Font settings #######################
 def font_size():

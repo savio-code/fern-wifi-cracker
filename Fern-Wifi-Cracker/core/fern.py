@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 1.88
+__version__= 1.89
 
 #
 # Main Window Class
@@ -397,7 +397,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.movie.start()
         self.loading_label.setMovie(self.movie)
 
-        if(status):      # if status == True (monitor loading is in progress)
+        if(status):      # if status == True (setting of monitor mode is in progress)
             self.interface_combo.setEnabled(False)
             self.loading_label.setVisible(True)
             self.mon_label.setVisible(False)
