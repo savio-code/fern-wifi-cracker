@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 1.89
+__version__= 1.9
 
 #
 # Main Window Class
@@ -692,6 +692,12 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 wep_access_file = str(reader('/tmp/fern-log/zfern-wep-01.csv'))        # WEP access point log file
                 wpa_access_file = str(reader('/tmp/fern-log/WPA/zfern-wpa-01.csv'))     # WPA access point log file
 
+                wep_access_convert = wep_access_file[0:wep_access_file.index('Station MAC')]
+                wep_access_process = wep_access_convert[wep_access_convert.index('Key'):-1]
+                wep_access_process1 = wep_access_process.strip('Key\r\n')
+                process = wep_access_process1.splitlines()
+
+                # Display number of WEP access points detected
                 self.wep_count = str(wep_access_file.count('WEP')/2)        # number of access points wep detected
 
                 if int(self.wep_count) > 0:
@@ -699,12 +705,6 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     self.emit(QtCore.SIGNAL("wep_button_true"))
                 else:
                     self.emit(QtCore.SIGNAL("wep_button_false"))
-
-
-                wep_access_convert = wep_access_file[0:wep_access_file.index('Station MAC')]
-                wep_access_process = wep_access_convert[wep_access_convert.index('Key'):-1]
-                wep_access_process1 = wep_access_process.strip('Key\r\n')
-                process = wep_access_process1.splitlines()
 
                 for iterate in range(len(process)):
                     detail_process1 = process[iterate]
@@ -717,11 +717,14 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     access_point =  wep_access[13].strip(' ')  # Access point Name
 
                     if access_point not in wep_details.keys():
-                        wep_details[access_point] = [mac_address,channel,speed,power]
+                        if(access_point):
+                            wep_details[access_point] = [mac_address,channel,speed,power]
 
 
                 # WPA Access point sort starts here
                 read_wpa = reader('/tmp/fern-log/WPA/zfern-wpa-01.csv')
+
+                # Display number of WEP access points detected
                 self.wpa_count = str(read_wpa.count('WPA'))        # number of access points wep detected
 
                 if int(self.wpa_count) == 0:
@@ -731,7 +734,6 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     self.emit(QtCore.SIGNAL("wpa_number_changed"))
                 else:
                     self.emit(QtCore.SIGNAL("wpa_button_false"))
-
 
                 wpa_access_convert = wpa_access_file[0:wpa_access_file.index('Station MAC')]
                 wpa_access_process = wpa_access_convert[wpa_access_convert.index('Key'):-1]
@@ -749,8 +751,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     access_point =  wpa_access[13].strip(' ')  # Access point Name
 
                     if access_point not in wpa_details.keys():
-                        wpa_details[access_point] = [mac_address,channel,speed,power]
-
+                        if(access_point):
+                            wpa_details[access_point] = [mac_address,channel,speed,power]
 
 
             except(ValueError,IndexError):

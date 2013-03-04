@@ -20,7 +20,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.access_point = str()
         self.client_list = []
-        self.started = False
+        self.started = False                # If False it means attack is not active or has been stopped, can be used to control process
 
         self.wordlist = str()
 
@@ -554,6 +554,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         time.sleep(3)
         self.emit(QtCore.SIGNAL("deauthenticating"))
         while '1 handshake' not in reader('/tmp/fern-log/WPA-DUMP/capture_status.log'):
+            if(self.started == False):                                  # Break deauthentication loop if attack has been stopped
+                return
             thread.start_new_thread(self.deauthenticate_client,())
             time.sleep(10)
             thread.start_new_thread(self.capture_check,())
