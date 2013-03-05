@@ -290,7 +290,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                     cookie_open_file.write("-" * (len(web_addr) + 5))
                     cookie_open_file.write("\n")
 
-                    self.cookie_db_cursor.execute("select distinct Name,Value from cookie_cache where source = ? and Web_Address = ?"%(ip_address,web_addr))
+                    self.cookie_db_cursor.execute("select distinct Name,Value from cookie_cache where source = ? and Web_Address = ?",(ip_address,web_addr))
                     cookies_values = self.cookie_db_cursor.fetchall()
 
                     for cookies in cookies_values:
