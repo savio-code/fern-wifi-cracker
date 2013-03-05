@@ -79,8 +79,8 @@ class Cookie_Hijack_Core(QtCore.QThread):
 
 
     def insert_cache_settings(self,setting,value):
-        sql_code = "insert into cache_settings values ('%s','%s')"
-        self.cookie_db_cursor.execute(sql_code % (setting,value))
+        sql_code = "insert into cache_settings values (?,?)"
+        self.cookie_db_cursor.execute(sql_code ,(setting,value))
         self.cookie_db_jar.commit()
 
 
@@ -92,8 +92,8 @@ class Cookie_Hijack_Core(QtCore.QThread):
     #
 
     def insert_Cookie_values(self,source,referer,web_address,host,name,value,dot_host,path,isSecure,isHttpOnly):
-        sql_code_a = "select Value from cookie_cache where (source = '%s' and Web_Address = '%s' and Name = '%s')"
-        sql_code_b = "update cookie_cache set Value = '%s' where (Name = '%s' and source = '%s' and Web_Address = '%s')"
+        sql_code_a = "select Value from cookie_cache where (source = ? and Web_Address = ? and Name = ?)"
+        sql_code_b = "update cookie_cache set Value = ? where (Name = ? and source = ? and Web_Address = ?)"
         sql_code_c = "insert into cookie_cache values (?,?,?,?,?,?,?,?,?,?);"
 
         if(referer == str()):
@@ -109,11 +109,11 @@ class Cookie_Hijack_Core(QtCore.QThread):
 
         cookie_db_cursor = cookie_db_jar.cursor()
 
-        cookie_db_cursor.execute(sql_code_a % (source,web_address,name))
+        cookie_db_cursor.execute(sql_code_a ,(source,web_address,name))
         db_value = cookie_db_cursor.fetchone()
         if(db_value):
             if(db_value[0] != value):
-                cookie_db_cursor.execute(sql_code_b % (value,name,source,web_address))
+                cookie_db_cursor.execute(sql_code_b ,(value,name,source,web_address))
                 cookie_db_jar.commit()
                 cookie_db_jar.close()
                 return

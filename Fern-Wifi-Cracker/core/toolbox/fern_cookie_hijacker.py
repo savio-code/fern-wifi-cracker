@@ -290,7 +290,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                     cookie_open_file.write("-" * (len(web_addr) + 5))
                     cookie_open_file.write("\n")
 
-                    self.cookie_db_cursor.execute("select distinct Name,Value from cookie_cache where source = '%s' and Web_Address = '%s'"%(ip_address,web_addr))
+                    self.cookie_db_cursor.execute("select distinct Name,Value from cookie_cache where source = ? and Web_Address = ?"%(ip_address,web_addr))
                     cookies_values = self.cookie_db_cursor.fetchall()
 
                     for cookies in cookies_values:
@@ -326,18 +326,18 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
     def Hijack_Session(self):
         self.mozilla_cookie_engine.kill_Process("firefox-bin")
         selected_cookie = str(self.treeWidget.currentItem().text(0))
-        sql_code_a = "select Referer from cookie_cache where Web_Address = '%s'"
-        sql_code_b = "select Host,Name,Value,Dot_Host,Path,IsSecured,IsHttpOnly from cookie_cache where Web_Address = '%s'"
+        sql_code_a = "select Referer from cookie_cache where Web_Address = ?"
+        sql_code_b = "select Host,Name,Value,Dot_Host,Path,IsSecured,IsHttpOnly from cookie_cache where Web_Address = ?"
 
-        self.cookie_db_cursor.execute("select Host from cookie_cache where Web_Address = '%s'" % (selected_cookie))
+        self.cookie_db_cursor.execute("select Host from cookie_cache where Web_Address = ?",(selected_cookie))
         result = self.cookie_db_cursor.fetchone()
         if(result):
             self.mozilla_cookie_engine.execute_query("delete from moz_cookies where baseDomain = '%s'" % (result[0]))
 
-        self.cookie_db_cursor.execute(sql_code_a % (selected_cookie))
+        self.cookie_db_cursor.execute(sql_code_a ,(selected_cookie))
         web_address = self.cookie_db_cursor.fetchone()[0]
 
-        self.cookie_db_cursor.execute(sql_code_b % (selected_cookie))
+        self.cookie_db_cursor.execute(sql_code_b ,(selected_cookie))
         return_items = self.cookie_db_cursor.fetchall()
 
         for entries in return_items:
@@ -428,7 +428,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                 item_1.setIcon(0, icon)
 
                 self.treeWidget.topLevelItem(count_a).child(count_b).setText(0,web_addr)
-                self.cookie_db_cursor.execute("select distinct Name,Value from cookie_cache where source = '%s' and Web_Address = '%s'"%(ip_address,web_addr))
+                self.cookie_db_cursor.execute("select distinct Name,Value from cookie_cache where source = ? and Web_Address = ?"%(ip_address,web_addr))
                 cookies_values = self.cookie_db_cursor.fetchall()
 
                 for count_c,cookies in enumerate(cookies_values):
@@ -443,7 +443,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
     def prepare_Mozilla_Database(self):
         sql_code_a = "select value from cache_settings where setting = 'cookie_path'"
-        sql_code_c = "insert into cache_settings values ('%s','%s')"
+        sql_code_c = "insert into cache_settings values (?,?)"
         if(self.firefox_is_installed()):
             if not self.mozilla_cookie_engine.cookie_database:
 
@@ -460,14 +460,14 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                         if not path:
                             raise Exception("cookies.sqlite3 firefox database has not been created on this system, Please run firefox to create")
                         cookie_db_cursor.execute("delete from cache_settings where setting = 'cookie_path'")
-                        cookie_db_cursor.execute(sql_code_c % ("cookie_path",path))
+                        cookie_db_cursor.execute(sql_code_c ,("cookie_path",path))
                         cookie_db_jar.commit()
                 else:
                     self.emit(QtCore.SIGNAL("creating cache"))
                     path = self.mozilla_cookie_engine.get_Cookie_Path("cookies.sqlite")
                     if not path:
                         raise Exception("cookies.sqlite3 firefox database has not been created on this system, Please run firefox to create")
-                    cookie_db_cursor.execute(sql_code_c % ("cookie_path",path))
+                    cookie_db_cursor.execute(sql_code_c ,("cookie_path",path))
                     cookie_db_jar.commit()
 
                 cookie_db_jar.close()
