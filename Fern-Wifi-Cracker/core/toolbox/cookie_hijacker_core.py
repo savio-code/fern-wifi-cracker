@@ -94,7 +94,7 @@ class Cookie_Hijack_Core(QtCore.QThread):
     def insert_Cookie_values(self,source,referer,web_address,host,name,value,dot_host,path,isSecure,isHttpOnly):
         sql_code_a = "select Value from cookie_cache where (source = '%s' and Web_Address = '%s' and Name = '%s')"
         sql_code_b = "update cookie_cache set Value = '%s' where (Name = '%s' and source = '%s' and Web_Address = '%s')"
-        sql_code_c = "insert into cookie_cache values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"
+        sql_code_c = "insert into cookie_cache values (?,?,?,?,?,?,?,?,?,?);"
 
         if(referer == str()):
             referer = "http://" + web_address
@@ -118,7 +118,7 @@ class Cookie_Hijack_Core(QtCore.QThread):
                 cookie_db_jar.close()
                 return
 
-        cookie_db_cursor.execute(sql_code_c % (source,referer,web_address,host,name,value,dot_host,path,isSecure,isHttpOnly))
+        cookie_db_cursor.execute(sql_code_c,(source,referer,web_address,host,name,value,dot_host,path,isSecure,isHttpOnly))
         cookie_db_jar.commit()
         cookie_db_jar.close()
 
