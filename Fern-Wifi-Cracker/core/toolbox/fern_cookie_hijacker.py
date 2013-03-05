@@ -450,7 +450,6 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         sql_code_c = "insert into cache_settings values (?,?)"
         if(self.firefox_is_installed()):
             if not self.mozilla_cookie_engine.cookie_database:
-
                 database_path = os.getcwd() + "/key-database/Cookie.db"
                 cookie_db_jar = sqlite3.connect(database_path)
                 cookie_db_cursor = cookie_db_jar.cursor()
@@ -465,6 +464,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                             error_str = "cookies.sqlite firefox database has not been created on this system, Please run firefox to create it"
                             self.emit(QtCore.SIGNAL("display_error(QString)"),error_str)
                             self.emit(QtCore.SIGNAL("Deactivate"))
+                            self.mozilla_cookie_engine.cookie_database = str()
                             return
                         cookie_db_cursor.execute("delete from cache_settings where setting = 'cookie_path'")
                         cookie_db_cursor.execute(sql_code_c ,("cookie_path",path))
@@ -476,7 +476,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                         error_str = "cookies.sqlite firefox database has not been created on this system, Please run firefox to create it";
                         self.emit(QtCore.SIGNAL("display_error(QString)"),error_str)
                         self.emit(QtCore.SIGNAL("Deactivate"))
-                        self.stop_Cookie_Attack()
+                        self.mozilla_cookie_engine.cookie_database = str()
                         return
                     cookie_db_cursor.execute(sql_code_c ,("cookie_path",path))
                     cookie_db_jar.commit()
