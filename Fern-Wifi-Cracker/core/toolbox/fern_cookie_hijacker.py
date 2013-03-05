@@ -428,7 +428,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                 item_1.setIcon(0, icon)
 
                 self.treeWidget.topLevelItem(count_a).child(count_b).setText(0,web_addr)
-                self.cookie_db_cursor.execute("select distinct Name,Value from cookie_cache where source = ? and Web_Address = ?"%(ip_address,web_addr))
+                self.cookie_db_cursor.execute("select distinct Name,Value from cookie_cache where source = ? and Web_Address = ?", (ip_address,web_addr))
                 cookies_values = self.cookie_db_cursor.fetchall()
 
                 for count_c,cookies in enumerate(cookies_values):
