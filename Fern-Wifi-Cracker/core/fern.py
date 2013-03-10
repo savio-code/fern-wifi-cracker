@@ -717,8 +717,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     access_point =  wep_access[13].strip(' ')  # Access point Name
 
                     if access_point not in wep_details.keys():
-                        if(access_point):
-                            wep_details[access_point] = [mac_address,channel,speed,power]
+                        wep_details[access_point] = [mac_address,channel,speed,power]
 
 
                 # WPA Access point sort starts here
@@ -751,8 +750,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     access_point =  wpa_access[13].strip(' ')  # Access point Name
 
                     if access_point not in wpa_details.keys():
-                        if(access_point):
-                            wpa_details[access_point] = [mac_address,channel,speed,power]
+                        wpa_details[access_point] = [mac_address,channel,speed,power]
 
 
             except(ValueError,IndexError):
