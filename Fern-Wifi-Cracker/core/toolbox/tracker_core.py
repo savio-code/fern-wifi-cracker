@@ -36,11 +36,13 @@ class Fern_Geolocation(object):
         self.mac_address = str()
 
     def _fern_geo_access(self):
+        geo_data = dict()
         api_key='{"version":"1.1.0","request_address":true,"wifi_towers":[{"mac_address":"%s","ssid":"","signal_strength":-50}]}'%(self.mac_address)
         api_data = httplib.HTTPConnection('www.google.com')
         api_data.request('POST','/loc/json',api_key)
         data_ = api_data.getresponse()
-        geo_data = json.loads(data_.read())
+        if(data_):
+            geo_data = json.loads(data_.read())
         return geo_data
 
 
