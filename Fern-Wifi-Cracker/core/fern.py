@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 1.92
+__version__= 1.93
 
 #
 # Main Window Class
@@ -241,6 +241,9 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                             shutil.copyfile(update_directory + update_file,os.getcwd() + os.sep + update_file)
                         else:
                             shutil.copytree(update_directory + update_file,os.getcwd() + os.sep + update_file)
+
+                    for new_file in os.listdir(os.getcwd()):                        # chmod New files to allow permissions
+                        os.chmod(os.getcwd() + os.sep + new_file,0777)
 
                     time.sleep(5)
                     self.emit(QtCore.SIGNAL("restart application"))

@@ -41,6 +41,10 @@ def restore_files():
         else:
             shutil.copytree(update_directory + update_file,os.getcwd() + os.sep + update_file)
 
+    for new_file in os.listdir(os.getcwd()):
+        os.chmod(os.getcwd() + os.sep + new_file,0777)
+
+
 
 
 def create_directory():
