@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 1.94
+__version__= 1.95
 
 #
 # Main Window Class
@@ -301,7 +301,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     #
     def wep_attack_window(self):
         if 'WEP-DUMP' not in os.listdir('/tmp/fern-log'):
-            os.mkdir('/tmp/fern-log/WEP-DUMP')
+            os.mkdir('/tmp/fern-log/WEP-DUMP',0700)
         else:
             variables.exec_command('rm -r /tmp/fern-log/WEP-DUMP/*')
         wep_run = wep_attack_dialog()
@@ -317,7 +317,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     def wpa_attack_window(self):
         variables.exec_command('killall aircrack-ng')
         if 'WPA-DUMP' not in os.listdir('/tmp/fern-log'):
-            os.mkdir('/tmp/fern-log/WPA-DUMP')
+            os.mkdir('/tmp/fern-log/WPA-DUMP',0700)
         else:
             variables.exec_command('rm -r /tmp/fern-log/WPA-DUMP/*')
         wpa_run = wpa_attack_dialog()
@@ -762,7 +762,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
 
     def evaliate_permissions(self):
-        if os.getenv('LOGNAME','none').lower() != 'root':
+        if os.geteuid() != 0:
             QtGui.QMessageBox.warning(self,"Insufficient Priviledge","Aircrack and other dependencies need root priviledge to function, Please run application as root")
             sys.exit()
 
