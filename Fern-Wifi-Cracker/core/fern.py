@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 1.95
+__version__= 1.96
 
 #
 # Main Window Class
@@ -87,8 +87,16 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         # Display update status on main_windows
         thread.start_new_thread(self.update_initializtion_check,())
 
+        self.set_WindowFlags()
+
         self.update_database_label()
         self.set_xterm_settings()
+
+
+    def set_WindowFlags(self):
+        try:
+            self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMaximizeButtonHint)       # Some older versions of Qt4 dont support some flags
+        except:pass
 
     #
     #   Read database entries and count entries then set Label on main window
