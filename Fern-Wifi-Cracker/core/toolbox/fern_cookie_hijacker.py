@@ -54,6 +54,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
 
 
+
+
     def connect_objects(self):
         self.connect(self,QtCore.SIGNAL("creating cache"),self.creating_cache)
         self.connect(self.cookie_core,QtCore.SIGNAL("New Cookie Captured"),self.display_cookie_captured)    # Notification Signal for GUI instance"))

@@ -9,6 +9,7 @@ from core.variables import *
 from core.functions import *
 from gui.attack_settings import *
 from core.settings import *
+from gui.fern_pro_tip import *
 
 from toolbox.fern_tracker import *
 # from toolbox.fern_cookie_hijacker import *
@@ -31,6 +32,8 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
         self.connect(self.attack_options_button,QtCore.SIGNAL("clicked()"),self.attack_settings_exec)
         self.connect(self.cookie_hijack_button,QtCore.SIGNAL("clicked()"),self.cookie_hijack_exec)
         self.connect(self.ray_fusion_button,QtCore.SIGNAL("clicked()"),self.ray_fusion_exec)
+
+
 
 
 
@@ -121,6 +124,8 @@ class wifi_attack_settings(QtGui.QDialog,Ui_attack_settings):
         self.connect(self.direc_browse,QtCore.SIGNAL("clicked()"),self.set_capture_directory)
 
 
+
+
     def display_components(self):
         if self.settings.setting_exists('capture_directory'):
             self.capture_box.setChecked(True)
@@ -198,6 +203,37 @@ class tips_window(QtGui.QDialog,tips_dialog):
                 self.settings.create_settings("copy key tips","0")
 
         self.close()
+
+
+
+class Fern_Pro_Tips(QtGui.QDialog,Fern_Pro_Tip_ui):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        self.setupUi(self)
+
+        self.settings = Fern_settings()
+
+        self.connect(self.yes_button,QtCore.SIGNAL("clicked()"),self.open_website)
+        self.connect(self.show_message_checkbox,QtCore.SIGNAL("clicked()"),self.toggle_tip)
+
+
+    def open_website(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://www.fern-pro.com/"))
+        self.toggle_tip()
+        self.close()
+
+
+    def toggle_tip(self):
+        checked = self.show_message_checkbox.isChecked()
+        if(checked):
+            self.settings.create_settings("fern_pro_tips","1")
+            return
+
+        self.settings.create_settings("fern_pro_tips","0")
+
+
+
+
 
 #Finished Here (tips_window)
 

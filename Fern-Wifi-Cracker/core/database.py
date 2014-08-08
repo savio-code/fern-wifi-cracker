@@ -20,6 +20,8 @@ class database_dialog(QtGui.QDialog,database_ui):
         self.connect(self.save_button,QtCore.SIGNAL("clicked()"),self.save_changes)
 
 
+
+
     def display_keys(self):
         connection = sqlite3.connect('key-database/Database.db')
         query = connection.cursor()

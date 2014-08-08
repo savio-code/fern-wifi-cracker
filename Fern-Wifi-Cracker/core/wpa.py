@@ -75,6 +75,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
 
+
         ############## ATACK PANEL METHODS #####################
         self.access_points = set()
         self.client_list = []

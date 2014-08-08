@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 1.96
+__version__= 2.0
 
 #
 # Main Window Class
@@ -48,6 +48,11 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.animate_monitor_mode(True)                 # Loading gif animation
 
         self.settings = Fern_settings()
+
+        self.timer = QtCore.QTimer()
+        self.connect(self.timer,QtCore.SIGNAL("timeout()"),self.display_timed_objects)
+        self.timer.setInterval(4000)
+        self.timer.start()
 
         self.connect(self,QtCore.SIGNAL("DoubleClicked()"),self.mouseDoubleClickEvent)
         self.connect(self.refresh_intfacebutton,QtCore.SIGNAL("clicked()"),self.refresh_interface)
@@ -97,6 +102,25 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         try:
             self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMaximizeButtonHint)       # Some older versions of Qt4 dont support some flags
         except:pass
+
+
+    def display_timed_objects(self):
+        self.show_Fern_Pro_tip()
+        self.timer.stop()
+
+
+
+    def show_Fern_Pro_tip(self):
+        if(self.settings.setting_exists("fern_pro_tips")):
+            if(self.settings.read_last_settings("fern_pro_tips") == "0"):
+                tips = Fern_Pro_Tips()
+                tips.exec_()
+        else:
+            self.settings.create_settings("fern_pro_tips","0")
+            tips = Fern_Pro_Tips()
+            tips.exec_()
+
+
 
     #
     #   Read database entries and count entries then set Label on main window

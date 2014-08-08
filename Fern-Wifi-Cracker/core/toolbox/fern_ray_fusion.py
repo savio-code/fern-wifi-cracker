@@ -60,6 +60,7 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
 
 
 
+
     def reset_objects(self):
         self.credential_table.clear()
         self.save_credentials.setEnabled(False)
