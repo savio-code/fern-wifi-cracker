@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 2.0
+__version__= 2.1
 
 #
 # Main Window Class
@@ -58,6 +58,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.connect(self.refresh_intfacebutton,QtCore.SIGNAL("clicked()"),self.refresh_interface)
         self.connect(self.interface_combo,QtCore.SIGNAL("currentIndexChanged(QString)"),self.setmonitor)
         self.connect(self,QtCore.SIGNAL("monitor mode enabled"),self.monitor_mode_enabled)
+        self.connect(self,QtCore.SIGNAL("monitor_error(QString,QString)"),self.display_monitor_error)
         self.connect(self,QtCore.SIGNAL("interface cards found"),self.interface_cards_found)
         self.connect(self,QtCore.SIGNAL("interface cards not found"),self.interface_card_not_found)
         self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
@@ -462,9 +463,17 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
     def set_monitor_thread(self,monitor_card,mac_setting_exists,last_settings):
         status = str(commands.getoutput("airmon-ng start %s"%(monitor_card)))
-        if 'monitor mode enabled' in status:
+
+        if ('monitor mode enabled' in status) or ('monitor mode vif enabled' in status):
             monitor_interface_process = str(commands.getoutput("airmon-ng"))
-            regex = re.compile("mon\d",re.IGNORECASE)
+
+            regex = object()
+            if ('monitor mode enabled' in status):
+                regex = re.compile("mon\d",re.IGNORECASE)
+
+            elif ('monitor mode vif enabled' in status):
+                regex = re.compile("wlan\dmon",re.IGNORECASE)
+
             interfaces = regex.findall(monitor_interface_process)
             if(interfaces):
                 self.monitor_interface = interfaces[0]
@@ -488,6 +497,15 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     os.chmod('/sys/class/net/' + self.monitor_interface + '/address',0777)
                     variables.monitor_mac_address = reader('/sys/class/net/' + self.monitor_interface + '/address').strip()
                     variables.wps_functions.monitor_mac_address = variables.monitor_mac_address
+        else:
+            self.emit(QtCore.SIGNAL("monitor_error(QString,QString)","red","problem occured while setting up the monitor mode of selected"))
+
+
+
+    def display_monitor_error(self,color,error):
+        message = "<font color='%1'>%2</font>"
+        self.mon_label.setText(message.format(color,error))
+        self.animate_monitor_mode(False)
 
 
     def tip_display(self):
