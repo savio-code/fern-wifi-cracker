@@ -57,7 +57,7 @@ Installation on Debian Package supported systems:
 
 The <i>source code</i> for the program can be fetched using the following command on terminal
 <br><hr>
-<code>root@host:~# svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/</code>
+<code>root@host:~# svn checkout http://github.com/savio-code/fern-wifi-cracker/trunk/Fern-Wifi-Cracker/</code>
 <hr>
 
 <h3 id="updating">Upgrading and Updating</h3>
