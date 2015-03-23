@@ -22,14 +22,14 @@ The Program requires the following to run properly:<br>
 The following dependencies can be installed using the <i>Debian package installer</i> command on Debian based systems using "apt-get install program" or otherwise downloaded
 and installed manually
 
-<p>*<a href="http://www.aircrack-ng.org/">Aircrack-NG</a></p>
-<p>*<a href="http://www.secdev.org/projects/scapy/">Python-Scapy</a></p>
-<p>*<a href="http://www.riverbankcomputing.co.uk/software/pyqt/intro">Python Qt4</a></p>
-<p>*<a href="http://www.python.org/">Python</a></p>
-<p>*><a href="http://subversion.tigris.org/">Subversion</a></p>
-<p>*<a href="http://invisible-island.net/xterm/">Xterm</a></p>
-<p>*<a href="http://code.google.com/p/reaver-wps/">Reaver</a><i> (for WPS Attacks)</i></p>
-<p>*Macchanger</p>
+<p>1. <a href="http://www.aircrack-ng.org/">Aircrack-NG</a></p>
+<p>2. <a href="http://www.secdev.org/projects/scapy/">Python-Scapy</a></p>
+<p>3. <a href="http://www.riverbankcomputing.co.uk/software/pyqt/intro">Python Qt4</a></p>
+<p>4. <a href="http://www.python.org/">Python</a></p>
+<p>5. <a href="http://subversion.tigris.org/">Subversion</a></p>
+<p>6. <a href="http://invisible-island.net/xterm/">Xterm</a></p>
+<p>7. <a href="http://code.google.com/p/reaver-wps/">Reaver</a><i> (for WPS Attacks)</i></p>
+<p>8. Macchanger</p>
 
 <hr>
 
@@ -37,15 +37,15 @@ and installed manually
 <hr>
 <i>Fern Wifi Cracker</i> currently supports the following features:
 
-<p>*<i>WEP Cracking with Fragmentation,Chop-Chop, Caffe-Latte, Hirte, ARP Request Replay or WPS attack</i></p>
-<p>*<i>WPA/WPA2 Cracking with Dictionary or WPS based attacks</i></p>
-<p>*<i>Automatic saving of key in database on successful crack</i></p>
-<p>*<i>Automatic Access Point Attack System</i></p>
-<p>*<i>Session Hijacking (Passive and Ethernet Modes)</i></p>
-<p>*<i>Access Point MAC Address Geo Location Tracking</i></p>
-<p>*<i>Internal MITM Engine</i></p>
-<p>*<i>Bruteforce Attacks (HTTP,HTTPS,TELNET,FTP)</i></p>
-<p>*<i>Update Support</i></p>
+<p>1. <i>WEP Cracking with Fragmentation,Chop-Chop, Caffe-Latte, Hirte, ARP Request Replay or WPS attack</i></p>
+<p>2. <i>WPA/WPA2 Cracking with Dictionary or WPS based attacks</i></p>
+<p>3. <i>Automatic saving of key in database on successful crack</i></p>
+<p>4. <i>Automatic Access Point Attack System</i></p>
+<p>5. <i>Session Hijacking (Passive and Ethernet Modes)</i></p>
+<p>6. <i>Access Point MAC Address Geo Location Tracking</i></p>
+<p>7. <i>Internal MITM Engine</i></p>
+<p>8. <i>Bruteforce Attacks (HTTP,HTTPS,TELNET,FTP)</i></p>
+<p>9. <i>Update Support</i></p>
 
 <hr>
 
