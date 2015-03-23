@@ -68,7 +68,7 @@ user with the message <b><font color="green" size="2pt">New Update is Available<
 When the button is clicked, allow to download update files until it displays the message <b><font color="red" size="2pt">Please Restart Application</font></b>.
 <hr>
 
-#Screenshots:</h3>
+###Screenshots:
 <hr>
 <i><b>Main Window</b></i>
 <br>
@@ -83,16 +83,7 @@ When the button is clicked, allow to download update files until it displays the
 
 <hr>
 
-<h3 id="Video">Videos:</h3>
-<hr>
-<i><b>Session Hijacking Demonstration:</b><i></i>
-
-<wiki:video url="http://www.youtube.com/watch?v=Bi-8JRNpMqo" height="480" width="640"/>
-<br>
-<wiki:video url="http://www.youtube.com/watch?v=_ztQQWMoVX4" height="480" width="640"/>
-<hr>
-
-<p>* Other Projects:<p>*
+#Other Projects:
 
 http://code.google.com/p/ghost-phisher/
 
