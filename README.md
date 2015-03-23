@@ -83,7 +83,7 @@ When the button is clicked, allow to download update files until it displays the
 
 <hr>
 
-#Other Projects:
+###Other Projects:
 
 http://code.google.com/p/ghost-phisher/
 
