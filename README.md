@@ -13,16 +13,16 @@
 ###Operating System Supported
 The Software runs on any <i>Linux machine</i> with the programs <a href="#prerequisites">prerequisites</a>, But the program has been tested on the following Linux based operating systems:
 
-1.<a href="http://www.ubuntu.com/">Ubuntu KDE/GNOME</a></li>
-2.<a href="http://www.backtrack-linux.org/">BackTrack Linux</a></li>
-3.<a href="http://www.backbox.org/">BackBox Linux</a></li>
+1.<p><a href="http://www.ubuntu.com/">Ubuntu KDE/GNOME</a></p>
+2.<p><a href="http://www.backtrack-linux.org/">BackTrack Linux</a></p>
+3.<p><a href="http://www.backbox.org/">BackBox Linux</a></p>
 
 ###Prerequisites
 The Program requires the following to run properly:<br>
 The following dependencies can be installed using the <i>Debian package installer</i> command on Debian based systems using "apt-get install program" or otherwise downloaded
 and installed manually
 
-*<a href="http://www.aircrack-ng.org/">Aircrack-NG</a>
+*<p><a href="http://www.aircrack-ng.org/">Aircrack-NG</a></p>
 *<a href="http://www.secdev.org/projects/scapy/">Python-Scapy</a>
 *<a href="http://www.riverbankcomputing.co.uk/software/pyqt/intro">Python Qt4</a>
 *<a href="http://www.python.org/">Python</a>
