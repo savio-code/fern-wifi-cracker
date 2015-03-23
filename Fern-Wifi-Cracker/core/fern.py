@@ -201,7 +201,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
 
     #
-    # Update Fern application via SVN,updates at ("svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/")
+    # Update Fern application via SVN,updates at ("svn checkout http://github.com/savio-code/fern-wifi-cracker/trunk/Fern-Wifi-Cracker/")
     #
     def update_fern(self):
         global updater_control
@@ -232,11 +232,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
         update_directory = '/tmp/Fern-Wifi-Cracker/'
 
-        svn_path = 'http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/'
-
-
         try:
-            online_response_check = urllib2.urlopen('http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/version')
+            online_response_check = urllib2.urlopen('http://raw.githubusercontent.com/savio-code/fern-wifi-cracker/master/Fern-Wifi-Cracker/version')
             online_response = online_response_check.read()
 
             online_files = re.compile('total_files = \d+',re.IGNORECASE)
@@ -248,7 +245,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             if 'Fern-Wifi-Cracker' in os.listdir('/tmp/'):
                 variables.exec_command('rm -r /tmp/Fern-Wifi-Cracker')
 
-            svn_access = subprocess.Popen('cd /tmp/ \n svn checkout http://fern-wifi-cracker.googlecode.com/svn/Fern-Wifi-Cracker/',\
+            svn_access = subprocess.Popen('cd /tmp/ \n svn checkout http://github.com/savio-code/fern-wifi-cracker/trunk/Fern-Wifi-Cracker/',\
                     shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
             svn_update = svn_access.stdout
             thread.start_new_thread(self.update_error,())
