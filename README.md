@@ -85,6 +85,6 @@ When the button is clicked, allow to download update files until it displays the
 
 ###Other Projects:
 
-http://code.google.com/p/ghost-phisher/
+https://github.com/savio-code/ghost-phisher
 
-http://code.google.com/p/hexorbase/
+https://github.com/savio-code/hexorbase
