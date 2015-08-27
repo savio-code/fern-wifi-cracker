@@ -1,5 +1,9 @@
-<b>DISCLAIMER</b>: This program is created to be used in testing and discovering flaws in ones own network with the aim of fixing the flaws detected, <b>DO NOT</b> use the program on networks for which you dont have permission.
-<hr/>
+<hr>
+<h5>Create portable static executables from dynamic executables that will run on every version of linux, <a target="_blank" href="http://www.elfex-pro.com">Click here</a> for more information</h5>
+<hr>
+
+<b>DISCLAIMER</b>: Fern-Wifi-Cracker is designed to be used in testing and discovering flaws in ones own network with the aim of fixing the flaws detected, <b>DO NOT</b> use the program on networks for which you dont have permission, i am not responsible for whatever damage you cause by using this software.
+<hr/> 
 
 ####Visit <a href="http://www.fern-pro.com/">http://www.fern-pro.com</a> for newer downloads
 <br>
