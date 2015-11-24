@@ -137,6 +137,8 @@ def line_count(filename):
         count =  sum(bl.count("\n") for bl in blocks(f))
         return(count + 1)
 
+def killProcess(processId):
+    os.system("kill " + str(processId))
 
 ######################## Font settings #######################
 def font_size():

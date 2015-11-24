@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 2.2
+__version__= 2.3
 
 #
 # Main Window Class
@@ -58,7 +58,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.connect(self.refresh_intfacebutton,QtCore.SIGNAL("clicked()"),self.refresh_interface)
         self.connect(self.interface_combo,QtCore.SIGNAL("currentIndexChanged(QString)"),self.setmonitor)
         self.connect(self,QtCore.SIGNAL("monitor mode enabled"),self.monitor_mode_enabled)
-        self.connect(self,QtCore.SIGNAL("monitor_error(QString,QString)"),self.display_monitor_error)
+        self.connect(self,QtCore.SIGNAL("monitor_failed()"),self.display_error_monitor)
         self.connect(self,QtCore.SIGNAL("interface cards found"),self.interface_cards_found)
         self.connect(self,QtCore.SIGNAL("interface cards not found"),self.interface_card_not_found)
         self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
@@ -458,10 +458,35 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             self.animate_monitor_mode(False)
 
 
-    def set_monitor_thread(self,monitor_card,mac_setting_exists,last_settings):
-        status = str(commands.getoutput("airmon-ng start %s"%(monitor_card)))
+    def killConflictProcesses(self):
+        process = commands.getstatusoutput("airmon-ng check")
+        status = process[0]
+        output = process[1]
+        
+        if(status == 0):
+            for line in output.splitlines():
+                splitedLines = line.split()
+                if(len(splitedLines) >= 2):
+                    prefix = str(splitedLines[0])
+                    if(prefix.isdigit()):
+                        pid = int(prefix)
+                        killProcess(pid)
+                
+                
 
-        if ('monitor mode enabled' in status) or ('monitor mode vif enabled' in status):
+    def set_monitor_thread(self,monitor_card,mac_setting_exists,last_settings):
+        self.killConflictProcesses()
+
+        status = str(commands.getoutput("airmon-ng start %s"%(monitor_card)))
+        messages = ("monitor mode enabled","monitor mode vif enabled","monitor mode already")
+        
+        monitor_created = False;
+        
+        for x in messages:
+            if(x in status):
+                monitor_created = True
+        
+        if (monitor_created):
             monitor_interface_process = str(commands.getoutput("airmon-ng"))
 
             regex = object()
@@ -495,13 +520,13 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     variables.monitor_mac_address = reader('/sys/class/net/' + self.monitor_interface + '/address').strip()
                     variables.wps_functions.monitor_mac_address = variables.monitor_mac_address
         else:
-            self.emit(QtCore.SIGNAL("monitor_error(QString,QString)","red","problem occured while setting up the monitor mode of selected"))
+            self.emit(QtCore.SIGNAL("monitor_failed()"))
 
 
 
     def display_monitor_error(self,color,error):
-        message = "<font color='%1'>%2</font>"
-        self.mon_label.setText(message.format(color,error))
+        message = "<font color='"+color+"'>"+error+"</font>"
+        self.mon_label.setText(message)
         self.animate_monitor_mode(False)
 
 
@@ -511,6 +536,9 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         tips.exec_()
 
 
+    def display_error_monitor(self):
+        self.display_monitor_error("red","problem occured while setting up the monitor mode of selected")
+        
 
     def monitor_mode_enabled(self):
         self.mon_label.setText("<font color=green>Monitor Mode Enabled on %s</font>"%(self.monitor_interface))
