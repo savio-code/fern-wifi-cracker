@@ -512,7 +512,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         keys_speed_regex = re.compile("(\d+.?\d+) k/s",re.IGNORECASE)
         keys_tested_regex = re.compile("(\d+) keys tested",re.IGNORECASE)
 
-        crack_process = subprocess.Popen("cd /tmp/fern-log/WPA-DUMP/ \naircrack-ng -a 2 -w '%s' *.cap -l wpa_key.txt" % (self.wordlist),
+        crack_process = subprocess.Popen("cd /tmp/fern-log/WPA-DUMP/ \naircrack-ng -a 2 -w '%s' wpa_dump-01.cap -l wpa_key.txt" % (self.wordlist),
                              shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
 
         stdout = crack_process.stdout
@@ -829,4 +829,3 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
     def closeEvent(self,event):
         self.wps_update_timer.stop()
-

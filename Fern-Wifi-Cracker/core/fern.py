@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 2.3
+__version__= 2.4
 
 #
 # Main Window Class
@@ -462,7 +462,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         process = commands.getstatusoutput("airmon-ng check")
         status = process[0]
         output = process[1]
-        
+
         if(status == 0):
             for line in output.splitlines():
                 splitedLines = line.split()
@@ -471,21 +471,24 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     if(prefix.isdigit()):
                         pid = int(prefix)
                         killProcess(pid)
-                
-                
+
+
 
     def set_monitor_thread(self,monitor_card,mac_setting_exists,last_settings):
         self.killConflictProcesses()
 
+        commands.getstatusoutput('ifconfig %s down'%(self.monitor_interface))       # Avoid this:  "ioctl(SIOCSIWMODE) failed: Device or resource busy"
+
         status = str(commands.getoutput("airmon-ng start %s"%(monitor_card)))
         messages = ("monitor mode enabled","monitor mode vif enabled","monitor mode already")
-        
+
         monitor_created = False;
-        
+
         for x in messages:
             if(x in status):
                 monitor_created = True
-        
+
+
         if (monitor_created):
             monitor_interface_process = str(commands.getoutput("airmon-ng"))
 
@@ -513,7 +516,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 variables.exec_command('macchanger -m %s %s'%(last_settings,self.monitor_interface))
             else:
                 variables.exec_command('macchanger -A %s'%(self.monitor_interface))
-            mon_up = commands.getstatusoutput('ifconfig %s up'%(self.monitor_interface))
+            #mon_up = commands.getstatusoutput('ifconfig %s up'%(self.monitor_interface))       # Lets leave interface down to avoid channel looping during channel specific attack
+
+            commands.getstatusoutput('ifconfig %s down'%(self.monitor_interface))
+
             for iterate in os.listdir('/sys/class/net'):
                 if str(iterate) == str(self.monitor_interface):
                     os.chmod('/sys/class/net/' + self.monitor_interface + '/address',0777)
@@ -538,7 +544,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
 
     def display_error_monitor(self):
         self.display_monitor_error("red","problem occured while setting up the monitor mode of selected")
-        
+
 
     def monitor_mode_enabled(self):
         self.mon_label.setText("<font color=green>Monitor Mode Enabled on %s</font>"%(self.monitor_interface))

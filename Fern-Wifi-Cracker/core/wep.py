@@ -649,7 +649,7 @@ class wep_attack_dialog(QtGui.QDialog,Ui_attack_panel):
     def crack_wep(self):
         directory = '/tmp/fern-log/WEP-DUMP/'
         variables.exec_command('killall aircrack-ng')
-        process = subprocess.Popen('aircrack-ng '+ directory + '*.cap -l '+ directory + 'wep_key.txt',shell = True,stdout = subprocess.PIPE,stderr = subprocess.PIPE,stdin = subprocess.PIPE)
+        process = subprocess.Popen('aircrack-ng '+ directory + 'wep_dump-01.cap -l '+ directory + 'wep_key.txt',shell = True,stdout = subprocess.PIPE,stderr = subprocess.PIPE,stdin = subprocess.PIPE)
         status = process.stdout
         while 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
             if 'Failed. Next try with' in status.readline():
