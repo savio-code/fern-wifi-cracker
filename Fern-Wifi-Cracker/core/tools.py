@@ -11,7 +11,7 @@ from gui.attack_settings import *
 from core.settings import *
 from gui.fern_pro_tip import *
 
-from toolbox.fern_tracker import *
+#from toolbox.fern_tracker import *
 # from toolbox.fern_cookie_hijacker import *
 from toolbox.fern_ray_fusion import *
 
@@ -41,8 +41,8 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
     #   TOOLBOX FEATURES
     #
     def geotrack_exec(self):
-        geotrack_dialog_box = Fern_geolocation_tracker()
-        geotrack_dialog_box.exec_()
+        QtGui.QMessageBox.warning(self,"Geo Tracker","This feature has been deprecated")
+
 
     def cookie_hijack_exec(self):
         try:

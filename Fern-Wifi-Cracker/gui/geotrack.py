@@ -207,5 +207,3 @@ class Ui_fern_geotrack(object):
         self.accuracy_label.setText(QtGui.QApplication.translate("fern_geotrack", "Accuracy: ", None, QtGui.QApplication.UnicodeUTF8))
         self.country_code_label.setText(QtGui.QApplication.translate("fern_geotrack", "Country Code: ", None, QtGui.QApplication.UnicodeUTF8))
         self.track_button.setText(QtGui.QApplication.translate("fern_geotrack", "Track", None, QtGui.QApplication.UnicodeUTF8))
-
-from PyQt4 import QtWebKit
