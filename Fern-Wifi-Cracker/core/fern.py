@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 2.4
+__version__= 2.6
 
 #
 # Main Window Class

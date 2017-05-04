@@ -19,6 +19,8 @@ def initialize():
             os.chdir(direc)
         create_directory()
 
+    os.system("export QT_X11_NO_MITSHM=1")      # Bug fixes [https://github.com/savio-code/fern-wifi-cracker/issues/113]
+
 
 def restore_files():
     '''Fern 1.2 update algorithm fails to update the new version files
