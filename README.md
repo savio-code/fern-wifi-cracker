@@ -1,4 +1,4 @@
-<b>Support Fern Wifi Cracker Development</b>
+<b>Support Fern Wifi Cracker Development</b><hr>
 <b>Bitcoin:  1AoBfNLfwDrw4ofZXZVm9YfeaFCXtG9k9B</b>
 
 
