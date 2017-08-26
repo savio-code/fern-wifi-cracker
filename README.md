@@ -1,3 +1,7 @@
+<b>Support Fern Wifi Cracker Development</b>
+<b>Bitcoin:  1AoBfNLfwDrw4ofZXZVm9YfeaFCXtG9k9B</b>
+
+
 <hr>
 <h5>Create portable static executables from dynamic executables that will run on every distribution of linux without the need of recompiling, <a target="_blank" href="http://www.elfex-pro.com">Click here</a> for more information</h5>
 <hr>
