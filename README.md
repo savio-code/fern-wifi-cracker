@@ -1,5 +1,5 @@
 <h3><i>Please support Fern Wifi Cracker development</i></h3>
-<h3>Bitcoin: &nbsp;&nbsp;  1975B61ajZ6kaTRg2EEDrq8e6XqyvKqgYH</h3>
+<h3>Bitcoin: &nbsp;&nbsp;  1AoBfNLfwDrw4ofZXZVm9YfeaFCXtG9k9B</h3>
 
 
 <hr>
