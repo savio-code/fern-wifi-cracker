@@ -1,4 +1,5 @@
 import core
+from PyQt5.QtWidgets import *
 from gui.database import *
 from core.functions import *
 from core.variables import *
@@ -6,18 +7,20 @@ from core.variables import *
 #
 #  Class for Database key entries
 #
-class database_dialog(QtGui.QDialog,database_ui):
+class database_dialog(QtWidgets.QDialog,database_ui):
+    update_database_label_signal = QtCore.pyqtSignal()
+
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         self.display_keys()
 
-        self.connect(self.insert_button,QtCore.SIGNAL("clicked()"),self.insert_row)
-        self.connect(self.delete_button,QtCore.SIGNAL("clicked()"),self.delete_row)
-        self.connect(self.save_button,QtCore.SIGNAL("clicked()"),self.save_changes)
+        self.insert_button.clicked.connect(self.insert_row)
+        self.delete_button.clicked.connect(self.delete_row)
+        self.save_button.clicked.connect(self.save_changes)
 
 
 
@@ -48,25 +51,25 @@ class database_dialog(QtGui.QDialog,database_ui):
 
             self.key_table.insertRow(iterate)
 
-            access_point_display = QtGui.QTableWidgetItem()
-            mac_address_display = QtGui.QTableWidgetItem()
-            encryption_display = QtGui.QTableWidgetItem()
-            key_display = QtGui.QTableWidgetItem()
-            channel_display = QtGui.QTableWidgetItem()
+            access_point_display = QtWidgets.QTableWidgetItem()
+            mac_address_display = QtWidgets.QTableWidgetItem()
+            encryption_display = QtWidgets.QTableWidgetItem()
+            key_display = QtWidgets.QTableWidgetItem()
+            channel_display = QtWidgets.QTableWidgetItem()
 
-            access_point_display.setText(QtGui.QApplication.translate("Dialog", "%s"%(access_point_var), None, QtGui.QApplication.UnicodeUTF8))
+            access_point_display.setText(QtCore.QCoreApplication.translate("Dialog", "%s"%(access_point_var), None, 0))
             self.key_table.setItem(iterate,0,access_point_display)
 
-            mac_address_display.setText(QtGui.QApplication.translate("Dialog", "%s"%(mac_address_var), None, QtGui.QApplication.UnicodeUTF8))
+            mac_address_display.setText(QtCore.QCoreApplication.translate("Dialog", "%s"%(mac_address_var), None, 0))
             self.key_table.setItem(iterate,1,mac_address_display)
 
-            encryption_display.setText(QtGui.QApplication.translate("Dialog", "%s"%(encryption_var), None, QtGui.QApplication.UnicodeUTF8))
+            encryption_display.setText(QtCore.QCoreApplication.translate("Dialog", "%s"%(encryption_var), None, 0))
             self.key_table.setItem(iterate,2,encryption_display)
 
-            key_display.setText(QtGui.QApplication.translate("Dialog", "%s"%(key_var), None, QtGui.QApplication.UnicodeUTF8))
+            key_display.setText(QtCore.QCoreApplication.translate("Dialog", "%s"%(key_var), None, 0))
             self.key_table.setItem(iterate,3,key_display)
 
-            channel_display.setText(QtGui.QApplication.translate("Dialog", "%s"%(channel_var), None, QtGui.QApplication.UnicodeUTF8))
+            channel_display.setText(QtCore.QCoreApplication.translate("Dialog", "%s"%(channel_var), None, 0))
             self.key_table.setItem(iterate,4,channel_display)
 
 
@@ -84,11 +87,11 @@ class database_dialog(QtGui.QDialog,database_ui):
 
         for controller in range(row_number):
             try:
-                access_point1 = QtGui.QTableWidgetItem(self.key_table.item(controller,0))   # Get Cell content
-                mac_address1 = QtGui.QTableWidgetItem(self.key_table.item(controller,1))
-                encryption1 = QtGui.QTableWidgetItem(self.key_table.item(controller,2))
-                key1 = QtGui.QTableWidgetItem(self.key_table.item(controller,3))
-                channel1 = QtGui.QTableWidgetItem(self.key_table.item(controller,4))
+                access_point1 = QtWidgets.QTableWidgetItem(self.key_table.item(controller,0))   # Get Cell content
+                mac_address1 = QtWidgets.QTableWidgetItem(self.key_table.item(controller,1))
+                encryption1 = QtWidgets.QTableWidgetItem(self.key_table.item(controller,2))
+                key1 = QtWidgets.QTableWidgetItem(self.key_table.item(controller,3))
+                channel1 = QtWidgets.QTableWidgetItem(self.key_table.item(controller,4))
 
                 access_point = str(access_point1.text())                                    # Get cell content text
                 mac_address = str(mac_address1.text())
@@ -103,10 +106,10 @@ class database_dialog(QtGui.QDialog,database_ui):
                 set_key_entries(access_point,mac_address,encryption,key,channel)       # Write enrties to database
 
             except(TypeError):
-                QtGui.QMessageBox.warning(self,"Empty Database Entries",\
+                QtWidgets.QMessageBox.warning(self,"Empty Database Entries",\
                     "There are some fields with whitespaces,Please enter empty spaces with Access Point related data")
                 break
 
-        self.emit(QtCore.SIGNAL('update database label'))               # Update the Entries label on Main window
+        self.update_database_label_signal.emit()
 
 

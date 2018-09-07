@@ -32,7 +32,7 @@ import ftplib
 import socket
 import urllib2
 
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 
 
 class HTTP_Authentication(object):
@@ -110,6 +110,11 @@ class FTP_Authentication(object):
 
 
 class Bruteforce_Attack(QtCore.QThread):
+    successful_login_signal = QtCore.pyqtSignal('QString', 'QString')
+    We_Got_Error_signal = QtCore.pyqtSignal()
+    Next_Try_signal = QtCore.pyqtSignal()
+    Finished_bruteforce_signal = QtCore.pyqtSignal()
+
     def __init__(self):
         QtCore.QThread.__init__(self)
         self._timer = 0
@@ -196,49 +201,49 @@ class Bruteforce_Attack(QtCore.QThread):
                 self.next_try_details = (self._calculate_percentage(),username,password)
                 try:
                     self.bruteforce_http_method.login_http(username,password)                                  # TELNET HERE
-                    self.emit(QtCore.SIGNAL("successful_login(QString,QString)"),username,password)
+                    self.successful_login_signal.emit(username, password)
                 except Exception,message:
                     if("connection timed out" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
                     if("no route to host" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("error 404" in str(message).lower()):
                         self._error_message = "The remote target returned an HTTP 404 error code, meaning that the requested page does not exist"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("name or service not known" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("unreachable" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("connection refused" in str(message).lower()):
                         self._error_message = "The connection was refused by the remote service, Please try again"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("no address associated" in str(message).lower()):
                         self._error_message = "No address is associated with the target hostname"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                 if(self.control == False):
                     return
 
-                self.emit(QtCore.SIGNAL("Next Try"))
+                self.Next_Try_signal.emit()
                 time.sleep(self._timer)
 
-            self.emit(QtCore.SIGNAL("Finished bruteforce"))
+            self.Finished_bruteforce_signal.emit()
             self.control = False
 
 
@@ -252,44 +257,44 @@ class Bruteforce_Attack(QtCore.QThread):
                 self.next_try_details = (self._calculate_percentage(),username,password)
                 try:
                     if(self.bruteforce_http_method.login_telnet(username,password)):                                   # FTP HERE
-                        self.emit(QtCore.SIGNAL("successful_login(QString,QString)"),username,password)
+                        self.successful_login_signal.emit(username, password)
                 except Exception,message:
                     if("name or service not known" in str(message).lower()):
                         self._error_message = "Unable to resolve target hostname"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("connection timed out" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
                     if("no route to host" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("unreachable" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("connection refused" in str(message).lower()):
                         self._error_message = "The connection was refused by the remote service, Please try again"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("no address associated" in str(message).lower()):
                         self._error_message = "No address is associated with the target hostname"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                 if(self.control == False):
                     return
 
-                self.emit(QtCore.SIGNAL("Next Try"))
+                self.Next_Try_signal.emit()
                 time.sleep(self._timer)
 
-            self.emit(QtCore.SIGNAL("Finished bruteforce"))
+            self.Finished_bruteforce_signal.emit()
             self.control = False
 
 
@@ -303,45 +308,45 @@ class Bruteforce_Attack(QtCore.QThread):
                 self.next_try_details = (self._calculate_percentage(),username,password)
                 try:
                     self.bruteforce_http_method.login_ftp(username,password)                                   # FTP HERE
-                    self.emit(QtCore.SIGNAL("successful_login(QString,QString)"),username,password)
+                    self.successful_login_signal.emit(username, password)
                 except Exception,message:
                     if("name or service not known" in str(message).lower()):
                         self._error_message = "Unable to resolve target hostname"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("connection timed out" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
                     if("no route to host" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("unreachable" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                     if("connection refused" in str(message).lower()):
                         self._error_message = "The connection was refused by the remote service, Please try again"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
 
                     if("no address associated" in str(message).lower()):
                         self._error_message = "No address is associated with the target hostname"
-                        self.emit(QtCore.SIGNAL("We Got Error"))
+                        self.We_Got_Error_signal.emit()
                         return
 
                 if(self.control == False):
                     return
 
-                self.emit(QtCore.SIGNAL("Next Try"))
+                self.Next_Try_signal.emit()
                 time.sleep(self._timer)
 
-            self.emit(QtCore.SIGNAL("Finished bruteforce"))
+            self.Finished_bruteforce_signal.emit()
             self.control = False
 
 

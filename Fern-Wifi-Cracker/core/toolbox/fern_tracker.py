@@ -7,14 +7,17 @@ import tracker_core
 from gui.geotrack import *
 from core  import variables
 
-from PyQt4 import QtGui,QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 fern_map_access = tracker_core.Fern_Geolocation()
 
-class Fern_geolocation_tracker(QtGui.QDialog,Ui_fern_geotrack):
+class Fern_geolocation_tracker(QtWidgets.QDialog,Ui_fern_geotrack):
     '''Main windows class'''
+    network_timeout_signal = QtCore.pyqtSignal()
+    display_map_signal = QtCore.pyqtSignal()
+
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -24,11 +27,11 @@ class Fern_geolocation_tracker(QtGui.QDialog,Ui_fern_geotrack):
         self.set_database_access_points()
         self.display_html(variables.html_instructions_message)
 
-        self.connect(self.database_radio,QtCore.SIGNAL("clicked()"),self.set_database_mode)
-        self.connect(self.insert_mac_radio,QtCore.SIGNAL("clicked()"),self.set_mac_mode)
-        self.connect(self.track_button,QtCore.SIGNAL("clicked()"),self.launch_tracker)
-        self.connect(self,QtCore.SIGNAL("network timeout"),self.internet_connection_error)
-        self.connect(self,QtCore.SIGNAL("display map"),self.display_map)
+        self.database_radio.clicked.connect(self.set_database_mode)
+        self.insert_mac_radio.clicked.connect(self.set_mac_mode)
+        self.track_button.clicked.connect(self.launch_tracker)
+        self.network_timeout_signal.connect(self.internet_connection_error)
+        self.display_map_signal.connect(self.display_map)
 
 
     #
@@ -71,7 +74,7 @@ class Fern_geolocation_tracker(QtGui.QDialog,Ui_fern_geotrack):
         else:
             self.target_combo.setEditable(True)
             self.insert_mac_radio.setChecked(True)
-            QtGui.QMessageBox.warning(self,'Empty Database entries',variables.database_null_error.strip('/n'))
+            QtWidgets.QMessageBox.warning(self,'Empty Database entries',variables.database_null_error.strip('/n'))
             self.target_combo.setFocus()
             self.target_combo.clear()
 
@@ -110,7 +113,7 @@ class Fern_geolocation_tracker(QtGui.QDialog,Ui_fern_geotrack):
                 self.track_button.setText('Tracking...')
                 thread.start_new_thread(self.display_tracking,())
             else:
-                QtGui.QMessageBox.warning(self,'Invalid Mac Address',variables.invalid_mac_address_error.strip('/n'))
+                QtWidgets.QMessageBox.warning(self,'Invalid Mac Address',variables.invalid_mac_address_error.strip('/n'))
                 self.display_html(variables.html_instructions_message)
                 self.target_combo.setFocus()
 
@@ -132,9 +135,9 @@ class Fern_geolocation_tracker(QtGui.QDialog,Ui_fern_geotrack):
     def display_tracking(self):
         ''' Processes and displays map '''
         if int(variables.commands.getstatusoutput('ping www.google.com -c 3')[0]):
-            self.emit(QtCore.SIGNAL("network timeout"))
+            self.network_timeout_signal.emit()
         else:
-            self.emit(QtCore.SIGNAL("display map"))
+            self.display_map_signal.emit()
 
     #
     # Error display messages

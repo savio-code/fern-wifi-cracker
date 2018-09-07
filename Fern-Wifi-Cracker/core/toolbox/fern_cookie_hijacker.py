@@ -6,16 +6,24 @@ import sqlite3
 import commands
 import subprocess
 
-from PyQt4 import QtCore,QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from gui.cookie_hijacker import *
 from mozilla_cookie_core import *
 from cookie_hijacker_core import *
 
 
-class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
+class Fern_Cookie_Hijacker(QtWidgets.QDialog,Ui_cookie_hijacker):
+    emit_buffer_red_light_signal = QtCore.pyqtSignal()
+    creating_cache_signal = QtCore.pyqtSignal()
+    display_error_signal = QtCore.pyqtSignal('QString')
+    Deactivate = QtCore.pyqtSignal()
+    on_sniff_green_light_signal = QtCore.pyqtSignal()
+    on_sniff_red_light_signal = QtCore.pyqtSignal()
+    Continue_Sniffing_signal = QtCore.pyqtSignal()
+
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
 
@@ -43,11 +51,11 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         self.mozilla_cookie_engine = Mozilla_Cookie_Core()      # Mozilla fierfox cookie engine
 
 
-        self.connect(self.refresh_button,QtCore.SIGNAL("clicked()"),self.refresh_interface)
-        self.connect(self.start_sniffing_button,QtCore.SIGNAL("clicked()"),self.start_Cookie_Attack)
-        self.connect(self.ethernet_mode_radio,QtCore.SIGNAL("clicked()"),self.set_attack_option)
-        self.connect(self.passive_mode_radio,QtCore.SIGNAL("clicked()"),self.set_attack_option)
-        self.connect(self.combo_interface,QtCore.SIGNAL("currentIndexChanged(QString)"),self.reset)
+        self.refresh_button.clicked.connect(self.refresh_interface)
+        self.start_sniffing_button.clicked.connect(self.start_Cookie_Attack)
+        self.ethernet_mode_radio.clicked.connect(self.set_attack_option)
+        self.passive_mode_radio.clicked.connect(self.set_attack_option)
+        self.combo_interface.currentIndexChanged['QString'].connect(self.reset)
 
         self.connect_objects()
         self.set_channel_options()
@@ -57,17 +65,17 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
 
     def connect_objects(self):
-        self.connect(self,QtCore.SIGNAL("creating cache"),self.creating_cache)
-        self.connect(self.cookie_core,QtCore.SIGNAL("New Cookie Captured"),self.display_cookie_captured)    # Notification Signal for GUI instance"))
-        self.connect(self.cookie_core,QtCore.SIGNAL("cookie buffer detected"),self.emit_led_buffer)         # Notification on new http packet
-        self.connect(self,QtCore.SIGNAL("emit buffer red light"),self.emit_buffer_red_light)
+        self.creating_cache_signal.connect(self.creating_cache)
+        self.cookie_core.New_Cookie_Captured_signal.connect(self.display_cookie_captured)    # Notification Signal for GUI instance"))
+        self.cookie_core.cookie_buffer_detected_signal.connect(self.emit_led_buffer)
+        self.emit_buffer_red_light_signal.connect(self.emit_buffer_red_light)
 
-        self.connect(self,QtCore.SIGNAL("on sniff red light"),self.off_sniff_red_light)         # Will bink the sniff led red for some seconds control from blink_light()
-        self.connect(self,QtCore.SIGNAL("on sniff green light"),self.on_sniff_green_light)      # Will bink the sniff led green for some seconds control from blink_light()
-        self.connect(self,QtCore.SIGNAL("Continue Sniffing"),self.start_Cookie_Attack_part)
+        self.on_sniff_red_light_signal.connect(self.off_sniff_red_light)         # Will bink the sniff led red for some seconds control from blink_light()
+        self.on_sniff_green_light_signal.connect(self.on_sniff_green_light)      # Will bink the sniff led green for some seconds control from blink_light()
+        self.Continue_Sniffing_signal.connect(self.start_Cookie_Attack_part)
 
-        self.connect(self,QtCore.SIGNAL("display_error(QString)"),self.display_error)           # Will display any error to main screen
-        self.connect(self,QtCore.SIGNAL("Deactivate"),self.deactivate)
+        self.display_error_signal['QString'].connect(self.display_error)
+        self.Deactivate.connect(self.deactivate)
 
 
     def set_channel_options(self):
@@ -108,7 +116,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
     def set_attack_option(self,reset = False):
         selected_card = str(self.combo_interface.currentText())
         if(selected_card == "Select Interface Card"):
-            QtGui.QMessageBox.warning(self,"Interface Option","Please select a valid interface card from the list of available interfaces")
+            QtWidgets.QMessageBox.warning(self,"Interface Option","Please select a valid interface card from the list of available interfaces")
             self.ethernet_mode_radio.setChecked(True)
             return
 
@@ -118,7 +126,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             self.channel_display_option(False)
         else:
             if(self.interface_card_info[selected_card] == "ETHERNET"):
-                QtGui.QMessageBox.warning(self,"Interface Option","The selected mode only works with WIFI enabled interface cards")
+                QtWidgets.QMessageBox.warning(self,"Interface Option","The selected mode only works with WIFI enabled interface cards")
                 self.ethernet_mode_radio.setChecked(True)
                 return
             if(self.interface_card_info[selected_card] == "WIFI"):
@@ -231,8 +239,8 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
             else:
                 self.reset_card_state()
                 display = '''%s is currently not on monitor mode, should a monitor interface be created using the selected interface'''%(selected_interface)
-                answer = QtGui.QMessageBox.question(self,"Enable Monitor Mode",display,QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
-                if(answer == QtGui.QMessageBox.Yes):
+                answer = QtWidgets.QMessageBox.question(self,"Enable Monitor Mode",display,QtWidgets.QMessageBox.Yes,QtWidgets.QMessageBox.No)
+                if(answer == QtWidgets.QMessageBox.Yes):
                     if(selected_channel == self.promiscious_mode):
                         self.active_monitor_mode = "Promiscious Mode"
                         monitor_output = commands.getstatusoutput("airmon-ng start " + selected_interface)
@@ -266,7 +274,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
 
     def Save_Cookies(self):
-        selected_path = str(QtGui.QFileDialog.getSaveFileName(self,"Save Cookies","cookies.txt"))
+        selected_path = str(QtWidgets.QFileDialog.getSaveFileName(self,"Save Cookies","cookies.txt"))[0]
         if(selected_path):
             cookie_open_file = open(selected_path,"w")
 
@@ -305,13 +313,13 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                         cookie_open_file.write("\n%s:     %s" % (str(cookie),str(value)))
 
             cookie_open_file.close()
-            QtGui.QMessageBox.information(self,"Save Cookies","Successfully saved all captured cookies to:  " + selected_path)
+            QtWidgets.QMessageBox.information(self,"Save Cookies","Successfully saved all captured cookies to:  " + selected_path)
 
 
 
     def Clear_All(self):
-        answer = QtGui.QMessageBox.question(self,"Clear Captured Cookies","Are you sure you want to clear all captured cookies?",QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
-        if(answer == QtGui.QMessageBox.Yes):
+        answer = QtWidgets.QMessageBox.question(self,"Clear Captured Cookies","Are you sure you want to clear all captured cookies?",QtWidgets.QMessageBox.Yes,QtWidgets.QMessageBox.No)
+        if(answer == QtWidgets.QMessageBox.Yes):
             self.cookie_db_cursor.execute("delete from cookie_cache")
             self.cookie_db_jar.commit()
             self.cookie_core.captured_cookie_count = 0
@@ -358,7 +366,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
 
     def _Right_Click_Options(self,pos):
-        menu = QtGui.QMenu()
+        menu = QtWidgets.QMenu()
         try:
             item_type = str(self.treeWidget.currentItem().text(0))
         except AttributeError:
@@ -400,7 +408,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
     def delay_thread(self):
         time.sleep(0.2)
-        self.emit(QtCore.SIGNAL("emit buffer red light"))
+        self.emit_buffer_red_light_signal.emit()
 
 
 
@@ -418,7 +426,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
         for count_a,source in enumerate(source_addresses):              # e.g [0,("192.168.0.1",)]
             ip_address = str(source[0])
 
-            item_0 = QtGui.QTreeWidgetItem(self.treeWidget)
+            item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
 
             self.treeWidget.topLevelItem(count_a).setText(0,ip_address)
             self.cookie_db_cursor.execute("select distinct Web_Address from cookie_cache where source = '" + ip_address + "'")
@@ -428,7 +436,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
                 web_addr = str(web_address[0])
 
-                item_1 = QtGui.QTreeWidgetItem(item_0)
+                item_1 = QtWidgets.QTreeWidgetItem(item_0)
                 icon = QtGui.QIcon()
                 icon.addPixmap(self.green_light)
                 item_1.setIcon(0, icon)
@@ -441,7 +449,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                     cookie = cookies[0]
                     value = cookies[1]
 
-                    item_2 = QtGui.QTreeWidgetItem(item_1)
+                    item_2 = QtWidgets.QTreeWidgetItem(item_1)
                     self.treeWidget.topLevelItem(count_a).child(count_b).child(count_c).setText(0,"%s:  %s" % (str(cookie),str(value)))
 
         self.treeWidget.collapseAll()
@@ -460,24 +468,24 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
                 if(result):
                     self.mozilla_cookie_engine.cookie_database = result[0]
                     if not os.path.exists(self.mozilla_cookie_engine.cookie_database):
-                        self.emit(QtCore.SIGNAL("creating cache"))
+                        self.creating_cache_signal.emit()
                         path = self.mozilla_cookie_engine.get_Cookie_Path("cookies.sqlite")
                         if not path:
                             error_str = "cookies.sqlite firefox database has not been created on this system, Please run firefox to create it"
-                            self.emit(QtCore.SIGNAL("display_error(QString)"),error_str)
-                            self.emit(QtCore.SIGNAL("Deactivate"))
+                            self.display_error_signal.emit(error_str)
+                            self.Deactivate_signal.emit()
                             self.mozilla_cookie_engine.cookie_database = str()
                             return
                         cookie_db_cursor.execute("delete from cache_settings where setting = 'cookie_path'")
                         cookie_db_cursor.execute(sql_code_c ,("cookie_path",path))
                         cookie_db_jar.commit()
                 else:
-                    self.emit(QtCore.SIGNAL("creating cache"))
+                    self.creating_cache_signal.emit()
                     path = self.mozilla_cookie_engine.get_Cookie_Path("cookies.sqlite")
                     if not path:
                         error_str = "cookies.sqlite firefox database has not been created on this system, Please run firefox to create it";
-                        self.emit(QtCore.SIGNAL("display_error(QString)"),error_str)
-                        self.emit(QtCore.SIGNAL("Deactivate"))
+                        self.display_error_signal.emit(error_str)
+                        self.Deactivate_signal.emit()
                         self.mozilla_cookie_engine.cookie_database = str()
                         return
                     cookie_db_cursor.execute(sql_code_c ,("cookie_path",path))
@@ -541,7 +549,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
         if(self.ethernet_mode_radio.isChecked()):
             if(not re.match("(\d+.){3}\d+",ip_wep_edit)):
-                QtGui.QMessageBox.warning(self,"Invalid IP Address","Please insert a valid IPv4 Address of the Default Gateway")
+                QtWidgets.QMessageBox.warning(self,"Invalid IP Address","Please insert a valid IPv4 Address of the Default Gateway")
                 self.wep_key_edit.setFocus()
                 return
 
@@ -579,7 +587,7 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
     def start_Attack(self):
         self.cookies_captured_label.clear()
         if not self.firefox_is_installed():
-            QtGui.QMessageBox.warning(self,"Mozilla Firefox Detection",
+            QtWidgets.QMessageBox.warning(self,"Mozilla Firefox Detection",
             "Mozilla firefox is currently not installed on this computer, you need firefox to browse hijacked sessions, Process will capture cookies for manual analysis")
 
         self.treeWidget.clear()
@@ -614,13 +622,13 @@ class Fern_Cookie_Hijacker(QtGui.QDialog,Ui_cookie_hijacker):
 
     def Led_Blink(self):
         for count in range(3):
-            self.emit(QtCore.SIGNAL("on sniff green light"))
+            self.on_sniff_green_light_signal.emit()
             time.sleep(1)
-            self.emit(QtCore.SIGNAL("on sniff red light"))
+            self.on_sniff_red_light_signal.emit()
             time.sleep(1)
-            self.emit(QtCore.SIGNAL("on sniff green light"))
+            self.on_sniff_green_light_signal.emit()
 
-        self.emit(QtCore.SIGNAL("Continue Sniffing"))
+        self.Continue_Sniffing_signal.emit()
         return
 
 

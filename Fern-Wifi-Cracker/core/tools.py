@@ -15,23 +15,23 @@ from gui.fern_pro_tip import *
 # from toolbox.fern_cookie_hijacker import *
 from toolbox.fern_ray_fusion import *
 
-from PyQt4 import QtGui,QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 #
 # Tool Box window class
 #
-class tool_box_window(QtGui.QDialog,toolbox_win):
+class tool_box_window(QtWidgets.QDialog,toolbox_win):
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 
-        self.connect(self.pushButton,QtCore.SIGNAL("clicked()"),self.font_exec)
-        self.connect(self.geotrack_button,QtCore.SIGNAL("clicked()"),self.geotrack_exec)
-        self.connect(self.attack_options_button,QtCore.SIGNAL("clicked()"),self.attack_settings_exec)
-        self.connect(self.cookie_hijack_button,QtCore.SIGNAL("clicked()"),self.cookie_hijack_exec)
-        self.connect(self.ray_fusion_button,QtCore.SIGNAL("clicked()"),self.ray_fusion_exec)
+        self.pushButton.clicked.connect(self.font_exec)
+        self.geotrack_button.clicked.connect(self.geotrack_exec)
+        self.attack_options_button.clicked.connect(self.attack_settings_exec)
+        self.cookie_hijack_button.clicked.connect(self.cookie_hijack_exec)
+        self.ray_fusion_button.clicked.connect(self.ray_fusion_exec)
 
 
 
@@ -41,14 +41,14 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
     #   TOOLBOX FEATURES
     #
     def geotrack_exec(self):
-        QtGui.QMessageBox.warning(self,"Geo Tracker","This feature has been deprecated")
+        QtWidgets.QMessageBox.warning(self,"Geo Tracker","This feature has been deprecated")
 
 
     def cookie_hijack_exec(self):
         try:
             from toolbox import fern_cookie_hijacker
         except ImportError:
-            QtGui.QMessageBox.warning(self,"Scapy Dependency","Scapy library is currently not installed \nPlease run \"apt-get install python-scapy\" to install the dependency")
+            QtWidgets.QMessageBox.warning(self,"Scapy Dependency","Scapy library is currently not installed \nPlease run \"apt-get install python-scapy\" to install the dependency")
             return
 
         cookie_hijacker = fern_cookie_hijacker.Fern_Cookie_Hijacker()
@@ -80,16 +80,16 @@ class tool_box_window(QtGui.QDialog,toolbox_win):
 #                                                                              #
 ################################################################################
 
-class font_dialog(QtGui.QDialog,font_dialog):
+class font_dialog(QtWidgets.QDialog,font_dialog):
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
         self.setWindowTitle('Font Settings')
         self.label_2.setText('Current Font: <font color=green><b>%s</b></font>'% \
                                 (reader(os.getcwd() + '/.font_settings.dat' ).split()[2]))
 
-        self.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),self.set_font)
+        self.buttonBox.accepted.connect(self.set_font)
 
         font_range = []
         for font_numbers in range(1,21):
@@ -104,24 +104,24 @@ class font_dialog(QtGui.QDialog,font_dialog):
             write('.font_settings.dat',font_string)
 
         self.close()
-        QtGui.QMessageBox.information(self,'Font Settings','Please restart application to apply changes')
+        QtWidgets.QMessageBox.information(self,'Font Settings','Please restart application to apply changes')
 
 
 
 
-class wifi_attack_settings(QtGui.QDialog,Ui_attack_settings):
+class wifi_attack_settings(QtWidgets.QDialog,Ui_attack_settings):
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
 
         self.settings = Fern_settings()
         self.display_components()
 
-        self.connect(self.mac_button,QtCore.SIGNAL("clicked()"),self.set_static_mac)
-        self.connect(self.mac_box,QtCore.SIGNAL("clicked()"),self.remove_mac_objects)
-        self.connect(self.capture_box,QtCore.SIGNAL("clicked()"),self.remove_capture_objects)
-        self.connect(self.direc_browse,QtCore.SIGNAL("clicked()"),self.set_capture_directory)
+        self.mac_button.clicked.connect(self.set_static_mac)
+        self.mac_box.clicked.connect(self.remove_mac_objects)
+        self.capture_box.clicked.connect(self.remove_capture_objects)
+        self.direc_browse.clicked.connect(self.set_capture_directory)
 
 
 
@@ -139,14 +139,14 @@ class wifi_attack_settings(QtGui.QDialog,Ui_attack_settings):
     def set_static_mac(self):
         mac_address = str(self.mac_edit.text())
         if not Check_MAC(mac_address):
-            QtGui.QMessageBox.warning(self,"Invalid MAC Address",variables.invalid_mac_address_error)
+            QtWidgets.QMessageBox.warning(self,"Invalid MAC Address",variables.invalid_mac_address_error)
             self.mac_edit.setFocus()
         else:
             self.settings.create_settings('mac_address',mac_address)
 
 
     def set_capture_directory(self):
-        directory = str(QtGui.QFileDialog.getExistingDirectory(self,"Select Capture Storage Directory",""))
+        directory = str(QtWidgets.QFileDialog.getExistingDirectory(self,"Select Capture Storage Directory",""))
         if directory:
             self.directory_label.setText('<font color=green><b>' + directory)
             self.settings.create_settings("capture_directory",directory)
@@ -177,15 +177,15 @@ class wifi_attack_settings(QtGui.QDialog,Ui_attack_settings):
 #
 # Tips Dialog, show user tips on how to access settings dialog and set scan preferences
 #
-class tips_window(QtGui.QDialog,tips_dialog):
+class tips_window(QtWidgets.QDialog,tips_dialog):
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.type = int()           # Type of tip display e.g tip from mainwindow = 1
 
         self.settings = Fern_settings()
 
-        self.connect(self.pushButton,QtCore.SIGNAL("clicked()"),self.accept)
+        self.pushButton.clicked.connect(self.accept)
 
     def accept(self):
         check_status = self.checkBox.isChecked()
@@ -206,19 +206,19 @@ class tips_window(QtGui.QDialog,tips_dialog):
 
 
 
-class Fern_Pro_Tips(QtGui.QDialog,Fern_Pro_Tip_ui):
+class Fern_Pro_Tips(QtWidgets.QDialog,Fern_Pro_Tip_ui):
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
 
         self.settings = Fern_settings()
 
-        self.connect(self.yes_button,QtCore.SIGNAL("clicked()"),self.open_website)
-        self.connect(self.show_message_checkbox,QtCore.SIGNAL("clicked()"),self.toggle_tip)
+        self.yes_button.clicked.connect(self.open_website)
+        self.show_message_checkbox.clicked.connect(self.toggle_tip)
 
 
     def open_website(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://www.fern-pro.com/"))
+        QtWidgets.QDesktopServices.openUrl(QtCore.QUrl("http://www.fern-pro.com/"))
         self.toggle_tip()
         self.close()
 
@@ -240,9 +240,9 @@ class Fern_Pro_Tips(QtGui.QDialog,Fern_Pro_Tip_ui):
 #
 # Class for the settings dialog box
 #
-class settings_dialog(QtGui.QDialog,settings):
+class settings_dialog(QtWidgets.QDialog,settings):
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
 
         self.settings = Fern_settings()
 
@@ -256,8 +256,8 @@ class settings_dialog(QtGui.QDialog,settings):
         for list_numbers in range(1,15):
             list_.append(str(list_numbers))
         self.channel_combobox.addItems(list_)
-        self.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),self.change_settings)
-        self.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),QtCore.SLOT("close()"))
+        self.buttonBox.accepted.connect(self.change_settings)
+        self.buttonBox.rejected.connect(self.close)
 
 
     #

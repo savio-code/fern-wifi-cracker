@@ -1,7 +1,7 @@
 import re
 import string
 import webbrowser
-from PyQt4 import QtCore,QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from gui.ray_fusion import *
 from core.variables import *
@@ -11,9 +11,9 @@ from bruteforce_core import *
 tutorial_link = "http://www.youtube.com/watch?v=_ztQQWMoVX4"    # Video Tutorial link
 
 
-class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
+class Ray_Fusion(QtWidgets.QDialog,Ui_ray_fusion):
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
 
@@ -31,26 +31,26 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
         self.red_led = QtGui.QPixmap("%s/resources/red_led.png" % (os.getcwd()))
         self.green_led = QtGui.QPixmap("%s/resources/green_led.png" % (os.getcwd()))
 
-        self.connect(self.http_https_radio,QtCore.SIGNAL("clicked()"),self.HTTP_HTTPS_Mode)
-        self.connect(self.telnet_radio,QtCore.SIGNAL("clicked()"),self.TELNET_Mode)
-        self.connect(self.ftp_radio,QtCore.SIGNAL("clicked()"),self.FTP_Mode)
-        self.connect(self.default_wordlist_radio,QtCore.SIGNAL("clicked()"),self.select_Wordlist_type)
-        self.connect(self.custom_wordlist_radio,QtCore.SIGNAL("clicked()"),self.select_Wordlist_type)
-        self.connect(self.settings_button,QtCore.SIGNAL("clicked()"),self.show_hide_settings)
-        self.connect(self.help_button,QtCore.SIGNAL("clicked()"),self.show_help)
-        self.connect(self.launch_bruteforce,QtCore.SIGNAL("clicked()"),self.Start_Attack)
+        self.http_https_radio.clicked.connect(self.HTTP_HTTPS_Mode)
+        self.telnet_radio.clicked.connect(self.TELNET_Mode)
+        self.ftp_radio.clicked.connect(self.FTP_Mode)
+        self.default_wordlist_radio.clicked.connect(self.select_Wordlist_type)
+        self.custom_wordlist_radio.clicked.connect(self.select_Wordlist_type)
+        self.settings_button.clicked.connect(self.show_hide_settings)
+        self.help_button.clicked.connect(self.show_help)
+        self.launch_bruteforce.clicked.connect(self.Start_Attack)
 
-        self.connect(self.save_credentials,QtCore.SIGNAL("clicked()"),self.save_bruteforced_credentials)
-        self.connect(self.clear_credentials,QtCore.SIGNAL("clicked()"),self.clear_bruteforced_credentials)
+        self.save_credentials.clicked.connect(self.save_bruteforced_credentials)
+        self.clear_credentials.clicked.connect(self.clear_bruteforced_credentials)
 
-        self.connect(self.userlist_button,QtCore.SIGNAL("clicked()"),self.select_custom_user_wordlist)
-        self.connect(self.passwordlist_button,QtCore.SIGNAL("clicked()"),self.select_custom_password_wordlist)
+        self.userlist_button.clicked.connect(self.select_custom_user_wordlist)
+        self.passwordlist_button.clicked.connect(self.select_custom_password_wordlist)
 
-        self.connect(self.bruteforce_core,QtCore.SIGNAL("Next Try"),self.display_progress)
-        self.connect(self.bruteforce_core,QtCore.SIGNAL("We Got Error"),self.display_error_message)
-        self.connect(self.bruteforce_core,QtCore.SIGNAL("successful_login(QString,QString)"),self.show_credentials)
+        self.bruteforce_core.Next_Try_signal.connect(self.display_progress)
+        self.bruteforce_core.We_Got_Error_signal.connect(self.display_error_message)
+        self.bruteforce_core.successful_login_signal['QString', 'QString'].connect(self.show_credentials)
 
-        self.connect(self.bruteforce_core,QtCore.SIGNAL("Finished bruteforce"),self.Stop_Notification)
+        self.bruteforce_core.Finished_bruteforce_signal.connect(self.Stop_Notification)
 
         self.reset_objects()
         self.set_Window_Max()
@@ -80,9 +80,9 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
 
 
     def show_help(self):
-        QtGui.QMessageBox.about(self,"About Fern - Ray Fusion","Fern - Ray Fusion is a bruteforce attack tool used to audit the list of supported network services and returns login credentials of the target service when successful.")
-        answer = QtGui.QMessageBox.question(self,"Tutorial","Would you like to view a video tutorial on how to use the tool?",QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-        if(answer == QtGui.QMessageBox.Yes):
+        QtWidgets.QMessageBox.about(self,"About Fern - Ray Fusion","Fern - Ray Fusion is a bruteforce attack tool used to audit the list of supported network services and returns login credentials of the target service when successful.")
+        answer = QtWidgets.QMessageBox.question(self,"Tutorial","Would you like to view a video tutorial on how to use the tool?",QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if(answer == QtWidgets.QMessageBox.Yes):
             webbrowser.open_new_tab(tutorial_link)
 
 
@@ -127,7 +127,7 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
 
     def select_custom_user_wordlist(self):
         self.custom_user_wordlist = str()
-        path = QtGui.QFileDialog.getOpenFileName(self,"Select User Wordlist",str())
+        path = QtWidgets.QFileDialog.getOpenFileName(self,"Select User Wordlist",str())[0]
         if(path):
             self.custom_user_wordlist = path
             self.user_wordlist_led.setPixmap(self.green_led)
@@ -138,7 +138,7 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
 
     def select_custom_password_wordlist(self):
         self.custom_password_wordlist = str()
-        path = QtGui.QFileDialog.getOpenFileName(self,"Select Password Wordlist",str())
+        path = QtWidgets.QFileDialog.getOpenFileName(self,"Select Password Wordlist",str())[0]
         if(path):
             self.custom_password_wordlist = path
             self.password_wordlist_led.setPixmap(self.green_led)
@@ -181,7 +181,7 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
         column_headers = ("Username","Password")
         for column,header in enumerate(column_headers):
             self.credential_table.insertColumn(column)
-            column_header = QtGui.QTableWidgetItem()
+            column_header = QtWidgets.QTableWidgetItem()
             self.credential_table.setHorizontalHeaderItem(column,column_header)
             self.credential_table.horizontalHeaderItem(column).setText(header + ' '* 5)
             self.credential_table.resizeColumnsToContents()
@@ -194,11 +194,11 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
         self.credential_table.insertRow(self.table_index)
 
 
-        item = QtGui.QTableWidgetItem()
+        item = QtWidgets.QTableWidgetItem()
         self.credential_table.setItem(self.table_index,0,item)
         item.setText(str(username) + ' ' * 5)
 
-        item = QtGui.QTableWidgetItem()
+        item = QtWidgets.QTableWidgetItem()
         self.credential_table.setItem(self.table_index,1,item)
         item.setText(str(password) + ' ' * 5)
 
@@ -212,7 +212,7 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
 
 
     def display_error_message(self):
-        QtGui.QMessageBox.warning(self,"Message",self.bruteforce_core.get_exception())
+        QtWidgets.QMessageBox.warning(self,"Message",self.bruteforce_core.get_exception())
         self.bruteforce_core.stop_Attack()
         self.launch_bruteforce.setText("Start")
         self.bruteforce_core.terminate()
@@ -239,7 +239,7 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
         if(self.ftp_radio.isChecked()):
             target_service = "FTP (File Transfer Protocol)"
 
-        file_path = QtGui.QFileDialog.getSaveFileName(self,"Save Credentials","report.html")
+        file_path = QtWidgets.QFileDialog.getSaveFileName(self,"Save Credentials","report.html")[0]
         if(file_path):
 
             rows = self.credential_table.rowCount()
@@ -261,13 +261,13 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
             file_object.flush()
             file_object.close()
 
-            QtGui.QMessageBox.information(self,"Reports","Successfully saved reports to " + file_path)
+            QtWidgets.QMessageBox.information(self,"Reports","Successfully saved reports to " + file_path)
 
 
 
     def clear_bruteforced_credentials(self):
-        choice = QtGui.QMessageBox.question(self,"Clear Credentials","Are you sure you want to clear all bruteforced results?",QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-        if(choice == QtGui.QMessageBox.Yes):
+        choice = QtWidgets.QMessageBox.question(self,"Clear Credentials","Are you sure you want to clear all bruteforced results?",QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if(choice == QtWidgets.QMessageBox.Yes):
             self.clear_table()
             self.save_credentials.setEnabled(False)
             self.clear_credentials.setEnabled(False)
@@ -286,7 +286,7 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
         self.time_interval = int(self.time_interval_spinbox.value())
 
         if(not bool(self.target_address)):
-            QtGui.QMessageBox.warning(self,"Target Address","Please input a valid target adddress")
+            QtWidgets.QMessageBox.warning(self,"Target Address","Please input a valid target adddress")
             self.target_edit.setFocus()
             return
 
@@ -294,21 +294,21 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
             self.bruteforce_core.set_attack_type("HTTP")
             valid_http = re.compile("^(https|http)://\S*",re.IGNORECASE)            # HTTP/HTTPS url regular expression
             if not valid_http.match(self.target_address):
-                QtGui.QMessageBox.warning(self,"Invalid HTTP Address","The HTTP(HyperText Transfer Protocol) address should be fully qualified:\n\nExample:\nhttp://10.18.122.15\nhttps://www.foobar.com\nhttp://www.foobar.com/sports/index.html")
+                QtWidgets.QMessageBox.warning(self,"Invalid HTTP Address","The HTTP(HyperText Transfer Protocol) address should be fully qualified:\n\nExample:\nhttp://10.18.122.15\nhttps://www.foobar.com\nhttp://www.foobar.com/sports/index.html")
                 return
 
         if(self.telnet_radio.isChecked()):
             self.bruteforce_core.set_attack_type("TELNET")
             if not self.target_port.isdigit():                                      # Check if use inputed a valid TCP port number
-                QtGui.QMessageBox.warning(self,"Invalid Port Number","Remote Telnet Server port must be digits")
+                QtWidgets.QMessageBox.warning(self,"Invalid Port Number","Remote Telnet Server port must be digits")
                 return
             if(self.start_flag == True):
-                QtGui.QMessageBox.warning(self,"Telnet Protocol","Please note that the Telnet protocol is very unreliable with its connection status responces, therefore the bruteforce attack on telnet might return false results as positive")
+                QtWidgets.QMessageBox.warning(self,"Telnet Protocol","Please note that the Telnet protocol is very unreliable with its connection status responces, therefore the bruteforce attack on telnet might return false results as positive")
 
         if(self.ftp_radio.isChecked()):
             self.bruteforce_core.set_attack_type("FTP")
             if not self.target_port.isdigit():
-                QtGui.QMessageBox.warning(self,"Invalid Port Number","Remote FTP Server port must be digits")
+                QtWidgets.QMessageBox.warning(self,"Invalid Port Number","Remote FTP Server port must be digits")
                 return
 
         if(self.default_wordlist_radio.isChecked()):
@@ -318,10 +318,10 @@ class Ray_Fusion(QtGui.QDialog,Ui_ray_fusion):
 
         if(self.custom_wordlist_radio.isChecked()):
             if(not bool(self.custom_user_wordlist)):                                # Check if custom user list has been set
-                QtGui.QMessageBox.warning(self,"Wordlist","Custom user wordlist has not been set, Please browse and select a user wordlist file of your choice")
+                QtWidgets.QMessageBox.warning(self,"Wordlist","Custom user wordlist has not been set, Please browse and select a user wordlist file of your choice")
                 return
             if(not bool(self.custom_password_wordlist)):                            # Check if custom password list has been set
-                QtGui.QMessageBox.warning(self,"Wordlist","Custom password wordlist has not been set, Please browse and select a password wordlist file of your choice")
+                QtWidgets.QMessageBox.warning(self,"Wordlist","Custom password wordlist has not been set, Please browse and select a password wordlist file of your choice")
                 return
 
             self.bruteforce_core.user_wordlist = self.custom_user_wordlist

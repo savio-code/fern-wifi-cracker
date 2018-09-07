@@ -3,62 +3,58 @@
 # Form implementation generated from reading ui file 'untitled.ui'
 #
 # Created: Thu Oct 14 08:16:19 2010
-#      by: PyQt4 UI code generator 4.7.7
+#      by: PyQt5 UI code generator 4.7.7
 #
 # WARNING! All changes made in this file will be lost!
 import os
+from PyQt5.QtWidgets import *
 from main_window import font_size
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 font_setting = font_size()
 
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    _fromUtf8 = lambda s: s
-
 class settings(object):
     def setupUi(self, Dialog):
-        Dialog.setObjectName(_fromUtf8("Dialog"))
+        Dialog.setObjectName("Dialog")
         Dialog.resize(427, 133)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("%s/resources/wifi_5.png"%(os.getcwd()))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("%s/resources/wifi_5.png"%(os.getcwd())), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Dialog.setWindowIcon(icon)
-        self.buttonBox = QtGui.QDialogButtonBox(Dialog)
+        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(-20, 90, 341, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setObjectName("buttonBox")
 	font = QtGui.QFont()
 	font.setPointSize(font_setting)
 	self.buttonBox.setFont(font)
-        self.channel_combobox = QtGui.QComboBox(Dialog)
+        self.channel_combobox = QtWidgets.QComboBox(Dialog)
         self.channel_combobox.setGeometry(QtCore.QRect(170, 20, 121, 21))
-        self.channel_combobox.setObjectName(_fromUtf8("channel_combobox"))
+        self.channel_combobox.setObjectName("channel_combobox")
 	font = QtGui.QFont()
 	font.setPointSize(font_setting)
 	self.channel_combobox.setFont(font)
-        self.label = QtGui.QLabel(Dialog)
+        self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(110, 20, 61, 16))
-        self.label.setObjectName(_fromUtf8("label"))
+        self.label.setObjectName("label")
 	font = QtGui.QFont()
 	font.setPointSize(font_setting)
 	self.label.setFont(font)
-        self.label_2 = QtGui.QLabel(Dialog)
+        self.label_2 = QtWidgets.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(10, -10, 91, 111))
-        self.label_2.setText(_fromUtf8(""))
-        self.label_2.setPixmap(QtGui.QPixmap(_fromUtf8("%s/resources/radio-wireless-signal-icone-5919-96.png"%(os.getcwd()))))
-        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.label_2.setText("")
+        self.label_2.setPixmap(QtGui.QPixmap("%s/resources/radio-wireless-signal-icone-5919-96.png"%(os.getcwd())))
+        self.label_2.setObjectName("label_2")
 	font = QtGui.QFont()
 	font.setPointSize(font_setting)
 	self.label_2.setFont(font)
-        self.xterm_checkbox = QtGui.QCheckBox(Dialog)
+        self.xterm_checkbox = QtWidgets.QCheckBox(Dialog)
         self.xterm_checkbox.setGeometry(QtCore.QRect(300, 20, 171, 17))
-        self.xterm_checkbox.setObjectName(_fromUtf8("xterm_checkbox"))
+        self.xterm_checkbox.setObjectName("xterm_checkbox")
 	font = QtGui.QFont()
 	font.setPointSize(font_setting)
 	self.xterm_checkbox.setFont(font)
-        self.label_3 = QtGui.QLabel(Dialog)
+        self.label_3 = QtWidgets.QLabel(Dialog)
         self.label_3.setGeometry(QtCore.QRect(110, 50, 311, 16))
         font = QtGui.QFont()
         font.setWeight(50)
@@ -67,14 +63,14 @@ class settings(object):
 	font = QtGui.QFont()
 	font.setPointSize(font_setting)
 	self.label_3.setFont(font)
-        self.label_3.setObjectName(_fromUtf8("label_3"))
-        self.label_4 = QtGui.QLabel(Dialog)
+        self.label_3.setObjectName("label_3")
+        self.label_4 = QtWidgets.QLabel(Dialog)
         self.label_4.setGeometry(QtCore.QRect(10, 90, 101, 16))
-        self.label_4.setObjectName(_fromUtf8("label_4"))
+        self.label_4.setObjectName("label_4")
 	font = QtGui.QFont()
 	font.setPointSize(font_setting)
 	self.label_4.setFont(font)
-        self.label_5 = QtGui.QLabel(Dialog)
+        self.label_5 = QtWidgets.QLabel(Dialog)
         self.label_5.setGeometry(QtCore.QRect(100, 90, 46, 13))
 	font = QtGui.QFont()
 	font.setPointSize(font_setting)
@@ -83,19 +79,19 @@ class settings(object):
         font.setWeight(75)
         font.setBold(False)
         self.label_5.setFont(font)
-        self.label_5.setObjectName(_fromUtf8("label_5"))
+        self.label_5.setObjectName("label_5")
 
         self.retranslateUi(Dialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), Dialog.reject)
+        self.buttonBox.accepted.connect(Dialog.accept)
+        self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Access Point Scan Preferences", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Dialog", "Channel:", None, QtGui.QApplication.UnicodeUTF8))
-        self.xterm_checkbox.setText(QtGui.QApplication.translate("Dialog", "Enable XTerms", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("Dialog", "Automatic scan to all channels is Default without XTerm", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("Dialog", "\t <font color=green>Activated</font>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("Dialog", "", None, QtGui.QApplication.UnicodeUTF8))
+        Dialog.setWindowTitle(QtCore.QCoreApplication.translate("Dialog", "Access Point Scan Preferences", None, 0))
+        self.label.setText(QtCore.QCoreApplication.translate("Dialog", "Channel:", None, 0))
+        self.xterm_checkbox.setText(QtCore.QCoreApplication.translate("Dialog", "Enable XTerms", None, 0))
+        self.label_3.setText(QtCore.QCoreApplication.translate("Dialog", "Automatic scan to all channels is Default without XTerm", None, 0))
+        self.label_4.setText(QtCore.QCoreApplication.translate("Dialog", "\t <font color=green>Activated</font>", None, 0))
+        self.label_5.setText(QtCore.QCoreApplication.translate("Dialog", "", None, 0))
 

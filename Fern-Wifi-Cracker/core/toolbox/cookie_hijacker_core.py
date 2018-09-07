@@ -33,11 +33,14 @@ import sqlite3
 import logging
 import threading
 
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 
 from scapy.all import *
 
 class Cookie_Hijack_Core(QtCore.QThread):
+    cookie_buffer_detected_signal = QtCore.pyqtSignal()
+    New_Cookie_Captured_signal = QtCore.pyqtSignal()
+
     def __init__(self):
         QtCore.QThread.__init__(self)
         self.control = True             # Starts or Stop Thread processes [True = Start,False = Stop]
@@ -162,7 +165,7 @@ class Cookie_Hijack_Core(QtCore.QThread):
             src_addr = captured_packet.getlayer("IP").src       # Source Mac address
 
             if(self.control):
-                self.emit(QtCore.SIGNAL("cookie buffer detected"))
+                self.cookie_buffer_detected_signal.emit()
 
             if("Cookie:" in captured_packet.load):
 
@@ -200,7 +203,7 @@ class Cookie_Hijack_Core(QtCore.QThread):
                                         self.captured_cookie_count += 1
 
                     if(self.control):
-                        self.emit(QtCore.SIGNAL("New Cookie Captured"))     # Notification Signal for GUI instance
+                        self.New_Cookie_Captured_signal.emit()
 
         except AttributeError,message:
             pass

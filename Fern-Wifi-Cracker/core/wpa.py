@@ -7,14 +7,34 @@ from core.variables import *
 
 from core import variables
 
-from PyQt4 import QtGui,QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 #
 # Wpa Attack window class for decrypting wep keys
 #
 
-class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
+class wpa_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
+    update_client_signal = QtCore.pyqtSignal()
+    new_access_point_detected_signal = QtCore.pyqtSignal()
+    update_database_label_signal = QtCore.pyqtSignal()
+    client_is_there_signal = QtCore.pyqtSignal()
+    client_not_in_list_signal = QtCore.pyqtSignal()
+    update_word_signal = QtCore.pyqtSignal('QString')
+    update_progressbar_signal = QtCore.pyqtSignal()
+    update_speed_signal = QtCore.pyqtSignal('QString')
+    wpa_key_found_signal = QtCore.pyqtSignal()
+    deauthenticating_signal = QtCore.pyqtSignal()
+    handshake_captured_signal = QtCore.pyqtSignal()
+    Stop_progress_display_signal = QtCore.pyqtSignal()
+    bruteforcing_signal = QtCore.pyqtSignal()
+    set_maximum_signal = QtCore.pyqtSignal()
+    wpa_key_not_found_signal = QtCore.pyqtSignal()
+    change_tree_item_signal = QtCore.pyqtSignal()
+    start_automated_attack_signal = QtCore.pyqtSignal()
+    stop_scan_signal = QtCore.pyqtSignal()
+    wordlist_lines_counted_signal = QtCore.pyqtSignal('QString')
+
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -27,26 +47,26 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.settings = Fern_settings()     # For saving settings
 
         self.wps_update_timer = QtCore.QTimer(self)
-        self.connect(self.wps_update_timer,QtCore.SIGNAL("timeout()"),self.set_if_WPS_Support)
+        self.wps_update_timer.timeout.connect(self.set_if_WPS_Support)
         self.wps_update_timer.start(1000)
 
-        self.connect(self.attack_button,QtCore.SIGNAL("clicked()"),self.launch_attack)
-        self.connect(self.dictionary_set,QtCore.SIGNAL("clicked()"),self.dictionary_setting)
-        self.connect(self,QtCore.SIGNAL("update client"),self.update_client_list)
-        self.connect(self,QtCore.SIGNAL("client not in list"),self.display_client)
-        self.connect(self,QtCore.SIGNAL("client is there"),self.client_available)
-        self.connect(self.wps_attack_radio,QtCore.SIGNAL("clicked()"),self.check_reaver_status)
-        self.connect(self,QtCore.SIGNAL("deauthenticating"),self.deauthenticating_display)
-        self.connect(self,QtCore.SIGNAL("handshake captured"),self.handshake_captured)
-        self.connect(self,QtCore.SIGNAL("bruteforcing"),self.bruteforce_display)
-        self.connect(self,QtCore.SIGNAL("wpa key found"),self.wpa_key_found)
-        self.connect(self,QtCore.SIGNAL("update_word(QString)"),self.update_word_label)
-        self.connect(self,QtCore.SIGNAL("update_progressbar"),self.update_progress_bar)
-        self.connect(self,QtCore.SIGNAL("update_speed(QString)"),self.update_speed_label)
-        self.connect(self,QtCore.SIGNAL("wpa key not found"),self.key_not_found)
-        self.connect(self,QtCore.SIGNAL("set maximum"),self.set_maximum)
-        self.connect(self,QtCore.SIGNAL("Stop progress display"),self.display_label)
-        self.connect(self,QtCore.SIGNAL("wordlist_lines_counted(QString)"),self.set_progress_bar)
+        self.attack_button.clicked.connect(self.launch_attack)
+        self.dictionary_set.clicked.connect(self.dictionary_setting)
+        self.update_client_signal.connect(self.update_client_list)
+        self.client_not_in_list_signal.connect(self.display_client)
+        self.client_is_there_signal.connect(self.client_available)
+        self.wps_attack_radio.clicked.connect(self.check_reaver_status)
+        self.deauthenticating_signal.connect(self.deauthenticating_display)
+        self.handshake_captured_signal.connect(self.handshake_captured)
+        self.bruteforcing_signal.connect(self.bruteforce_display)
+        self.wpa_key_found_signal.connect(self.wpa_key_found)
+        self.update_word_signal['QString'].connect(self.update_word_label)
+        self.update_progressbar_signal.connect(self.update_progress_bar)
+        self.update_speed_signal['QString'].connect(self.update_speed_label)
+        self.wpa_key_not_found_signal.connect(self.key_not_found)
+        self.set_maximum_signal.connect(self.set_maximum)
+        self.Stop_progress_display_signal.connect(self.display_label)
+        self.wordlist_lines_counted_signal['QString'].connect(self.set_progress_bar)
 
         if len(self.client_list) == 0:
             thread.start_new_thread(self.auto_add_clients,())
@@ -97,11 +117,11 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.mac_address = str()
         self.wifi_icon = QtGui.QPixmap("%s/resources/radio-wireless-signal-icone-5919-96.png"%os.getcwd())
 
-        self.connect(self,QtCore.SIGNAL("new access point detected"),self.display_new_access_point)
-        self.connect(self.ap_listwidget,QtCore.SIGNAL("itemSelectionChanged()"),self.display_selected_target)
+        self.new_access_point_detected_signal.connect(self.display_new_access_point)
+        self.ap_listwidget.itemSelectionChanged.connect(self.display_selected_target)
 
-        self.connect(self,QtCore.SIGNAL("start automated attack"),self.wpa_launch_attack)
-        self.connect(self,QtCore.SIGNAL("change tree item"),self.change_treeItem)
+        self.start_automated_attack_signal.connect(self.wpa_launch_attack)
+        self.change_tree_item_signal.connect(self.change_treeItem)
 
         self.wpa_disable_items()
         self.ap_listwidget.clear()
@@ -117,12 +137,12 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
     def set_Key_Clipbord(self):
         self.clipboard_key = str()
-        self.clipbord = QtGui.QApplication.clipboard()
+        self.clipbord = QtWidgets.QApplication.clipboard()
         self.key_label.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.wps_pin_label.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
-        self.connect(self.key_label,QtCore.SIGNAL("customContextMenuRequested(QPoint)"),self.show_key_menu)
-        self.connect(self.wps_pin_label,QtCore.SIGNAL("customContextMenuRequested(QPoint)"),self.show_wps_key_menu)
+        self.key_label.customContextMenuRequested[QtCore.QPoint].connect(self.show_key_menu)
+        self.wps_pin_label.customContextMenuRequested[QtCore.QPoint].connect(self.show_wps_key_menu)
 
 
     def Copy_Key(self,key_type):
@@ -142,7 +162,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
     def show_key_menu(self,pos):
-        menu = QtGui.QMenu()
+        menu = QtWidgets.QMenu()
 
         copy_action = object()
         convert_ascii_action = object()
@@ -158,7 +178,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
     def show_wps_key_menu(self,pos):
-        menu = QtGui.QMenu()
+        menu = QtWidgets.QMenu()
         copy_action = menu.addAction("Copy WPS Pin")
 
         selected_action = menu.exec_(self.key_label.mapToGlobal(pos))
@@ -215,7 +235,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             self.key_label.setVisible(False)
 
         self.client_update()
-        self.emit(QtCore.SIGNAL("update client"))
+        self.update_client_signal.emit()
         if len(self.client_list) == 0:
             thread.start_new_thread(self.auto_add_clients,())
 
@@ -246,14 +266,14 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.ap_listwidget.setSpacing(12)
         for access_point in wpa_details.keys():
             self.access_points.add(access_point)
-            item =  QtGui.QListWidgetItem(self.ap_listwidget)
+            item =  QtWidgets.QListWidgetItem(self.ap_listwidget)
             icon = QtGui.QIcon()
             icon.addPixmap(self.wifi_icon)
             item.setIcon(icon)
             item.setText(access_point)
             self.ap_listwidget.addItem(item)
         self.ap_listwidget.sortItems(QtCore.Qt.AscendingOrder)
-        self.ap_listwidget.setMovement(QtGui.QListView.Snap)
+        self.ap_listwidget.setMovement(QtWidgets.QListView.Snap)
 
 
     def Check_New_Access_Point(self):
@@ -262,7 +282,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             if(True):
                 new_list = self.access_points.symmetric_difference(updated_list)
                 if(len(list(new_list))):
-                    self.emit(QtCore.SIGNAL("new access point detected"))
+                    self.new_access_point_detected_signal.emit()
             time.sleep(4)
 
 
@@ -271,14 +291,14 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         new_access_points = self.access_points.symmetric_difference(set(wpa_details.keys()))
         for access_point in list(new_access_points):
             self.access_points.add(access_point)
-            item =  QtGui.QListWidgetItem(self.ap_listwidget)
+            item =  QtWidgets.QListWidgetItem(self.ap_listwidget)
             icon = QtGui.QIcon()
             icon.addPixmap(self.wifi_icon)
             item.setIcon(icon)
             item.setText(access_point)
             self.ap_listwidget.addItem(item)
         self.ap_listwidget.sortItems(QtCore.Qt.AscendingOrder)
-        self.ap_listwidget.setMovement(QtGui.QListView.Snap)
+        self.ap_listwidget.setMovement(QtWidgets.QListView.Snap)
 
     #
     # SIGNALS AND SLOTS
@@ -319,7 +339,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             self.wps_support_label.setEnabled(False)
             self.wps_support_label.setText("Supports WPS")
             if(messagebox):
-                QtGui.QMessageBox.warning(self,"WPS Device Support","WPS (WIFI Protected Setup) is not supported or is disabled by the selected access point")
+                QtWidgets.QMessageBox.warning(self,"WPS Device Support","WPS (WIFI Protected Setup) is not supported or is disabled by the selected access point")
             self.regular_attack_radio.setChecked(True)
             return
 
@@ -329,10 +349,10 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
     def check_reaver_status(self):
         if not variables.wps_functions.reaver_Installed():
-            answer = QtGui.QMessageBox.question(self,"Reaver not Detected",
+            answer = QtWidgets.QMessageBox.question(self,"Reaver not Detected",
             '''The Reaver tool is currently not installed,The tool is necessary for attacking WPS Access Points.\n\nDo you want to open the download link?''',
-            QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
-            if(answer == QtGui.QMessageBox.Yes):
+            QtWidgets.QMessageBox.Yes,QtWidgets.QMessageBox.No)
+            if(answer == QtWidgets.QMessageBox.Yes):
                 variables.wps_functions.browse_Reaver_Link()
 
             self.regular_attack_radio.setChecked(True)
@@ -348,8 +368,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall aircrack-ng')
         commands.getstatusoutput('killall aireplay-ng')
-        self.disconnect(self.attack_button,QtCore.SIGNAL("clicked()"),self.cancel_wpa_attack)
-        self.connect(self.attack_button,QtCore.SIGNAL("clicked()"),self.launch_attack)
+        self.attack_button.clicked.disconnect(self.cancel_wpa_attack)
+        self.attack_button.clicked.connect(self.launch_attack)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("%s/resources/wifi_4.png"%(os.getcwd())))
         self.attack_button.setIcon(icon)
@@ -421,7 +441,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
         if self.wpa_key_commit == 0:
             set_key_entries(variables.victim_access_point,variables.victim_mac,'WPA',wpa_key_read,variables.victim_channel)            #Add WPA Key to Database Here
-            self.emit(QtCore.SIGNAL('update database label'))
+            self.update_database_label_signal.emit()
             self.wpa_key_commit += 1
             self.isfinished = True
 
@@ -473,22 +493,22 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         while temp_mac_address not in self.client_list:
             if(self.wps_attack_radio.isChecked()):
                 if(variables.wps_functions.is_WPS_Device(variables.victim_mac)):
-                    self.emit(QtCore.SIGNAL("client is there"))
-                    self.emit(QtCore.SIGNAL("update client"))
+                    self.client_is_there_signal.emit()
+                    self.update_client_signal.emit()
                     return
             if len(self.client_list) >= 1:
-                self.emit(QtCore.SIGNAL("client is there"))
-                self.emit(QtCore.SIGNAL("update client"))
+                self.client_is_there_signal.emit()
+                self.update_client_signal.emit()
                 break
             else:
                 time.sleep(6)
                 if not self.started:
-                    self.emit(QtCore.SIGNAL("client not in list"))
+                    self.client_not_in_list_signal.emit()
                 if(loop_control):
                     thread.start_new_thread(self.probe_for_Client_Mac,())
                     loop_control = False
                 self.client_update()
-                self.emit(QtCore.SIGNAL("update client"))
+                self.update_client_signal.emit()
 
 
     def probe_for_Client_Mac(self):
@@ -524,19 +544,19 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             current_word = current_word_regex.findall(stdout_read)
             if(current_word):
                 self.current_word = current_word[0]
-                self.emit(QtCore.SIGNAL("update_word(QString)"),self.current_word)
+                self.update_word_signal.emit(self.current_word)
 
             word_number = keys_tested_regex.findall(stdout_read)
             if(word_number):
                 self.word_number = int(word_number[0])
-                self.emit(QtCore.SIGNAL("update_progressbar"))
+                self.update_progressbar_signal.emit()
 
             current_speed = keys_speed_regex.findall(stdout_read)
             if(current_speed):
                 self.current_speed = current_speed[0]
-                self.emit(QtCore.SIGNAL("update_speed(QString)"),self.current_speed)
+                self.update_speed_signal.emit(self.current_speed)
 
-        self.emit(QtCore.SIGNAL("wpa key found"))
+        self.wpa_key_found_signal.emit()
 
 
 
@@ -553,18 +573,18 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
     def capture_loop(self):
         time.sleep(3)
-        self.emit(QtCore.SIGNAL("deauthenticating"))
+        self.deauthenticating_signal.emit()
         while '1 handshake' not in reader('/tmp/fern-log/WPA-DUMP/capture_status.log'):
             if(self.started == False):                                  # Break deauthentication loop if attack has been stopped
                 return
             thread.start_new_thread(self.deauthenticate_client,())
             time.sleep(10)
             thread.start_new_thread(self.capture_check,())
-        self.emit(QtCore.SIGNAL("handshake captured"))                  # Handshake captured
+        self.handshake_captured_signal.emit()
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall aireplay-ng')
         time.sleep(1)
-        self.emit(QtCore.SIGNAL("bruteforcing"))
+        self.bruteforcing_signal.emit()
 
         thread.start_new_thread(self.launch_brutefore,())
         thread.start_new_thread(self.wordlist_check,())
@@ -578,8 +598,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             time.sleep(30)
             if controller == self.current_word:
                 control_word = 1
-                self.emit(QtCore.SIGNAL("set maximum"))
-                self.emit(QtCore.SIGNAL("wpa key not found"))
+                self.set_maximum_signal.emit()
+                self.wpa_key_not_found_signal.emit()
 
 
     def display_current_wordlist(self):
@@ -619,8 +639,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             if(self.index == (len(wpa_details.keys()) - 1)):
                 self.control = False
             if(index >= 1):
-                self.emit(QtCore.SIGNAL("change tree item"))
-            self.emit(QtCore.SIGNAL("start automated attack"))
+                self.change_tree_item_signal.emit()
+            self.start_automated_attack_signal.emit()
             self.index = index
             self.isfinished = False
 
@@ -651,8 +671,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.wpa_disable_items()
 
         if(is_already_Cracked(variables.victim_mac,"WPA")):
-            answer = QtGui.QMessageBox.question(self,"Access Point Already Cracked",variables.victim_access_point + "'s key already exists in the database, Do you want to attack and update the already saved key?",QtGui.QMessageBox.Yes,QtGui.QMessageBox.No);
-            if(answer == QtGui.QMessageBox.No):
+            answer = QtWidgets.QMessageBox.question(self,"Access Point Already Cracked",variables.victim_access_point + "'s key already exists in the database, Do you want to attack and update the already saved key?",QtWidgets.QMessageBox.Yes,QtWidgets.QMessageBox.No);
+            if(answer == QtWidgets.QMessageBox.No):
                 self.control = True
                 return
 
@@ -664,8 +684,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
             variables.wps_functions.start()
             self.isfinished = False
             self.progressBar.setValue(0)
-            self.disconnect(self.attack_button,QtCore.SIGNAL("clicked()"),self.launch_attack)
-            self.connect(self.attack_button,QtCore.SIGNAL("clicked()"),self.cancel_wpa_attack)
+            self.attack_button.clicked.disconnect(self.launch_attack)
+            self.attack_button.clicked.connect(self.cancel_wpa_attack)
             icon = QtGui.QIcon()
             icon.addPixmap(QtGui.QPixmap("%s/resources/stop.png"%(os.getcwd())))
             self.attack_button.setIcon(icon)
@@ -677,15 +697,15 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.select_client = self.attack_type_combo.currentText()
 
         if(self.select_client == str()):
-            QtGui.QMessageBox.warning(self,"WPA Attack Requirement","At least one client MAC-Address asscociated with the Access Point is required to successfully attack the WPA Encryption, If you know a client MAC Address you can add it manually or wait for the probing process to detect client addresses")
+            QtWidgets.QMessageBox.warning(self,"WPA Attack Requirement","At least one client MAC-Address asscociated with the Access Point is required to successfully attack the WPA Encryption, If you know a client MAC Address you can add it manually or wait for the probing process to detect client addresses")
             self.attack_type_combo.setFocus()
             return
 
         if not Check_MAC(self.select_client):
-            QtGui.QMessageBox.warning(self,'Invalid Client MAC Address',variables.invalid_mac_address_error.strip('/n'))
+            QtWidgets.QMessageBox.warning(self,'Invalid Client MAC Address',variables.invalid_mac_address_error.strip('/n'))
             return
 
-        self.emit(QtCore.SIGNAL("stop scan"))
+        self.stop_scan_signal.emit()
         commands.getstatusoutput('killall airodump-ng')
         commands.getstatusoutput('killall airmon-ng')
         commands.getstatusoutput('rm -r /tmp/fern-log/WPA-DUMP/*')
@@ -723,8 +743,8 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
                 self.associate_label.setText("<font color=yellow>Probing Access Point</font>")
                 commands.getstatusoutput('touch /tmp/fern-log/WPA-DUMP/capture_status.log')
                 self.progressBar.setValue(0)
-                self.disconnect(self.attack_button,QtCore.SIGNAL("clicked()"),self.launch_attack)
-                self.connect(self.attack_button,QtCore.SIGNAL("clicked()"),self.cancel_wpa_attack)
+                self.attack_button.clicked.disconnect(self.launch_attack)
+                self.attack_button.clicked.connect(self.cancel_wpa_attack)
                 icon = QtGui.QIcon()
                 icon.addPixmap(QtGui.QPixmap("%s/resources/stop.png"%(os.getcwd())))
                 self.attack_button.setIcon(icon)
@@ -739,7 +759,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
     def find_dictionary_length(self,filename):
         self.progress_bar_max = line_count(filename)
-        self.emit(QtCore.SIGNAL("wordlist_lines_counted(QString)"),filename)
+        self.wordlist_lines_counted_signal.emit(filename)
 
 
     def set_progress_bar(self,filename):
@@ -749,7 +769,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
 
 
     def dictionary_setting(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self,"Select Wordlist","")
+        filename = QtWidgets.QFileDialog.getOpenFileName(self,"Select Wordlist","")[0]
         if(filename):
 
             self.settings.create_settings("wordlist",filename)
@@ -771,11 +791,11 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
     def set_WPS_Objects(self,instance):
         self.progressBar.setMaximum(100)
         self.progressBar.setValue(0)
-        self.connect(instance,QtCore.SIGNAL("Associating with WPS device"),self.associating_wps)
-        self.connect(instance,QtCore.SIGNAL("Bruteforcing WPS Device"),self.associated_bruteforing)
-        self.connect(instance,QtCore.SIGNAL("WPS Progress"),self.updating_progress)
-        self.connect(instance,QtCore.SIGNAL("Cracked WPS Pin"),self.display_WPS_pin)
-        self.connect(instance,QtCore.SIGNAL("Cracked WPS Key"),self.display_Cracked_Key)
+        instance.Associating_with_WPS_device_signal.connect(self.associating_wps)
+        instance.Bruteforcing_WPS_Device_signal.connect(self.associated_bruteforing)
+        instance.WPS_Progress_signal.connect(self.updating_progress)
+        instance.Cracked_WPS_Pin_signal.connect(self.display_WPS_pin)
+        instance.Cracked_WPS_Key_signal.connect(self.display_Cracked_Key)
 
 
     def associating_wps(self):
@@ -819,7 +839,7 @@ class wpa_attack_dialog(QtGui.QDialog,Ui_attack_panel):
         self.key_label.setText("<font color=red>WPA KEY: " + variables.wps_functions.get_keys()[1] + "</font>" )
         self.set_Progressbar_color("green")
         set_key_entries(variables.victim_access_point,variables.victim_mac,'WPA',variables.wps_functions.get_keys()[1],variables.victim_channel)
-        self.emit(QtCore.SIGNAL('update database label'))
+        self.update_database_label_signal.emit()
         self.finished_label.setText("<font color=yellow>Finished</font>")
         self.new_automate_key()
         self.cancel_wpa_attack()

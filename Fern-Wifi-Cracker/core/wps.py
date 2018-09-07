@@ -33,9 +33,15 @@ import commands
 import subprocess
 import webbrowser
 
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 
 class WPS_Attack(QtCore.QThread):
+    Bruteforcing_WPS_Device_signal = QtCore.pyqtSignal()
+    WPS_Progress_signal = QtCore.pyqtSignal()
+    Cracked_WPS_Pin_signal = QtCore.pyqtSignal()
+    Cracked_WPS_Key_signal = QtCore.pyqtSignal()
+    Associating_with_WPS_device_signal = QtCore.pyqtSignal()
+
     def __init__(self):
         QtCore.QThread.__init__(self)
         self.monitor_interface = str()      # Monitor Interface used for scanning
@@ -132,24 +138,24 @@ class WPS_Attack(QtCore.QThread):
             responce = sys_file.readline()
             if(associate_regex.findall(str(responce))):
                 self._associate_flag = True
-                self.emit(QtCore.SIGNAL("Bruteforcing WPS Device"))
+                self.Bruteforcing_WPS_Device_signal.emit()
 
             information = progress_regex.findall(str(responce))
             if(bool(information)):
                 self.progress = information[0]
-                self.emit(QtCore.SIGNAL("WPS Progress"))
+                self.WPS_Progress_signal.emit()
                 self._associate_flag = True
 
             wps_pin = wps_pin_regex.findall(str(responce))
             if(bool(wps_pin)):
                 self._wps_pin = wps_pin[0]
-                self.emit(QtCore.SIGNAL("Cracked WPS Pin"))
+                self.Cracked_WPS_Pin_signal.emit()
 
             wps_key = wps_key_regex.findall(str(responce))
             if(bool(wps_key)):
                 if(str(wps_key[0]) != str(self._wps_pin)):
                     self._final_key = wps_key[0]
-                    self.emit(QtCore.SIGNAL("Cracked WPS Key"))
+                    self.Cracked_WPS_Key_signal.emit()
                     return
 
 
@@ -171,7 +177,7 @@ class WPS_Attack(QtCore.QThread):
         self._final_key = str()
         self._wps_pin = str()
         self._associate_flag = False
-        self.emit(QtCore.SIGNAL("Associating with WPS device"))
+        self.Associating_with_WPS_device_signal.emit()
         thread.start_new_thread(self._associate_WPS_Device_Aireplay,())
         time.sleep(3)
         self._bruteforce_WPS_Device()

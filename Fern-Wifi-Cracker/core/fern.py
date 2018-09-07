@@ -10,7 +10,7 @@ import commands
 import subprocess
 
 import variables
-from PyQt4 import QtGui,QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from wep import *
 from wpa import *
@@ -23,14 +23,35 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 2.6
+__version__= 2.7
 
 #
 # Main Window Class
 #
-class mainwindow(QtGui.QDialog,Ui_Dialog):
+class mainwindow(QtWidgets.QDialog,Ui_Dialog):
+    file_downloaded_signal = QtCore.pyqtSignal()
+    finished_downloading_signal = QtCore.pyqtSignal()
+    internal_scan_error_signal = QtCore.pyqtSignal()
+    restart_application_signal = QtCore.pyqtSignal()
+    download_failed_signal = QtCore.pyqtSignal()
+    current_version_signal = QtCore.pyqtSignal()
+    new_update_available_signal = QtCore.pyqtSignal()
+    already_latest_update_signal = QtCore.pyqtSignal()
+    previous_message_signal = QtCore.pyqtSignal()
+    failed_update_signal = QtCore.pyqtSignal()
+    interface_cards_not_found_signal = QtCore.pyqtSignal()
+    interface_cards_found_signal = QtCore.pyqtSignal()
+    monitor_mode_enabled_signal = QtCore.pyqtSignal()
+    monitor_failed_signal = QtCore.pyqtSignal()
+    wep_number_changed_signal = QtCore.pyqtSignal()
+    wep_button_true_signal = QtCore.pyqtSignal()
+    wep_button_false_signal = QtCore.pyqtSignal()
+    wpa_button_false_signal = QtCore.pyqtSignal()
+    wpa_button_true_signal = QtCore.pyqtSignal()
+    wpa_number_changed_signal = QtCore.pyqtSignal()
+
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.retranslateUi(self)
         self.refresh_interface()
@@ -50,42 +71,42 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         self.settings = Fern_settings()
 
         self.timer = QtCore.QTimer()
-        self.connect(self.timer,QtCore.SIGNAL("timeout()"),self.display_timed_objects)
-        self.timer.setInterval(4000)
-        self.timer.start()
+        self.timer.timeout.connect(self.display_timed_objects)
+        self.timer.setInterval(3000)
 
-        self.connect(self,QtCore.SIGNAL("DoubleClicked()"),self.mouseDoubleClickEvent)
-        self.connect(self.refresh_intfacebutton,QtCore.SIGNAL("clicked()"),self.refresh_interface)
-        self.connect(self.interface_combo,QtCore.SIGNAL("currentIndexChanged(QString)"),self.setmonitor)
-        self.connect(self,QtCore.SIGNAL("monitor mode enabled"),self.monitor_mode_enabled)
-        self.connect(self,QtCore.SIGNAL("monitor_failed()"),self.display_error_monitor)
-        self.connect(self,QtCore.SIGNAL("interface cards found"),self.interface_cards_found)
-        self.connect(self,QtCore.SIGNAL("interface cards not found"),self.interface_card_not_found)
-        self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
-        self.connect(self.wep_button,QtCore.SIGNAL("clicked()"),self.wep_attack_window)
-        self.connect(self.wpa_button,QtCore.SIGNAL("clicked()"),self.wpa_attack_window)
-        self.connect(self.tool_button,QtCore.SIGNAL("clicked()"),self.tool_box_window)
 
-        self.connect(self,QtCore.SIGNAL("wep_number_changed"),self.wep_number_changed)
-        self.connect(self,QtCore.SIGNAL("wep_button_true"),self.wep_button_true)
-        self.connect(self,QtCore.SIGNAL("wep_button_false"),self.wep_button_false)
+        #self.DoubleClicked.connect(self.mouseDoubleClickEvent)
+        self.refresh_intfacebutton.clicked.connect(self.refresh_interface)
+        self.interface_combo.currentIndexChanged['QString'].connect(self.setmonitor)
+        self.monitor_mode_enabled_signal.connect(self.monitor_mode_enabled)
+        self.monitor_failed_signal.connect(self.display_error_monitor)
+        self.interface_cards_found_signal.connect(self.interface_cards_found)
+        self.interface_cards_not_found_signal.connect(self.interface_card_not_found)
+        self.scan_button.clicked.connect(self.scan_network)
+        self.wep_button.clicked.connect(self.wep_attack_window)
+        self.wpa_button.clicked.connect(self.wpa_attack_window)
+        self.tool_button.clicked.connect(self.tool_box_window)
 
-        self.connect(self,QtCore.SIGNAL("wpa_number_changed"),self.wpa_number_changed)
-        self.connect(self,QtCore.SIGNAL("wpa_button_true"),self.wpa_button_true)
-        self.connect(self,QtCore.SIGNAL("wpa_button_false"),self.wpa_button_false)
+        self.wep_number_changed_signal.connect(self.wep_number_changed)
+        self.wep_button_true_signal.connect(self.wep_button_true)
+        self.wep_button_false_signal.connect(self.wep_button_false)
 
-        self.connect(self.database_button,QtCore.SIGNAL("clicked()"),self.database_window)
-        self.connect(self.update_button,QtCore.SIGNAL("clicked()"),self.update_fern)
-        self.connect(self,QtCore.SIGNAL("finished downloading"),self.finished_downloading_files)
-        self.connect(self,QtCore.SIGNAL("restart application"),self.restart_application)
-        self.connect(self,QtCore.SIGNAL("failed update"),self.update_fail)
-        self.connect(self,QtCore.SIGNAL("already latest update"),self.latest_update)
-        self.connect(self,QtCore.SIGNAL("previous message"),self.latest_svn)
-        self.connect(self,QtCore.SIGNAL("new update available"),self.new_update_avialable)
-        self.connect(self,QtCore.SIGNAL("current_version"),self.current_update)
-        self.connect(self,QtCore.SIGNAL("download failed"),self.download_failed)
-        self.connect(self,QtCore.SIGNAL('internal scan error'),self.scan_error_display)
-        self.connect(self,QtCore.SIGNAL('file downloaded'),self.downloading_update_files)
+        self.wpa_number_changed_signal.connect(self.wpa_number_changed)
+        self.wpa_button_true_signal.connect(self.wpa_button_true)
+        self.wpa_button_false_signal.connect(self.wpa_button_false)
+
+        self.database_button.clicked.connect(self.database_window)
+        self.update_button.clicked.connect(self.update_fern)
+        self.finished_downloading_signal.connect(self.finished_downloading_files)
+        self.restart_application_signal.connect(self.restart_application)
+        self.failed_update_signal.connect(self.update_fail)
+        self.already_latest_update_signal.connect(self.latest_update)
+        self.previous_message_signal.connect(self.latest_svn)
+        self.new_update_available_signal.connect(self.new_update_avialable)
+        self.current_version_signal.connect(self.current_update)
+        self.download_failed_signal.connect(self.download_failed)
+        self.internal_scan_error_signal.connect(self.scan_error_display)
+        self.file_downloaded_signal.connect(self.downloading_update_files)
 
 
         self.update_label.setText('<font color=green>Currently installed version: Revision %s</font>'%(self.installed_revision()))
@@ -253,10 +274,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 response = svn_update.readline()
                 if len(response) > 0:
                     files_downloaded += 1
-                    self.emit(QtCore.SIGNAL('file downloaded'))
+                    self.file_downloaded_signal.emit()
 
                 if str('revision') in str(response):
-                    self.emit(QtCore.SIGNAL("finished downloading"))
+                    self.finished_downloading_signal.emit()
                                                                                     # Delete all old files (*.py,*.py etc) except ".font_setting.dat" file
                     for old_file in os.listdir(os.getcwd()):
                         if os.path.isfile(os.getcwd() + os.sep + old_file) and old_file != '.font_settings.dat':
@@ -276,14 +297,14 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                         os.chmod(os.getcwd() + os.sep + new_file,0777)
 
                     time.sleep(5)
-                    self.emit(QtCore.SIGNAL("restart application"))
+                    self.restart_application_signal.emit()
                     break
                 if len(svn_failure_message) > 2:
-                    self.emit(QtCore.SIGNAL("download failed"))
+                    self.download_failed_signal.emit()
                     break
 
         except(urllib2.URLError,urllib2.HTTPError):
-            self.emit(QtCore.SIGNAL("download failed"))
+            self.download_failed_signal.emit()
 
 
     #
@@ -307,17 +328,17 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 update_version_number = float(online_response_string.split()[2])
 
                 if float(__version__) != update_version_number:
-                    self.emit(QtCore.SIGNAL("new update available"))
+                    self.new_update_available_signal.emit()
                     break
 
                 if float(__version__) == update_version_number:
-                    self.emit(QtCore.SIGNAL("already latest update"))
+                    self.already_latest_update_signal.emit()
                     time.sleep(20)
-                    self.emit(QtCore.SIGNAL("previous message"))
+                    self.previous_message_signal.emit()
                     break
 
             except Exception:
-                self.emit(QtCore.SIGNAL("failed update"))
+                self.failed_update_signal.emit()
                 time.sleep(9)
 
     #
@@ -336,8 +357,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             variables.exec_command('rm -r /tmp/fern-log/WEP-DUMP/*')
         wep_run = wep_attack_dialog()
 
-        self.connect(wep_run,QtCore.SIGNAL('update database label'),self.update_database_label)
-        self.connect(wep_run,QtCore.SIGNAL("stop scan"),self.stop_network_scan)
+        wep_run.update_database_label_signal.connect(self.update_database_label)
+        wep_run.stop_scan_signal.connect(self.stop_network_scan)
 
         wep_run.exec_()
 
@@ -352,8 +373,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             variables.exec_command('rm -r /tmp/fern-log/WPA-DUMP/*')
         wpa_run = wpa_attack_dialog()
 
-        self.connect(wpa_run,QtCore.SIGNAL('update database label'),self.update_database_label)
-        self.connect(wpa_run,QtCore.SIGNAL("stop scan"),self.stop_network_scan)
+        wpa_run.update_database_label_signal.connect(self.update_database_label)
+        wpa_run.stop_scan_signal.connect(self.stop_network_scan)
 
         wpa_run.exec_()
     #
@@ -361,7 +382,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     #
     def database_window(self):
         database_run = database_dialog()
-        self.connect(database_run,QtCore.SIGNAL('update database label'),self.update_database_label)
+        database_run.update_database_label_signal.connect(self.update_database_label)
         database_run.exec_()
     #
     # Refresh wireless network interface card and update combobo
@@ -396,14 +417,14 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         interface_list = os.listdir('/sys/class/net')
         # Interate over interface output and update combo box
         if compatible_interface.count('\t') == 0:
-            self.emit(QtCore.SIGNAL("interface cards not found"))
+            self.interface_cards_not_found_signal.emit()
         else:
             for interface in interface_list:
                 if interface in compatible_interface:
                     if not interface.startswith('mon'):
                         self.interface_cards.append(interface)
 
-            self.emit(QtCore.SIGNAL("interface cards found"))
+            self.interface_cards_found_signal.emit()
 
 
 
@@ -508,7 +529,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             variables.monitor_interface = self.monitor_interface
             self.interface_combo.setEnabled(False)
             variables.wps_functions.monitor_interface = self.monitor_interface
-            self.emit(QtCore.SIGNAL("monitor mode enabled"))
+            self.monitor_mode_enabled_signal.emit()
 
             # Create Fake Mac Address and index for use
             mon_down = commands.getstatusoutput('ifconfig %s down'%(self.monitor_interface))
@@ -526,7 +547,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                     variables.monitor_mac_address = reader('/sys/class/net/' + self.monitor_interface + '/address').strip()
                     variables.wps_functions.monitor_mac_address = variables.monitor_mac_address
         else:
-            self.emit(QtCore.SIGNAL("monitor_failed()"))
+            self.monitor_failed_signal.emit()
 
 
 
@@ -572,7 +593,7 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
     def scan_error_display(self):
         global error_catch
         self.stop_scan_network()
-        QtGui.QMessageBox.warning(self,'Scan Error','Fern failed to start scan due to an airodump-ng error: <font color=red>' \
+        QtWidgets.QMessageBox.warning(self,'Scan Error','Fern failed to start scan due to an airodump-ng error: <font color=red>' \
                                         + error_catch[1] + '</font>')
 
 
@@ -608,8 +629,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
             self.wpa_clientlabel.setText("None Detected")
             self.label_7.setText("<font Color=green>\t Initializing</font>")
             thread.start_new_thread(self.scan_wep,())
-            self.disconnect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
-            self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.stop_scan_network)
+            self.scan_button.clicked.disconnect(self.scan_network)
+            self.scan_button.clicked.connect(self.stop_scan_network)
 
 
 
@@ -624,8 +645,8 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
         variables.wps_functions.stop_WPS_Scanning()                 # Stops WPS scanning
         self.wep_clientlabel.setText("None Detected")
         self.wpa_clientlabel.setText("None Detected")
-        self.disconnect(self.scan_button,QtCore.SIGNAL("clicked()"),self.stop_scan_network)
-        self.connect(self.scan_button,QtCore.SIGNAL("clicked()"),self.scan_network)
+        self.scan_button.clicked.disconnect(self.stop_scan_network)
+        self.scan_button.clicked.connect(self.scan_network)
 
 
 
@@ -785,10 +806,10 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 self.wep_count = str(wep_access_file.count('WEP')/2)        # number of access points wep detected
 
                 if int(self.wep_count) > 0:
-                    self.emit(QtCore.SIGNAL("wep_number_changed"))
-                    self.emit(QtCore.SIGNAL("wep_button_true"))
+                    self.wep_number_changed_signal.emit()
+                    self.wep_button_true_signal.emit()
                 else:
-                    self.emit(QtCore.SIGNAL("wep_button_false"))
+                    self.wep_button_false_signal.emit()
 
                 for iterate in range(len(process)):
                     detail_process1 = process[iterate]
@@ -811,12 +832,12 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 self.wpa_count = str(read_wpa.count('WPA'))        # number of access points wep detected
 
                 if int(self.wpa_count) == 0:
-                    self.emit(QtCore.SIGNAL("wpa_button_false"))
+                    self.wpa_button_false_signal.emit()
                 elif int(self.wpa_count >= 1):
-                    self.emit(QtCore.SIGNAL("wpa_button_true"))
-                    self.emit(QtCore.SIGNAL("wpa_number_changed"))
+                    self.wpa_button_true_signal.emit()
+                    self.wpa_number_changed_signal.emit()
                 else:
-                    self.emit(QtCore.SIGNAL("wpa_button_false"))
+                    self.wpa_button_false_signal.emit()
 
                 wpa_access_convert = wpa_access_file[0:wpa_access_file.index('Station MAC')]
                 wpa_access_process = wpa_access_convert[wpa_access_convert.index('Key'):-1]
@@ -841,9 +862,12 @@ class mainwindow(QtGui.QDialog,Ui_Dialog):
                 pass
 
 
+    def showEvent(self,event):
+        self.timer.start()
+
 
     def evaliate_permissions(self):
         if os.geteuid() != 0:
-            QtGui.QMessageBox.warning(self,"Insufficient Priviledge","Aircrack and other dependencies need root priviledge to function, Please run application as root")
+            QtWidgets.QMessageBox.warning(self,"Insufficient Priviledge","Aircrack and other dependencies need root priviledge to function, Please run application as root")
             sys.exit()
 
