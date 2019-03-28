@@ -27,9 +27,9 @@ The following dependencies can be installed using the <i>Debian package installe
 and installed manually
 
 <p>1. <a href="http://www.aircrack-ng.org/">Aircrack-NG</a></p>
-<p>2. <a href="http://www.secdev.org/projects/scapy/">Python-Scapy</a></p>
-<p>3. <a href="http://www.riverbankcomputing.co.uk/software/pyqt/intro">Python Qt5</a></p>
-<p>4. <a href="http://www.python.org/">Python 2.7.x</a></p>
+<p>2. <a href="http://www.python.org/">Python 2.7.x</a></p>
+<p>3. <a href="http://www.secdev.org/projects/scapy/">Python-Scapy</a></p>
+<p>4. <a href="http://www.riverbankcomputing.co.uk/software/pyqt/intro">Python Qt5</a></p>
 <p>5. <a href="http://subversion.tigris.org/">Subversion</a></p>
 <p>6. <a href="http://invisible-island.net/xterm/">Xterm</a></p>
 <p>7. <a href="http://code.google.com/p/reaver-wps/">Reaver</a><i> (for WPS Attacks)</i></p>
