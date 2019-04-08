@@ -23,7 +23,7 @@ from settings import *
 
 from gui.main_window import *
 
-__version__= 2.7
+__version__= 2.8
 
 #
 # Main Window Class
@@ -73,6 +73,7 @@ class mainwindow(QtWidgets.QDialog,Ui_Dialog):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.display_timed_objects)
         self.timer.setInterval(3000)
+
 
 
         #self.DoubleClicked.connect(self.mouseDoubleClickEvent)

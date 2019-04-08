@@ -73,7 +73,7 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
 
         self.new_access_point_detected_signal.connect(self.display_new_access_point)
 
-        self.general_group_box.DoubleClicked.connect(self.mouseDoubleClickEvent)
+        #self.general_group_box.DoubleClicked.connect(self.mouseDoubleClickEvent)
         self.ap_listwidget.itemSelectionChanged.connect(self.display_selected_target)
         self.attack_button.clicked.connect(self.launch_attack)
         self.wps_attack_radio.clicked.connect(self.check_reaver_status)
@@ -676,9 +676,11 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
         directory = '/tmp/fern-log/WEP-DUMP/'
         variables.exec_command('killall aircrack-ng')
         process = subprocess.Popen('aircrack-ng '+ directory + 'wep_dump-01.cap -l '+ directory + 'wep_key.txt',shell = True,stdout = subprocess.PIPE,stderr = subprocess.PIPE,stdin = subprocess.PIPE)
+
         status = process.stdout
         while 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
-            if 'Failed. Next try with' in status.readline():
+            output = status.readline()
+            if 'Failed. Next try with' in output:
                 thread.start_new_thread(self.crack_wep,())
                 break
             time.sleep(40)

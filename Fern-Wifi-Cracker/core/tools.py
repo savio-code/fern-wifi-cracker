@@ -218,7 +218,7 @@ class Fern_Pro_Tips(QtWidgets.QDialog,Fern_Pro_Tip_ui):
 
 
     def open_website(self):
-        QtWidgets.QDesktopServices.openUrl(QtCore.QUrl("http://www.fern-pro.com/"))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://www.fern-pro.com/"))
         self.toggle_tip()
         self.close()
 
