@@ -1,11 +1,9 @@
 <hr>
-  <h5>Create portable static executables from dynamic executables that will run on every distribution of linux without the need of recompiling, <a target="_blank" href="http://www.elfex-linker.com">Click here</a> for more information</h5>
-  <hr>
   
 <b>DISCLAIMER</b>: Fern-Wifi-Cracker is designed to be used in testing and discovering flaws in one's own network with the aim of fixing the flaws detected, <b>DO NOT</b> use the program on networks for which you don't have permission, I am not responsible for whatever damage you cause by using this software.
 <hr/> 
 
-Visit <a href="http://www.fern-pro.com/">http://www.fern-pro.com</a> for newer downloads
+Visit <a href="http://www.fern-pro.com/">http://www.fern-pro.com</a> for professional version
 <br>
 
 <a href="http://www.fern-pro.com/"><img src="https://raw.githubusercontent.com/savio-code/savio-project-images/master/Fern/shadow_case.png"/></a>
