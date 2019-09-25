@@ -44,7 +44,7 @@ class HTTP_Authentication(object):
         req = request.Request(self.target_url)
         base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
         req.add_header("Authorization", "Basic %s" % base64string)
-        result = request.urlopen(request)
+        result = request.urlopen(req)
 
 
 
