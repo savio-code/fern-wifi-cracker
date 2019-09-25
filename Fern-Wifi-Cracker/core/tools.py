@@ -9,11 +9,11 @@ from core.variables import *
 from core.functions import *
 from gui.attack_settings import *
 from core.settings import *
+from core.toolbox import *
 from gui.fern_pro_tip import *
+from gui.toolbox import *
+from core.toolbox.fern_ray_fusion import *
 
-#from toolbox.fern_tracker import *
-# from toolbox.fern_cookie_hijacker import *
-from toolbox.fern_ray_fusion import *
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -34,9 +34,6 @@ class tool_box_window(QtWidgets.QDialog,toolbox_win):
         self.ray_fusion_button.clicked.connect(self.ray_fusion_exec)
 
 
-
-
-
     #
     #   TOOLBOX FEATURES
     #
@@ -46,9 +43,9 @@ class tool_box_window(QtWidgets.QDialog,toolbox_win):
 
     def cookie_hijack_exec(self):
         try:
-            from toolbox import fern_cookie_hijacker
+            import scapy
         except ImportError:
-            QtWidgets.QMessageBox.warning(self,"Scapy Dependency","Scapy library is currently not installed \nPlease run \"apt-get install python-scapy\" to install the dependency")
+            QtWidgets.QMessageBox.warning(self,"Scapy Dependency","Scapy library is currently not installed \nPlease run \"pip install scapy\" to install the dependency")
             return
 
         cookie_hijacker = fern_cookie_hijacker.Fern_Cookie_Hijacker()

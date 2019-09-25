@@ -29,7 +29,7 @@
 
 import re
 import json
-import httplib
+import http.client as httplib
 
 class Fern_Geolocation(object):
     def __init__(self):

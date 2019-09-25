@@ -1,3 +1,8 @@
+import os
+import tempfile
+import subprocess
+import shutil
+
 from core.fern import *
 
 ############# WEP/WPA/WPS GLOBAL VARIABLES #################
@@ -46,7 +51,7 @@ current_word = ''
 # Creating /tmp/ directory for logging of wireless information
 #
 
-direc = '/tmp/'
+direc = tempfile.gettempdir() + os.sep
 log_direc = 'fern-log'
 tmp_direc = os.listdir(direc)                                    # list/tmp/
 directory = os.getcwd()
@@ -55,7 +60,7 @@ directory = os.getcwd()
 # Create temporary log directory
 #
 if 'fern-log' in tmp_direc:
-    commands.getstatusoutput('rm -r %s'%(direc + log_direc))    # Delete directory in /fern-log if it already exists in /tmp/
+    shutil.rmtree(direc + log_direc,ignore_errors=True)    # Delete directory in /fern-log if it already exists in /tmp/
     os.mkdir(direc + log_direc)
 else:
     os.mkdir(direc + log_direc)                                 # Create /tmp/fern-log/
@@ -63,7 +68,7 @@ else:
 #
 # Create Sub Temporary directory in /tmp/fern-log
 #
-os.mkdir('/tmp/fern-log/WPA')                                     # Create /tmp/fern-log/WPA
+os.mkdir(direc + 'fern-log/WPA')                                     # Create /tmp/fern-log/WPA
 
 #
 # Evecute commands without display to stdout

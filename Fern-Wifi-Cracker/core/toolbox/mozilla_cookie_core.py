@@ -62,7 +62,7 @@ class Mozilla_Cookie_Core(object):
         mozilla_cursor = mozilla_cookie_db.cursor()
         try:
             mozilla_cursor.execute(str(sql_statement))
-        except Exception,e:
+        except Exception as e:
             mozilla_cursor.close()
             os.remove(self.cookie_database)
             self._create_moz_cookies()
@@ -86,7 +86,7 @@ class Mozilla_Cookie_Core(object):
     def calculate_mozilla_creationTime(self):
         crude_index = "0123456789"
         creation_time = str(int(time.time()))
-        for add in xrange(16 - (len(creation_time) + 3)):
+        for add in range(16 - (len(creation_time) + 3)):
             creation_time += crude_index[add]
         creation_time += "000"
         return(creation_time)
@@ -117,10 +117,9 @@ class Mozilla_Cookie_Core(object):
 
 
     def kill_Process(self,process_name):
-        import commands
-        pids = commands.getstatusoutput("pidof " + process_name)[1]
+        pids = subprocess.getstatusoutput("pidof " + process_name)[1]
         for pid in pids.split():
-            commands.getstatusoutput("kill " + pid)
+            subprocess.getstatusoutput("kill " + pid)
 
 
     def get_Cookie_Path(self,cookie_name):

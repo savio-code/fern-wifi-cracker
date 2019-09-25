@@ -30,7 +30,7 @@ import time
 import base64
 import ftplib
 import socket
-import urllib2
+from urllib import request
 
 from PyQt5 import QtCore
 
@@ -40,10 +40,11 @@ class HTTP_Authentication(object):
         self.target_url = str()
 
     def login_http(self,username,password):
-        request = urllib2.Request(self.target_url)
+
+        req = request.Request(self.target_url)
         base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
-        request.add_header("Authorization", "Basic %s" % base64string)
-        result = urllib2.urlopen(request)
+        req.add_header("Authorization", "Basic %s" % base64string)
+        result = request.urlopen(request)
 
 
 
@@ -202,7 +203,7 @@ class Bruteforce_Attack(QtCore.QThread):
                 try:
                     self.bruteforce_http_method.login_http(username,password)                                  # TELNET HERE
                     self.successful_login_signal.emit(username, password)
-                except Exception,message:
+                except Exception as message:
                     if("connection timed out" in str(message).lower()):
                         self._error_message = "Unable to connect to the remote address, Connection timed out"
                         self.We_Got_Error_signal.emit()
@@ -258,7 +259,7 @@ class Bruteforce_Attack(QtCore.QThread):
                 try:
                     if(self.bruteforce_http_method.login_telnet(username,password)):                                   # FTP HERE
                         self.successful_login_signal.emit(username, password)
-                except Exception,message:
+                except Exception as message:
                     if("name or service not known" in str(message).lower()):
                         self._error_message = "Unable to resolve target hostname"
                         self.We_Got_Error_signal.emit()
@@ -309,7 +310,7 @@ class Bruteforce_Attack(QtCore.QThread):
                 try:
                     self.bruteforce_http_method.login_ftp(username,password)                                   # FTP HERE
                     self.successful_login_signal.emit(username, password)
-                except Exception,message:
+                except Exception as message:
                     if("name or service not known" in str(message).lower()):
                         self._error_message = "Unable to resolve target hostname"
                         self.We_Got_Error_signal.emit()

@@ -28,7 +28,7 @@
 import re
 import os
 import time
-import thread
+import threading
 import sqlite3
 import logging
 import threading
@@ -167,10 +167,12 @@ class Cookie_Hijack_Core(QtCore.QThread):
             if(self.control):
                 self.cookie_buffer_detected_signal.emit()
 
-            if("Cookie:" in captured_packet.load):
+            packet_captured = captured_packet.load.decode("ascii",errors="ignore")
 
-                if("Host:" in captured_packet.load):
-                    http_packets = captured_packet.load.split("\n")
+            if("Cookie:" in packet_captured):
+
+                if("Host:" in packet_captured):
+                    http_packets = packet_captured.split("\n")
 
                     for entries in http_packets:
                         if(re.match("Referer",entries,re.IGNORECASE)):
@@ -205,7 +207,7 @@ class Cookie_Hijack_Core(QtCore.QThread):
                     if(self.control):
                         self.New_Cookie_Captured_signal.emit()
 
-        except AttributeError,message:
+        except AttributeError as message:
             pass
 
         finally:

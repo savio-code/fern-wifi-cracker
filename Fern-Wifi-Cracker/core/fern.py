@@ -2,28 +2,26 @@ import os
 import re
 import sys
 import time
-import thread
-import urllib2
+import threading
 import shutil
 import sqlite3
-import commands
 import subprocess
+from urllib import request
 
-import variables
+from core import variables
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from wep import *
-from wpa import *
-from wps import *
-from tools import *
-from database import *
-from variables import *
-from functions import *
-from settings import *
+from core.wep import *
+from core.wpa import *
+from core.wps import *
+from core.tools import *
+from core.database import *
+from core.functions import *
+from core.settings import *
 
 from gui.main_window import *
 
-__version__ = 2.9
+__version__ = 3
 
 
 #
@@ -112,7 +110,8 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
             '<font color=green>Currently installed version: Revision %s</font>' % (self.installed_revision()))
 
         # Display update status on main_windows
-        thread.start_new_thread(self.update_initializtion_check, ())
+        t = threading.Thread(target=self.update_initializtion_check)
+        t.start()
 
         self.set_WindowFlags()
 
@@ -179,7 +178,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                                   % (self.percentage(files_downloaded, file_total)))
 
     def installed_revision(self):
-        svn_info = commands.getstatusoutput('svn info ' + directory)
+        svn_info = subprocess.getstatusoutput('svn info ' + directory)
         if svn_info[0] == 0:
             svn_version = svn_info[1].splitlines()[4].strip('Revision: ')
         else:
@@ -220,7 +219,8 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         global updater_control
         updater_control = 1
         self.update_label.setText('<font color=green>Checking for update...</font>')
-        thread.start_new_thread(self.update_launcher, ())
+        t = threading.Thread(target=self.update_launcher)
+        t.start()
 
     def percentage(self, current, total):
         float_point = float(current) / float(total)
@@ -244,9 +244,9 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         update_directory = '/tmp/Fern-Wifi-Cracker/'
 
         try:
-            online_response_check = urllib2.urlopen(
+            online_response_check = request.urlopen(
                 'https://raw.githubusercontent.com/savio-code/fern-wifi-cracker/master/Fern-Wifi-Cracker/version')
-            online_response = online_response_check.read()
+            online_response = online_response_check.read().decode("ascii",errors="ignore")
 
             online_files = re.compile('total_files = \d+', re.IGNORECASE)
 
@@ -261,7 +261,9 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                 'cd /tmp/ \n svn checkout https://github.com/savio-code/fern-wifi-cracker/trunk/Fern-Wifi-Cracker/', \
                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
             svn_update = svn_access.stdout
-            thread.start_new_thread(self.update_error, ())
+            t = threading.Thread(target=self.update_error)
+            t.start()
+
             while True:
                 response = svn_update.readline()
                 if len(response) > 0:
@@ -287,7 +289,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                             shutil.copytree(update_directory + update_file, os.getcwd() + os.sep + update_file)
 
                     for new_file in os.listdir(os.getcwd()):  # chmod New files to allow permissions
-                        os.chmod(os.getcwd() + os.sep + new_file, 0777)
+                        os.chmod(os.getcwd() + os.sep + new_file,0o777)
 
                     time.sleep(5)
                     self.restart_application_signal.emit()
@@ -296,7 +298,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                     self.download_failed_signal.emit()
                     break
 
-        except(urllib2.URLError, urllib2.HTTPError):
+        except(request.URLError, request.HTTPError):
             self.download_failed_signal.emit()
 
     #
@@ -307,10 +309,10 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         updater_control = 0
         while updater_control != 1:
             try:
-                online_response_thread = urllib2.urlopen(
+                online_response_thread = request.urlopen(
                     'https://raw.githubusercontent.com/savio-code/fern-wifi-cracker/master/Fern-Wifi-Cracker/version')
                 online_response_string = ''
-                online_response = online_response_thread.read()
+                online_response = online_response_thread.read().decode("ascii",errors="ignore")
 
                 online_version = re.compile('version = \d+\.?\d+', re.IGNORECASE)
 
@@ -346,7 +348,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
     #
     def wep_attack_window(self):
         if 'WEP-DUMP' not in os.listdir('/tmp/fern-log'):
-            os.mkdir('/tmp/fern-log/WEP-DUMP', 0700)
+            os.mkdir('/tmp/fern-log/WEP-DUMP', 448)         # 488 =  Octal 700
         else:
             variables.exec_command('rm -r /tmp/fern-log/WEP-DUMP/*')
         wep_run = wep_attack_dialog()
@@ -362,7 +364,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
     def wpa_attack_window(self):
         variables.exec_command('killall aircrack-ng')
         if 'WPA-DUMP' not in os.listdir('/tmp/fern-log'):
-            os.mkdir('/tmp/fern-log/WPA-DUMP', 0700)
+            os.mkdir('/tmp/fern-log/WPA-DUMP', 448)
         else:
             variables.exec_command('rm -r /tmp/fern-log/WPA-DUMP/*')
         wpa_run = wpa_attack_dialog()
@@ -394,11 +396,12 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         self.interface_combo.setEnabled(True)
         self.interface_cards = list()
 
-        thread.start_new_thread(self.refresh_card_thread, ())
+        t = threading.Thread(target=self.refresh_card_thread)
+        t.start()
 
     def refresh_card_thread(self):
         # Disable cards already on monitor modes
-        wireless_interfaces = str(commands.getstatusoutput('airmon-ng'))
+        wireless_interfaces = str(subprocess.getstatusoutput('airmon-ng'))
         prev_monitor = os.listdir('/sys/class/net')
         monitor_interfaces_list = []
         for monitors in prev_monitor:
@@ -408,7 +411,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
             variables.exec_command('airmon-ng stop %s' % (monitored_interfaces))
 
         # List Interface cards
-        compatible_interface = str(commands.getoutput("airmon-ng"))
+        compatible_interface = str(subprocess.getoutput("airmon-ng"))
         interface_list = os.listdir('/sys/class/net')
 
         # Interate over interface output and update combo box
@@ -467,16 +470,16 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         monitor_card = str(self.interface_combo.currentText())
         if monitor_card != 'Select Interface':
             mac_settings = self.settings.setting_exists('mac_address')
-            if (mac_settings):
+            if mac_settings:
                 last_settings = self.settings.read_last_settings('mac_address')
-            thread.start_new_thread(self.set_monitor_thread, (monitor_card, mac_settings, last_settings,))
+            threading.Thread(target=self.set_monitor_thread, args=(monitor_card, mac_settings, last_settings,)).start()
             self.animate_monitor_mode(True)
         else:
             self.mon_label.setText("<font color=red>Monitor Mode not enabled check manually</font>")
             self.animate_monitor_mode(False)
 
     def killConflictProcesses(self):
-        process = commands.getstatusoutput("airmon-ng check")
+        process = subprocess.getstatusoutput("airmon-ng check")
         status = process[0]
         output = process[1]
 
@@ -492,10 +495,10 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
     def set_monitor_thread(self, monitor_card, mac_setting_exists, last_settings):
         self.killConflictProcesses()
 
-        commands.getstatusoutput('ifconfig %s down' % (
+        subprocess.getstatusoutput('ifconfig %s down' % (
             self.monitor_interface))  # Avoid this:  "ioctl(SIOCSIWMODE) failed: Device or resource busy"
 
-        status = str(commands.getoutput("airmon-ng start %s" % (monitor_card)))
+        status = str(subprocess.getoutput("airmon-ng start %s" % (monitor_card)))
         messages = ("monitor mode enabled", "monitor mode vif enabled", "monitor mode already")
 
         monitor_created = False;
@@ -505,7 +508,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                 monitor_created = True
 
         if (monitor_created):
-            monitor_interface_process = str(commands.getoutput("airmon-ng"))
+            monitor_interface_process = str(subprocess.getoutput("airmon-ng"))
 
             regex = object()
             if ('monitor mode enabled' in status):
@@ -526,18 +529,18 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
             self.monitor_mode_enabled_signal.emit()
 
             # Create Fake Mac Address and index for use
-            mon_down = commands.getstatusoutput('ifconfig %s down' % (self.monitor_interface))
+            mon_down = subprocess.getstatusoutput('ifconfig %s down' % (self.monitor_interface))
             if mac_setting_exists:
                 variables.exec_command('macchanger -m %s %s' % (last_settings, self.monitor_interface))
             else:
                 variables.exec_command('macchanger -A %s' % (self.monitor_interface))
-            # mon_up = commands.getstatusoutput('ifconfig %s up'%(self.monitor_interface))       # Lets leave interface down to avoid channel looping during channel specific attack
+            # mon_up = subprocess.getstatusoutput('ifconfig %s up'%(self.monitor_interface))       # Lets leave interface down to avoid channel looping during channel specific attack
 
-            commands.getstatusoutput('ifconfig %s down' % (self.monitor_interface))
+            subprocess.getstatusoutput('ifconfig %s down' % (self.monitor_interface))
 
             for iterate in os.listdir('/sys/class/net'):
                 if str(iterate) == str(self.monitor_interface):
-                    os.chmod('/sys/class/net/' + self.monitor_interface + '/address', 0777)
+                    os.chmod('/sys/class/net/' + self.monitor_interface + '/address', 0o777)
                     variables.monitor_mac_address = reader(
                         '/sys/class/net/' + self.monitor_interface + '/address').strip()
                     variables.wps_functions.monitor_mac_address = variables.monitor_mac_address
@@ -615,7 +618,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
             self.wep_clientlabel.setText("None Detected")
             self.wpa_clientlabel.setText("None Detected")
             self.label_7.setText("<font Color=green>\t Initializing</font>")
-            thread.start_new_thread(self.scan_wep, ())
+            threading.Thread(target=self.scan_wep).start()
             self.scan_button.clicked.disconnect(self.scan_network)
             self.scan_button.clicked.connect(self.stop_scan_network)
 
@@ -753,18 +756,18 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         if scan_control == 0:
             if not variables.static_channel:
                 if len(variables.xterm_setting) == 0:
-                    thread.start_new_thread(self.scan_process1_thread, ())
-                    thread.start_new_thread(self.scan_process1_thread1, ())
+                    threading.Thread(target=self.scan_process1_thread).start()
+                    threading.Thread(target=self.scan_process1_thread1).start()
                 else:
-                    thread.start_new_thread(self.scan_process2_thread, ())
-                    thread.start_new_thread(self.scan_process2_thread1, ())
+                    threading.Thread(target=self.scan_process2_thread).start()
+                    threading.Thread(target=self.scan_process2_thread1).start()
             else:
                 if len(variables.xterm_setting) == 0:
-                    thread.start_new_thread(self.scan_process3_thread, ())
-                    thread.start_new_thread(self.scan_process3_thread1, ())
+                    threading.Thread(target=self.scan_process3_thread).start()
+                    threading.Thread(target=self.scan_process3_thread1).start()
                 else:
-                    thread.start_new_thread(self.scan_process4_thread, ())
-                    thread.start_new_thread(self.scan_process4_thread1, ())
+                    threading.Thread(target=self.scan_process4_thread).start()
+                    threading.Thread(target=self.scan_process4_thread1).start()
 
         time.sleep(5)
         if scan_control != 1:
@@ -777,13 +780,19 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                 wep_access_file = str(reader('/tmp/fern-log/zfern-wep-01.csv'))  # WEP access point log file
                 wpa_access_file = str(reader('/tmp/fern-log/WPA/zfern-wpa-01.csv'))  # WPA access point log file
 
+
                 wep_access_convert = wep_access_file[0:wep_access_file.index('Station MAC')]
                 wep_access_process = wep_access_convert[wep_access_convert.index('Key'):-1]
                 wep_access_process1 = wep_access_process.strip('Key\r\n')
                 process = wep_access_process1.splitlines()
 
                 # Display number of WEP access points detected
-                self.wep_count = str(wep_access_file.count('WEP') / 2)  # number of access points wep detected
+                wep_devices = 0;
+                for line in wpa_access_file.splitlines():
+                    if "WEP" in line:
+                        wep_devices += 1
+
+                self.wep_count = str(wep_devices)  # number of access points wep detected
 
                 if int(self.wep_count) > 0:
                     self.wep_number_changed_signal.emit()
@@ -805,14 +814,21 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                         wep_details[access_point] = [mac_address, channel, speed, power]
 
                 # WPA Access point sort starts here
-                read_wpa = reader('/tmp/fern-log/WPA/zfern-wpa-01.csv')
 
                 # Display number of WEP access points detected
-                self.wpa_count = str(read_wpa.count('WPA'))  # number of access points wep detected
+                self.wpa_count = str(wpa_access_file.count('WPA'))  # number of access points wep detected
+
+                wpa_devices = 0;
+                for line in wpa_access_file.splitlines():
+                    if "WPA" in line or "WPA2" in line:
+                        wpa_devices += 1
+
+                self.wpa_count = str(wpa_devices)
+
 
                 if int(self.wpa_count) == 0:
                     self.wpa_button_false_signal.emit()
-                elif int(self.wpa_count >= 1):
+                elif int(self.wpa_count) >= 1:
                     self.wpa_button_true_signal.emit()
                     self.wpa_number_changed_signal.emit()
                 else:

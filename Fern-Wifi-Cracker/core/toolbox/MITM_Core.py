@@ -28,7 +28,7 @@
 
 import os
 import time
-import thread
+import subprocess
 import threading
 
 from scapy.all import *
@@ -85,7 +85,7 @@ class Fern_MITM_Class:
         def _set_Gateway_MAC(self):
             '''Fetches the Gateway MAC address'''
             self._gateway_MAC_addr = str()
-            thread.start_new_thread(self._gateway_MAC_Probe,())
+            threading.Thread(target=self._gateway_MAC_Probe).start()
             while not self._gateway_MAC_addr:
                 reply = sniff(filter = "arp",count = 2)[1]
                 if(reply.haslayer(ARP)):
@@ -133,7 +133,7 @@ class Fern_MITM_Class:
             '''Receives ARP is-at from Hosts on
                 the subnet'''
             packet_count = 1
-            thread.start_new_thread(self._network_Hosts_Probe,())
+            threading.Thread(target=self._network_Hosts_Probe).start()
             sniff(filter = "arp",prn = self._get_Network_Hosts_Worker,store = 0)
 
 
@@ -170,11 +170,14 @@ class Fern_MITM_Class:
             self._local_mac = self.get_Mac_Address(self.interface_card).strip()
             self._local_IP_Address = self.get_IP_Adddress()
             self._set_Gateway_MAC()
-            thread.start_new_thread(self._get_Network_Hosts,())                 # Get all network hosts on subnet
+            threading.Thread(target=self._get_Network_Hosts).start()               # Get all network hosts on subnet
             if(route_enabled):
-                thread.start_new_thread(self._redirect_network_traffic,())      # Redirect traffic to default gateway
+                threading.Thread(target=self._redirect_network_traffic).start()      # Redirect traffic to default gateway
             self._poison_arp_cache()                                            # Poison the cache of all network hosts
 
+
+        def stop(self):
+            self.control = False
 
     #################### OS NETWORKING FUNCTIONS #####################
 
@@ -188,9 +191,8 @@ class Fern_MITM_Class:
 
         def get_IP_Adddress(self):
             import re
-            import commands
             regex = "inet addr:((\d+.){3}\d+)"
-            sys_out = commands.getstatusoutput("ifconfig " + self.interface_card)[1]
+            sys_out = subprocess.getstatusoutput("ifconfig " + self.interface_card)[1]
             result = re.findall(regex,sys_out)
             if(result):
                 return(result[0][0])
@@ -253,13 +255,13 @@ class Fern_MITM_Class:
 
 
 
-instance = Fern_MITM_Class.ARP_Poisoning()
+#instance = Fern_MITM_Class.ARP_Poisoning()
 
-instance.interface_card = os.environ["interface_card"]
-instance.gateway_IP_address = os.environ["gateway_ip_address"]
+#instance.interface_card = os.environ["interface_card"]
+#instance.gateway_IP_address = os.environ["gateway_ip_address"]
 
-instance.set_Attack_Option("ARP POISON + ROUTE")
-instance.run_attack()
+#instance.set_Attack_Option("ARP POISON + ROUTE")
+#instance.run_attack()
 
 
 

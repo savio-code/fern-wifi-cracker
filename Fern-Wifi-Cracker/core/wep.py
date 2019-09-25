@@ -1,3 +1,8 @@
+import re
+import time
+import subprocess
+import threading
+
 from core.fern import *
 from PyQt5.QtWidgets import *
 from core.tools import*
@@ -137,11 +142,12 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
 
         self.wep_disable_items()
         self.ap_listwidget.clear()
-        thread.start_new_thread(self.Check_New_Access_Point,())
+        t = threading.Thread(target=self.Check_New_Access_Point)
+        t.start()
         self.set_Key_Clipbord()
 
 
-     ############## CLIPBOARD AND CONTEXT METHODS #####################
+    ############## CLIPBOARD AND CONTEXT METHODS #####################
 
     def set_Key_Clipbord(self):
         self.convert_flag = False
@@ -214,7 +220,7 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
             self.Convert_Key_to_Acsii()
 
         if(selected_action == convert_hex_action):
-                self.Convert_to_Hex()
+            self.Convert_to_Hex()
 
 
     def show_wps_key_menu(self,pos):
@@ -379,8 +385,8 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
     def check_reaver_status(self):
         if not variables.wps_functions.reaver_Installed():
             answer = QtWidgets.QMessageBox.question(self,"Reaver not Detected",
-            '''The Reaver tool is currently not installed,The tool is necessary for attacking WPS Access Points.\n\nDo you want to open the download link?''',
-            QtWidgets.QMessageBox.Yes,QtWidgets.QMessageBox.No)
+                                                    '''The Reaver tool is currently not installed,The tool is necessary for attacking WPS Access Points.\n\nDo you want to open the download link?''',
+                                                    QtWidgets.QMessageBox.Yes,QtWidgets.QMessageBox.No)
             if(answer == QtWidgets.QMessageBox.Yes):
                 variables.wps_functions.browse_Reaver_Link()
 
@@ -527,8 +533,8 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
         variables.exec_command('killall airmon-ng')
 
         if self.settings.setting_exists('capture_directory'):
-            shutil.copyfile('/tmp/fern-log/WEP-DUMP/wep_dump-01.cap',\
-                    self.settings.read_last_settings('capture_directory') + '/%s_Capture_File(WEP).cap'%(victim_access_point))
+            shutil.copyfile('/tmp/fern-log/WEP-DUMP/wep_dump-01.cap', \
+                            self.settings.read_last_settings('capture_directory') + '/%s_Capture_File(WEP).cap'%(victim_access_point))
 
         self.tip_display()      # Display Tips
 
@@ -543,7 +549,7 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
         monitor = variables.monitor_interface
         injection_string = ''
         while 'Injection is working' not in injection_string:
-            injection_string += str(commands.getstatusoutput('aireplay-ng -9 %s'%(monitor)))
+            injection_string += str(subprocess.getstatusoutput('aireplay-ng -9 %s'%(monitor)))
             self.injection_not_working_signal.emit()
 
         self.injection_working_signal.emit()
@@ -565,12 +571,14 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
         association_string = ''
         association_timer = 0
         while True:
-            association_string += str(commands.getstatusoutput('aireplay-ng -1 0 -a %s -h %s %s'%(variables.victim_mac,attacker_mac_address,monitor)))
+            association_string += str(subprocess.getstatusoutput('aireplay-ng -1 0 -a %s -h %s %s'%(variables.victim_mac,attacker_mac_address,monitor)))
             if'Association successful :-)' in association_string:
-                thread.start_new_thread(self.successful_accociation_process,())
+                t = threading.Thread(target=self.successful_accociation_process)
+                t.sta4
                 break
             if association_timer >= 1:
-                thread.start_new_thread(self.unsuccessful_association_process,())
+                t2 = threading.Thread(target=self.unsuccessful_association_process)
+                t2.start()
                 break
             if scan_control != 0:
                 break
@@ -581,39 +589,48 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
         self.association_failed_signal.emit()
         self.gathering_signal.emit()
         time.sleep(4)
-        thread.start_new_thread(self.update_progress_bar,())
+        t = threading.Thread(target=self.update_progress_bar)
+        t.start()
         self.passive_mode_signal.emit()
 
 
 
     def successful_accociation_process(self):
         attack_mode = self.attack_type_combo.currentText()
-        thread.start_new_thread(self.update_progress_bar,())
+        t1 = threading.Thread(target=self.update_progress_bar)
+        t1.start()
         self.gathering_signal.emit()
-        thread.start_new_thread(self.update_progress_bar,())
+        t2 = threading.Thread(target=self.update_progress_bar)
+        t2.start()
         time.sleep(4)
 
         if attack_mode == 'ARP Request Replay':
-            thread.start_new_thread(self.arp_request_thread,())     # arp_request_thread
+            t3 = threading.Thread(target=self.arp_request_thread)     # arp_request_thread
+            t3.start()
             self.injecting_signal.emit()
 
         elif attack_mode == 'Chop-Chop Attack':                     # Chop-Chop attack thread
-            thread.start_new_thread(self.chop_chop_thread,())
+            t4 = threading.Thread(target=self.chop_chop_thread)
+            t4.start()
 
         elif attack_mode == 'Fragmentation Attack':
-            thread.start_new_thread(self.fragmentation_thread,())   # Fragmentation attack thread
+            t5 = threading.Thread(target=self.fragmentation_thread)   # Fragmentation attack thread
+            t5.start()
 
         elif attack_mode == 'Hirte Attack':
-            thread.start_new_thread(self.hirte_thread,())           # Hirte Attack
+            t6 = threading.Thread(target=self.hirte_thread)           # Hirte Attack
+            t6.start()
 
         elif attack_mode == 'Caffe Latte Attack':
-            thread.start_new_thread(self.caffe_latte_thread,())     # Caffe Latte Attack
+            t7 = threading.Thread(target=self.caffe_latte_thread)     # Caffe Latte Attack
+            t7.start()
 
         else:
-            thread.start_new_thread(self.P0841_thread,())           # Arp Frame Control 0841
+            t8 = threading.Thread(target=self.P0841_thread)           # Arp Frame Control 0841
+            t8.start()
 
 
-     ##################################### WEP ATTACK MODES ###############################
+    ##################################### WEP ATTACK MODES ###############################
 
 
     def arp_request_thread(self):
@@ -681,7 +698,8 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
         while 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
             output = status.readline()
             if 'Failed. Next try with' in output:
-                thread.start_new_thread(self.crack_wep,())
+                t = threading.Thread(target=self.crack_wep)
+                t.start()
                 break
             time.sleep(40)
 
@@ -703,16 +721,20 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
             self.update_progress_bar_signal.emit()
 
         self.progress_maximum_signal.emit()
-        thread.start_new_thread(self.crack_wep,())                   #Thread for cracking wep
+        t1 = threading.Thread(target=self.crack_wep)                   #Thread for cracking wep
+        t2 = threading.Thread(target=self.key_check)
 
-        thread.start_new_thread(self.key_check,())
+        t1.start()
+        t2.start()
+
         self.cracking_signal.emit()
         time.sleep(13)
 
         if 'wep_key.txt' not in os.listdir('/tmp/fern-log/WEP-DUMP/'):
             self.next_try_signal.emit()
             self.update_progress_bar_signal.emit()
-            thread.start_new_thread(self.updater,())
+            t = threading.Thread(target=self.updater)
+            t.start()
 
 
     def updater(self):
@@ -752,14 +774,14 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
         ############################################# END OF THREAD ################################
 
     def run_wep_attack(self):
-        thread.start_new_thread(self.dump_thread,())                  # airodump_thread
-        thread.start_new_thread(self.association_thread,())           # association_thread
+        threading.Thread(target=self.dump_thread).start()                  # airodump_thread
+        threading.Thread(target=self.association_thread).start()           # association_thread
 
 
 
     def launch_attack(self):
         if(self.automate_checkbox.isChecked()):
-            thread.start_new_thread(self.launch_attack_2,())
+            threading.Thread(target=self.launch_attack_2).start()
         else:
             self.wep_launch_attack()
 
@@ -839,8 +861,8 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
             variables.wps_functions.start()
             self.isfinished = False
         else:
-            thread.start_new_thread(self.injection_status,())                       # Regular Attack Mode
-            thread.start_new_thread(self.run_wep_attack,())
+            threading.Thread(target=self.injection_status).start()                      # Regular Attack Mode
+            threading.Thread(target=self.run_wep_attack).start()
 
 
     def set_WPS_Objects(self,instance):

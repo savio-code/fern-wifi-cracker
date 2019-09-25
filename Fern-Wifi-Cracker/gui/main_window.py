@@ -1,6 +1,6 @@
 import os
 import sys
-import commands
+import subprocess
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 
@@ -498,7 +498,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         pythonver = str(sys.version)
-        display = str(commands.getstatusoutput('aircrack-ng'))
+        display = str(subprocess.getstatusoutput('aircrack-ng'))
         Dialog.setWindowTitle(QtWidgets.QApplication.translate("Dialog", "Fern WIFI Cracker", None, 0))
         self.update_label.setText(QtWidgets.QApplication.translate("Dialog", "Latest update is installed:  Revision 10", None, 0))
         self.py_version_label.setText(QtWidgets.QApplication.translate("Dialog", "Python Version: <font color=green>%s</font>"%(pythonver[0:14].replace('(',(''))), None, 0))

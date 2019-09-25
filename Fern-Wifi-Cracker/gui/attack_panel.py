@@ -7,7 +7,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 import os
-from main_window import font_size
+from gui.main_window import font_size
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 font_setting = font_size()
