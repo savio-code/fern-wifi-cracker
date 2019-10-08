@@ -11,7 +11,7 @@ Prerequisites:
 
 To launch the program use the icon at "/usr/share/applications", Or from Terminal:
 
-$ python3 execute.py
+$ python execute.py
 
 Enjoy ;-)
 
