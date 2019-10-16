@@ -1,30 +1,34 @@
+# Fern Wifi Cracker
+
+***Fern Wifi Cracker*** is a Wireless security auditing and attack software program written using the [Python Programming Language](http://www.python.org/) and the [Python Qt GUI library](http://www.riverbankcomputing.co.uk/software/pyqt/intro). The program is able to crack and recover WEP/WPA/WPS keys and also run other network based attacks on wireless or ethernet based networks
+
 -----
 
-**DISCLAIMER:** Fern-Wifi-Cracker is designed to be used in testing and discovering flaws in one's own network with the aim of fixing the flaws detected, **DO NOT** use the program on networks for which you don't have permission, I am not responsible for whatever damage you cause by using this software.
+## DISCLAIMER
+
+Fern-Wifi-Cracker is designed to be used in testing and discovering flaws in one's own network with the aim of fixing the flaws detected, **DO NOT** use the program on networks for which you don't have permission, I am not responsible for whatever damage you cause by using this software.
 
 -----
 
 Visit [http://www.fern-pro.com](https://www.fern-pro.com) for professional version
 
+[![https://raw.githubusercontent.com/savio-code/savio-project-images/master/Fern/shadow_case.png](https://raw.githubusercontent.com/savio-code/savio-project-images/master/Fern/shadow_case.png)](http://www.fern-pro.com/)
 
-<a href="http://www.fern-pro.com/"><img src="https://raw.githubusercontent.com/savio-code/savio-project-images/master/Fern/shadow_case.png"/></a>
+-----
 
+## Supported operating systems
 
-
-***Fern Wifi Cracker*** is a Wireless security auditing and attack software program written using the [Python Programming Language](http://www.python.org/) and the [Python Qt GUI library](http://www.riverbankcomputing.co.uk/software/pyqt/intro). The program is able to crack and recover WEP/WPA/WPS keys and also run other network based attacks on wireless or ethernet based networks
-
-### Operating System Supported
-The Software runs on any *Linux machine* with the programs [prerequisites](#prerequisites), But the program has been tested on the following Linux based operating systems:
+The Software runs on any *Linux machine* with the programs [prerequisites](#prerequisites). The program has been tested to work on the following Linux based operating systems:
 
 1. [KDE/GNOME](http://www.ubuntu.com/Ubuntu)
 2. [BackTrack Linux](http://www.backtrack-linux.org)
 3. [BackBox Linux](http://www.backbox.org/)
 
-### Prerequisites
+-----
 
-The Program requires the following to run properly:
-The following dependencies can be installed using the *Debian package installer* command on Debian based systems using "apt-get install program" or otherwise downloaded
-and installed manually
+## Prerequisites
+
+The following dependencies can be installed using the *Debian package installer* command on Debian based systems using `apt-get install <program>` or otherwise downloaded and installed manually
 
 1. [Aircrack-NG](http://www.aircrack-ng.org/)
 2. [Python 3.x](http://www.python.org/)
@@ -37,7 +41,7 @@ and installed manually
 
 -----
 
-### Features
+## Features
 
 *Fern Wifi Cracker* currently supports the following features:
 
@@ -53,7 +57,7 @@ and installed manually
 
 -----
 
-### Installation
+## Installation
 
 Installation on Debian Package supported systems:
 
@@ -69,32 +73,34 @@ root@host:~# svn checkout http://github.com/savio-code/fern-wifi-cracker/trunk/F
 
 -----
 
-### Upgrading and Updating
+## Upgrading and Updating
 
-
-The Program automatically checks for updates each time the program is ran, if the program finds an update, it notifies
+![https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/update_button.png](https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/update_button.png) The Program automatically checks for updates each time the program is ran, if the program finds an update, it notifies
 user with the message **New Update is Available**,  in other to update all you simply have to do is click on the update button
 When the button is clicked, allow to download update files until it displays the message **Please Restart Application**
 
 -----
 
-### Screenshots
+## Screenshots
 
-#### Main Window
+### Main Window
 
-<img src="http://savio-project-images.googlecode.com/files/main_window.PNG">
+![https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/main_window.PNG](https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/main_window.PNG)
 
-#### WPA Cracking with WPS Attack
+### WPA Cracking with WPS Attack
 
-<img src="http://savio-project-images.googlecode.com/files/wps_image.PNG">
+![https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/wps_image.PNG](https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/wps_image.PNG)
+
+-----
+
+## Other Projects
+
+[https://github.com/savio-code/ghost-phisher](https://github.com/savio-code/ghost-phisher)
+
+[https://github.com/savio-code/hexorbase](https://github.com/savio-code/hexorbase)
 
 -----
 
-### Other Projects
+## Supporting
 
-https://github.com/savio-code/ghost-phisher
-
-https://github.com/savio-code/hexorbase
-
------
->Please support Fern Wifi Cracker development through bitcoin: 1AoBfNLfwDrw4ofZXZVm9YfeaFCXtG9k9B
+If you like Fern Wifi Cracker and would like to support the development, please do so through bitcoin: `1AoBfNLfwDrw4ofZXZVm9YfeaFCXtG9k9B`
