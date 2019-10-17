@@ -63,7 +63,7 @@ root@host:~# svn checkout http://github.com/savio-code/fern-wifi-cracker/trunk/F
 
 ## Upgrading and Updating
 
-![https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/update_button.png](https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/update_button.png) The Program automatically checks for updates each time the program is ran, if the program finds an update, it notifies
+![Check for update button](https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/update_button.png) The Program automatically checks for updates each time the program is ran, if the program finds an update, it notifies
 user with the message **New Update is Available**,  in other to update all you simply have to do is click on the update button
 When the button is clicked, allow to download update files until it displays the message **Please Restart Application**
 
@@ -71,11 +71,15 @@ When the button is clicked, allow to download update files until it displays the
 
 ### Main Window
 
-![https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/main_window.PNG](https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/main_window.PNG)
+![Main window](.readme/main_window.png)
 
 ### WPA Cracking with WPS Attack
 
-![https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/wps_image.PNG](https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/savio-project-images/wps_image.PNG)
+![WPA attack](.readme/wps_image.png)
+
+### Cookie highjacking
+
+![Cookie hifhjacking](.readme/cookie_window.png)
 
 ## Other Projects
 
