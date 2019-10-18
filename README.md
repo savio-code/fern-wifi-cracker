@@ -47,9 +47,7 @@ The following dependencies can be installed using the *Debian package installer*
 8. *Bruteforce Attacks (HTTP,HTTPS,TELNET,FTP)*
 9. *Update Support*
 
-## Installation
-
-Installation on Debian Package supported systems:
+## Running Program
 
 ```shell
 root@host:~# python3 execute.py
