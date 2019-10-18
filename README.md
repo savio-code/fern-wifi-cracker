@@ -52,13 +52,13 @@ The following dependencies can be installed using the *Debian package installer*
 Installation on Debian Package supported systems:
 
 ```shell
-root@host:~# dpkg -i Fern-Wifi-Cracker_1.6_all.deb
+root@host:~# python3 execute.py
 ```
 
 The *source code* for the program can be fetched using the following command on terminal:
 
 ```shell
-root@host:~# svn checkout http://github.com/savio-code/fern-wifi-cracker/trunk/Fern-Wifi-Cracker/
+root@host:~# git clone https://github.com/savio-code/fern-wifi-cracker.git
 ```
 
 ## Upgrading and Updating
