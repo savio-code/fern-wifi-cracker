@@ -87,4 +87,4 @@ When the button is clicked, allow to download update files until it displays the
 
 ## Supporting
 
-If you like Fern Wifi Cracker and would like to support the development, please do so through bitcoin: `1AoBfNLfwDrw4ofZXZVm9YfeaFCXtG9k9B`
+If you like Fern Wifi Cracker and would like to support the development, please do so using bitcoin: `1AoBfNLfwDrw4ofZXZVm9YfeaFCXtG9k9B`
