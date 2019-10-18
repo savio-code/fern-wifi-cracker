@@ -1,96 +1,92 @@
-<hr>
-  
-<b>DISCLAIMER</b>: Fern-Wifi-Cracker is designed to be used in testing and discovering flaws in one's own network with the aim of fixing the flaws detected, <b>DO NOT</b> use the program on networks for which you don't have permission, I am not responsible for whatever damage you cause by using this software.
-<hr/> 
+# Fern Wifi Cracker
 
-Visit <a href="http://www.fern-pro.com/">http://www.fern-pro.com</a> for professional version
-<br>
+***Fern Wifi Cracker*** is a Wireless security auditing and attack software program written using the [Python Programming Language](http://www.python.org/) and the [Python Qt GUI library](http://www.riverbankcomputing.co.uk/software/pyqt/intro). The program is able to crack and recover WEP/WPA/WPS keys and also run other network based attacks on wireless or ethernet based networks
 
-<a href="http://www.fern-pro.com/"><img src="https://raw.githubusercontent.com/savio-code/savio-project-images/master/Fern/shadow_case.png"/></a>
-<br>
+## DISCLAIMER
 
+Fern-Wifi-Cracker is designed to be used in testing and discovering flaws in one's own network with the aim of fixing the flaws detected, **DO NOT** use the program on networks for which you don't have permission, I am not responsible for whatever damage you cause by using this software.
 
-<i><b>Fern Wifi Cracker</b></i> is a Wireless security auditing and attack software program written using the <a href="http://www.python.org/">Python Programming Language</a> and the <a href="http://www.riverbankcomputing.co.uk/software/pyqt/intro">Python Qt GUI library</a>, the program is able to crack and recover WEP/WPA/WPS keys and also run other network based attacks on wireless or ethernet based networks</p>
+-----
 
-###Operating System Supported
-The Software runs on any <i>Linux machine</i> with the programs <a href="#prerequisites">prerequisites</a>, But the program has been tested on the following Linux based operating systems:
+Visit [http://www.fern-pro.com](https://www.fern-pro.com) for professional version
 
-<p>1. <a href="http://www.ubuntu.com/">Ubuntu KDE/GNOME</a></p>
-<p>2. <a href="http://www.backtrack-linux.org/">BackTrack Linux</a></p>
-<p>3. <a href="http://www.backbox.org/">BackBox Linux</a></p>
+[![https://raw.githubusercontent.com/savio-code/savio-project-images/master/Fern/shadow_case.png](https://raw.githubusercontent.com/savio-code/savio-project-images/master/Fern/shadow_case.png)](http://www.fern-pro.com/)
 
-###Prerequisites
-The Program requires the following to run properly:<br>
-The following dependencies can be installed using the <i>Debian package installer</i> command on Debian based systems using "apt-get install program" or otherwise downloaded
-and installed manually
+## Supported operating systems
 
-<p>1. <a href="http://www.aircrack-ng.org/">Aircrack-NG</a></p>
-<p>2. <a href="http://www.python.org/">Python 3.x</a></p>
-<p>3. <a href="http://www.secdev.org/projects/scapy/">Python-Scapy</a></p>
-<p>4. <a href="http://www.riverbankcomputing.co.uk/software/pyqt/intro">Python Qt5</a></p>
-<p>5. <a href="http://subversion.tigris.org/">Subversion</a></p>
-<p>6. <a href="http://invisible-island.net/xterm/">Xterm</a></p>
-<p>7. <a href="http://code.google.com/p/reaver-wps/">Reaver</a><i> (for WPS Attacks)</i></p>
-<p>8. Macchanger</p>
+The Software runs on any *Linux machine* with the programs [prerequisites](#prerequisites). The program has been tested to work on the following Linux based operating systems:
 
-<hr>
+1. [KDE/GNOME](http://www.ubuntu.com/Ubuntu)
+2. [BackTrack Linux](http://www.backtrack-linux.org)
+3. [BackBox Linux](http://www.backbox.org/)
 
-###Features
-<hr>
-<i>Fern Wifi Cracker</i> currently supports the following features:
+## Prerequisites
 
-<p>1. <i>WEP Cracking with Fragmentation,Chop-Chop, Caffe-Latte, Hirte, ARP Request Replay or WPS attack</i></p>
-<p>2. <i>WPA/WPA2 Cracking with Dictionary or WPS based attacks</i></p>
-<p>3. <i>Automatic saving of key in database on successful crack</i></p>
-<p>4. <i>Automatic Access Point Attack System</i></p>
-<p>5. <i>Session Hijacking (Passive and Ethernet Modes)</i></p>
-<p>6. <i>Access Point MAC Address Geo Location Tracking</i></p>
-<p>7. <i>Internal MITM Engine</i></p>
-<p>8. <i>Bruteforce Attacks (HTTP,HTTPS,TELNET,FTP)</i></p>
-<p>9. <i>Update Support</i></p>
+The following dependencies can be installed using the *Debian package installer* command on Debian based systems using `apt-get install <program>` or otherwise downloaded and installed manually
 
-<hr>
+1. [Aircrack-NG](http://www.aircrack-ng.org/)
+2. [Python 3.x](http://www.python.org/)
+3. [Python-Scapy](http://www.secdev.org/projects/scapy/)
+4. [Python Qt5](http://www.riverbankcomputing.co.uk/software/pyqt/intro)
+5. [Subversion](http://subversion.tigris.org/)
+6. [Xterm](http://invisible-island.net/xterm/)
+7. [Reaver](http://code.google.com/p/reaver-wps/) *(for WPS Attacks)*
+8. [Macchanger](https://github.com/alobbs/macchanger)
 
-###Installation
+## Features
+
+*Fern Wifi Cracker* currently supports the following features:
+
+1. *WEP Cracking with Fragmentation,Chop-Chop, Caffe-Latte, Hirte, ARP Request Replay or WPS attack*
+2. *WPA/WPA2 Cracking with Dictionary or WPS based attacks*
+3. *Automatic saving of key in database on successful crack*
+4. *Automatic Access Point Attack System*
+5. *Session Hijacking (Passive and Ethernet Modes)*
+6. *Access Point MAC Address Geo Location Tracking*
+7. *Internal MITM Engine*
+8. *Bruteforce Attacks (HTTP,HTTPS,TELNET,FTP)*
+9. *Update Support*
+
+## Installation
+
 Installation on Debian Package supported systems:
-<br><hr>
-<code>root@host:~# dpkg -i Fern-Wifi-Cracker_1.6_all.deb</code>
-<hr><br>
 
-The <i>source code</i> for the program can be fetched using the following command on terminal
-<br><hr>
-<code>root@host:~# svn checkout http://github.com/savio-code/fern-wifi-cracker/trunk/Fern-Wifi-Cracker/</code>
-<hr>
+```shell
+root@host:~# dpkg -i Fern-Wifi-Cracker_1.6_all.deb
+```
 
-<h3 id="updating">Upgrading and Updating</h3>
-<hr>
-<img src="http://savio-project-images.googlecode.com/files/update_button.png">
-The Program automatically checks for updates each time the program is ran, if the program finds an update, it notifies
-user with the message <b><font color="green" size="2pt">New Update is Available</font></b>,  in other to update all you simply have to do is click on the update button
-When the button is clicked, allow to download update files until it displays the message <b><font color="red" size="2pt">Please Restart Application</font></b>.
-<hr>
+The *source code* for the program can be fetched using the following command on terminal:
 
-###Screenshots:
-<hr>
-<i><b>Main Window</b></i>
-<br>
+```shell
+root@host:~# svn checkout http://github.com/savio-code/fern-wifi-cracker/trunk/Fern-Wifi-Cracker/
+```
 
-<img src="http://savio-project-images.googlecode.com/files/main_window.PNG">
+## Upgrading and Updating
 
-<br>
-<i><b>WPA Cracking with WPS Attack</b></i>
-<br>
+![Check for update button](.readme/update_button.png) The Program automatically checks for updates each time the program is ran, if the program finds an update, it notifies
+user with the message **New Update is Available**,  in other to update all you simply have to do is click on the update button
+When the button is clicked, allow to download update files until it displays the message **Please Restart Application**
 
-<img src="http://savio-project-images.googlecode.com/files/wps_image.PNG">
+## Screenshots
 
-<hr>
+### Main Window
 
-###Other Projects:
+![Main window](.readme/main_window.png)
 
-https://github.com/savio-code/ghost-phisher
+### WPA Cracking with WPS Attack
 
-https://github.com/savio-code/hexorbase
+![WPA attack](.readme/wps_image.png)
 
-<hr>
-<h4><i>Please support Fern Wifi Cracker development</i></h4>
-<h4>Bitcoin: &nbsp;&nbsp;  1AoBfNLfwDrw4ofZXZVm9YfeaFCXtG9k9B</h4>
+### Cookie highjacking
+
+![Cookie hifhjacking](.readme/cookie_window.png)
+
+## Other Projects
+
+[https://github.com/savio-code/ghost-phisher](https://github.com/savio-code/ghost-phisher)
+
+[https://github.com/savio-code/hexorbase](https://github.com/savio-code/hexorbase)
+
+## Supporting
+
+If you like Fern Wifi Cracker and would like to support the development, please do so through bitcoin: `1AoBfNLfwDrw4ofZXZVm9YfeaFCXtG9k9B`
