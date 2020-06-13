@@ -510,12 +510,19 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         if (monitor_created):
             monitor_interface_process = str(subprocess.getoutput("airmon-ng"))
 
-            regex = object()
-            if ('monitor mode enabled' in status):
-                regex = re.compile("mon\d", re.IGNORECASE)
 
-            elif ('monitor mode vif enabled' in status):
-                regex = re.compile("wlan\dmon", re.IGNORECASE)
+            regex = re.compile("mon\d", re.IGNORECASE)
+            interfaces = regex.findall(monitor_interface_process)
+
+            if len(interfaces) == 0:
+            	regex = re.compile("wlan\dmon", re.IGNORECASE)
+            	interfaces = regex.findall(monitor_interface_process)
+
+            	if len(interfaces) == 0:
+            		self.monitor_failed_signal.emit()
+            		return
+
+
 
             interfaces = regex.findall(monitor_interface_process)
             if (interfaces):
