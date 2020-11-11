@@ -21,7 +21,7 @@ from core.settings import *
 
 from gui.main_window import *
 
-__version__ = 3.1
+__version__ = 3.11
 
 
 #

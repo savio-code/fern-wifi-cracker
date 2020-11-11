@@ -132,9 +132,9 @@ def blocks(files, size=65536):
 
 def line_count(filename):
     '''Returns estimated value of line'''
-    with open(filename, "r") as f:
-        count =  sum(bl.count("\n") for bl in blocks(f))
-        return(count + 1)
+    count = sum(1 for i in open(filename, "r",encoding="utf-8",errors='ignore'))
+    return(count)
+
 
 def killProcess(processId):
     os.system("kill " + str(processId))

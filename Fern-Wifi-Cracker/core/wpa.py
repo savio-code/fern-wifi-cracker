@@ -766,6 +766,9 @@ class wpa_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
 
 
     def set_progress_bar(self,filename):
+    	int_max = 2147483630									# Avoid a C based interger overflow
+    	if(self.progress_bar_max > int_max):
+    		self.progress_bar_max = int_max
         self.progressBar.setMaximum(self.progress_bar_max)
         self.settings.create_settings(filename,str(self.progress_bar_max))
 
