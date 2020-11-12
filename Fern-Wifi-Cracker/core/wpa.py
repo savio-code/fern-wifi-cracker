@@ -777,7 +777,6 @@ class wpa_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
     def dictionary_setting(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self,"Select Wordlist","")[0]
         if(filename):
-
             self.settings.create_settings("wordlist",filename)
 
             get_temp_name = self.settings.read_last_settings("wordlist")
