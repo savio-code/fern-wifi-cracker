@@ -7,6 +7,7 @@ import shutil
 import sqlite3
 import subprocess
 from urllib import request
+from xml.etree import ElementTree
 
 from core import variables
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -21,7 +22,7 @@ from core.settings import *
 
 from gui.main_window import *
 
-__version__ = 3.11
+__version__ = 3.12
 
 
 #
@@ -686,92 +687,61 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
     ###################
     def scan_process1_thread(self):
         global error_catch
-        error_catch = variables.exec_command("airodump-ng --write /tmp/fern-log/zfern-wep --output-format csv \
-                                    --encrypt wep %s" % (self.monitor_interface))  # FOR WEP
+        error_catch = variables.exec_command("airodump-ng --write /tmp/fern-log/zfern --output-format netxml \
+                                   %s" % (self.monitor_interface))  # FOR WEP
 
-    def scan_process1_thread1(self):
-        global error_catch
-        error_catch = variables.exec_command("airodump-ng --write /tmp/fern-log/WPA/zfern-wpa --output-format csv \
-                                    --encrypt wpa %s" % (self.monitor_interface))  # FOR WPA
 
     ###################
     def scan_process2_thread(self):
         global error_catch
         if bool(variables.xterm_setting):
-            wep_display_mode = 'xterm -T "FERN (WEP SCAN)" -geometry 100 -e'  # if True or if xterm contains valid ascii characters
+            display_mode = 'xterm -T "FERN (SCAN)" -geometry 100 -e'  # if True or if xterm contains valid ascii characters
         else:
-            wep_display_mode = ''
+            display_mode = ''
 
-        error_catch = variables.exec_command("%s 'airodump-ng -a --write /tmp/fern-log/zfern-wep --output-format csv\
-                                        --encrypt wep %s'" % (wep_display_mode, self.monitor_interface))  # FOR WEP
+        error_catch = variables.exec_command("%s 'airodump-ng -a --write /tmp/fern-log/zfern --output-format netxml\
+                                         %s'" % (display_mode, self.monitor_interface))  # FOR WEP
 
-    def scan_process2_thread1(self):
-        global error_catch
-        if bool(variables.xterm_setting):  # if True or if xterm contains valid ascii characters
-            wpa_display_mode = 'xterm -T "FERN (WPA SCAN)" -geometry 100 -e'
-        else:
-            wpa_display_mode = ''
 
-        error_catch = variables.exec_command("%s 'airodump-ng -a --write /tmp/fern-log/WPA/zfern-wpa \
-                                    --output-format csv  --encrypt wpa %s'" % (
-        wpa_display_mode, self.monitor_interface))  # FOR WPA
 
     ###########################
     def scan_process3_thread(self):
         global error_catch
-        error_catch = variables.exec_command("airodump-ng --channel %s --write /tmp/fern-log/zfern-wep \
-                                    --output-format csv  --encrypt wep %s" % (
-        variables.static_channel, self.monitor_interface))  # FOR WEP
-
-    def scan_process3_thread1(self):
-        global error_catch
-        error_catch = variables.exec_command("airodump-ng --channel %s --write /tmp/fern-log/WPA/zfern-wpa \
-                                --output-format csv  --encrypt wpa %s" % (
-        variables.static_channel, self.monitor_interface))  # FOR WPA
+        error_catch = variables.exec_command("airodump-ng --channel %s --write /tmp/fern-log/zfern \
+                                    --output-format netxml %s" % (
+        variables.static_channel, self.monitor_interface))
 
     #######################
     def scan_process4_thread(self):
         global error_catch
         if bool(variables.xterm_setting):
-            wep_display_mode = 'xterm -T "FERN (WEP SCAN)" -geometry 100 -e'  # if True or if xterm contains valid ascii characters
+            display_mode = 'xterm -T "FERN (SCAN)" -geometry 100 -e'  # if True or if xterm contains valid ascii characters
         else:
-            wep_display_mode = ''
+            display_mode = ''
 
-        error_catch = variables.exec_command("%s 'airodump-ng -a --channel %s --write /tmp/fern-log/zfern-wep \
-                                                --output-format csv  --encrypt wep %s'" % (
-        wep_display_mode, variables.static_channel, self.monitor_interface))  # FOR WEP
+        error_catch = variables.exec_command("%s 'airodump-ng -a --channel %s --write /tmp/fern-log/zfern \
+                                                --output-format netxml %s'" % (
+        display_mode, variables.static_channel, self.monitor_interface))
 
-    def scan_process4_thread1(self):
-        global error_catch
-        if bool(variables.xterm_setting):  # if True or if xterm contains valid ascii characters
-            wpa_display_mode = 'xterm -T "FERN (WPA SCAN)" -geometry 100 -e'
-        else:
-            wpa_display_mode = ''
-
-        error_catch = variables.exec_command("%s 'airodump-ng -a --channel %s --write /tmp/fern-log/WPA/zfern-wpa \
-                                                --output-format csv  --encrypt wpa %s'" % (
-        wpa_display_mode, variables.static_channel, self.monitor_interface))
 
     def scan_wep(self):
         global xterm_setting
-        variables.exec_command('rm -r /tmp/fern-log/*.csv')
+        variables.exec_command('rm -r /tmp/fern-log/*.netxml')
         variables.exec_command('rm -r /tmp/fern-log/*.cap')
-        variables.exec_command('rm -r /tmp/fern-log/WPA/*.csv')
+        variables.exec_command('rm -r /tmp/fern-log/WPA/*.netxml')
         variables.exec_command('rm -r /tmp/fern-log/WPA/*.cap')
+
 
         # Channel desision block
         if scan_control == 0:
             if not variables.static_channel:
                 if len(variables.xterm_setting) == 0:
                     threading.Thread(target=self.scan_process1_thread).start()
-                    threading.Thread(target=self.scan_process1_thread1).start()
                 else:
                     threading.Thread(target=self.scan_process2_thread).start()
-                    threading.Thread(target=self.scan_process2_thread1).start()
             else:
                 if len(variables.xterm_setting) == 0:
                     threading.Thread(target=self.scan_process3_thread).start()
-                    threading.Thread(target=self.scan_process3_thread1).start()
                 else:
                     threading.Thread(target=self.scan_process4_thread).start()
                     threading.Thread(target=self.scan_process4_thread1).start()
@@ -784,22 +754,36 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
             try:
                 time.sleep(2)
 
-                wep_access_file = str(reader('/tmp/fern-log/zfern-wep-01.csv'))  # WEP access point log file
-                wpa_access_file = str(reader('/tmp/fern-log/WPA/zfern-wpa-01.csv'))  # WPA access point log file
+                scan_tree = ElementTree.parse('/tmp/fern-log/zfern-01.kismet.netxml').getroot()  #
 
+                for access_point_info in scan_tree:
+                    ssid_info = access_point_info.find("SSID")
+                    is_essid_hidden = ssid_info.find("essid").attrib['cloaked']
 
-                wep_access_convert = wep_access_file[0:wep_access_file.index('Station MAC')]
-                wep_access_process = wep_access_convert[wep_access_convert.index('Key'):-1]
-                wep_access_process1 = wep_access_process.strip('Key\r\n')
-                process = wep_access_process1.splitlines()
+                    if is_essid_hidden == "false":
 
-                # Display number of WEP access points detected
-                wep_devices = 0;
-                for line in wpa_access_file.splitlines():
-                    if "WEP" in line:
-                        wep_devices += 1
+                        # is_beacon = ssid_info.find("type").text == "Beacon"
+                        access_point = ssid_info.find("essid").text
+                        encryption = ssid_info.find("encryption").text
 
-                self.wep_count = str(wep_devices)  # number of access points wep detected
+                        mac_address = access_point_info.find("BSSID").text
+                        channel = access_point_info.find("channel").text
+                        power = access_point_info.find("snr-info").find("last_signal_dbm").text
+                        speed = access_point_info.find("maxseenrate").text
+
+                        if speed:
+                            speed = "%d" % (int(speed) / 1000)
+
+                        if str(encryption).upper().startswith("WPA"):
+                            if access_point not in wpa_details.keys():
+                                self.wpa_count += 1
+                                wpa_details[access_point] = [mac_address, channel, speed, power]
+
+                        if str(encryption).upper().startswith("WEP"):
+                            if access_point not in wep_details.keys():
+                                self.wep_count += 1
+                                wep_details[access_point] = [mac_address, channel, speed, power]
+
 
                 if int(self.wep_count) > 0:
                     self.wep_number_changed_signal.emit()
@@ -807,61 +791,15 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                 else:
                     self.wep_button_false_signal.emit()
 
-                for iterate in range(len(process)):
-                    detail_process1 = process[iterate]
-                    wep_access = detail_process1.split(',')
-
-                    mac_address = wep_access[0].strip(' ')  # Mac address
-                    channel = wep_access[3].strip(' ')  # Channel
-                    speed = wep_access[4].strip(' ')  # Speed
-                    power = wep_access[8].strip(' ')  # Power
-                    access_point = wep_access[13].strip(' ')  # Access point Name
-
-                    if access_point not in wep_details.keys():
-                        wep_details[access_point] = [mac_address, channel, speed, power]
-
-                # WPA Access point sort starts here
-
-                # Display number of WEP access points detected
-                self.wpa_count = str(wpa_access_file.count('WPA'))  # number of access points wep detected
-
-                wpa_devices = 0;
-                for line in wpa_access_file.splitlines():
-                    if "WPA" in line or "WPA2" in line:
-                        wpa_devices += 1
-
-                self.wpa_count = str(wpa_devices)
-
-
-                if int(self.wpa_count) == 0:
-                    self.wpa_button_false_signal.emit()
-                elif int(self.wpa_count) >= 1:
+                if int(self.wpa_count) > 0:
                     self.wpa_button_true_signal.emit()
                     self.wpa_number_changed_signal.emit()
                 else:
                     self.wpa_button_false_signal.emit()
 
-                wpa_access_convert = wpa_access_file[0:wpa_access_file.index('Station MAC')]
-                wpa_access_process = wpa_access_convert[wpa_access_convert.index('Key'):-1]
-                wpa_access_process1 = wpa_access_process.strip('Key\r\n')
-                process = wpa_access_process1.splitlines()
 
-                for iterate in range(len(process)):
-                    detail_process1 = process[iterate]
-                    wpa_access = detail_process1.split(',')
-
-                    mac_address = wpa_access[0].strip(' ')  # Mac address
-                    channel = wpa_access[3].strip(' ')  # Channel
-                    speed = wpa_access[4].strip(' ')  # Speed
-                    power = wpa_access[8].strip(' ')  # Power
-                    access_point = wpa_access[13].strip(' ')  # Access point Name
-
-                    if access_point not in wpa_details.keys():
-                        wpa_details[access_point] = [mac_address, channel, speed, power]
-
-
-            except(ValueError, IndexError):
-                pass
+            except Exception as e:
+                print("Error occurred during scan: ", e)
 
     def showEvent(self, event):
         self.timer.start()

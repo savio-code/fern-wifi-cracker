@@ -2,6 +2,7 @@ import re
 import time
 import subprocess
 import threading
+from xml.etree import ElementTree
 from core.fern import *
 from gui.attack_panel import *
 from core.functions import *
@@ -516,18 +517,23 @@ class wpa_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
 
     def probe_for_Client_Mac(self):
         variables.exec_command("airodump-ng -a --channel %s --write /tmp/fern-log/WPA/zfern-wpa \
-                                                --output-format csv  --encrypt wpa %s"%(variables.victim_channel,variables.monitor_interface))
+                                                --output-format netxml  --encrypt wpa %s"%(variables.victim_channel,variables.monitor_interface))
 
 
     def client_update(self):
-        wpa_clients_str = reader('/tmp/fern-log/WPA/zfern-wpa-01.csv')
-        wpa_clients_sort = wpa_clients_str[wpa_clients_str.index('Probed ESSIDs'):-1]
+        try:
+            wpa_tree = ElementTree.parse('/tmp/fern-log/WPA/zfern-wpa-01.kismet.netxml').getroot()
 
-        for line in wpa_clients_sort.splitlines():
-            result = re.findall("(([0-9A-F]{2}:){5}[0-9A-F]{2})",line)
-            if(len(result) == 2):
-                if(result[1][0] == variables.victim_mac):
-                    self.client_list.append(result[0][0])
+            for access_point_info in wpa_tree:
+                bssid = access_point_info.find("BSSID").text
+                for client in access_point_info.iter("wireless-client"):
+                    client_mac = client.find("client-mac").text
+
+                    if bssid == variables.victim_mac:
+                        self.client_list.append(client_mac)
+        except Exception:
+            pass
+
 
 
     def launch_brutefore(self):
@@ -764,19 +770,19 @@ class wpa_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
         self.progress_bar_max = line_count(filename)
         self.wordlist_lines_counted_signal.emit(filename)
 
-
     def set_progress_bar(self,filename):
         int_max = 2147483630									# Avoid a C based interger overflow
-        if(self.progress_bar_max > int_max):
+        if self.progress_bar_max > int_max:
             self.progress_bar_max = int_max
         self.progressBar.setMaximum(self.progress_bar_max)
-        self.settings.create_settings(filename,str(self.progress_bar_max))
+        self.settings.create_settings(filename, str(self.progress_bar_max))
 
 
 
     def dictionary_setting(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self,"Select Wordlist","")[0]
         if(filename):
+
             self.settings.create_settings("wordlist",filename)
 
             get_temp_name = self.settings.read_last_settings("wordlist")
