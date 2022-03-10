@@ -2,7 +2,6 @@ import re
 import time
 import subprocess
 import threading
-from xml.etree import ElementTree
 from core.fern import *
 from gui.attack_panel import *
 from core.functions import *
@@ -517,20 +516,25 @@ class wpa_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
 
     def probe_for_Client_Mac(self):
         variables.exec_command("airodump-ng -a --channel %s --write /tmp/fern-log/WPA/zfern-wpa \
-                                                --output-format netxml  --encrypt wpa %s"%(variables.victim_channel,variables.monitor_interface))
+                                                --output-format csv  --encrypt wpa %s"%(variables.victim_channel,variables.monitor_interface))
 
 
     def client_update(self):
         try:
-            wpa_tree = ElementTree.parse('/tmp/fern-log/WPA/zfern-wpa-01.kismet.netxml').getroot()
+            path = '/tmp/fern-log/WPA/zfern-wpa-01.csv'
 
-            for access_point_info in wpa_tree:
-                bssid = access_point_info.find("BSSID").text
-                for client in access_point_info.iter("wireless-client"):
-                    client_mac = client.find("client-mac").text
+            with open(path, newline='') as csvfile:
+                scanData = csv.reader(csvfile)
+                for row in scanData:
+                    length = len(row)
+                    if length > 0:
+                        if (variables.is_mac_address(row[0])) and (length >= 6) and (length < 13):
+                            station = row[0].strip(" ")
+                            bssid = row[5].strip(" ")
 
-                    if bssid == variables.victim_mac:
-                        self.client_list.append(client_mac)
+                            if bssid == variables.victim_mac:
+                                self.client_list.append(station)
+
         except Exception:
             pass
 

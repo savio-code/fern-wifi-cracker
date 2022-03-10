@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 import subprocess
 import shutil
@@ -79,6 +80,8 @@ def exec_command(command,directory = None):
     return(ret)
 
 
+def is_mac_address(data):
+    return bool(re.match('^' + '[\:\-]'.join(['([0-9a-f]{2})'] * 6) + '$', data.lower()))
 
 
 ################## TOOL BOX VARIABLES #######################

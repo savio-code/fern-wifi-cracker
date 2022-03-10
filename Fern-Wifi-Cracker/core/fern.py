@@ -2,12 +2,12 @@ import os
 import re
 import sys
 import time
+import csv
 import threading
 import shutil
 import sqlite3
 import subprocess
 from urllib import request
-from xml.etree import ElementTree
 
 from core import variables
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -22,7 +22,7 @@ from core.settings import *
 
 from gui.main_window import *
 
-__version__ = 3.12
+__version__ = 3.13
 
 
 #
@@ -60,6 +60,9 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         self.monitor_interface = str()
         self.wep_count = str()
         self.wpa_count = str()
+        self.scan_control = 1
+
+        self.scanner = QtCore.QProcess()
 
         self.interface_cards = list()
 
@@ -73,6 +76,8 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.display_timed_objects)
         self.timer.setInterval(3000)
+
+
 
         # self.DoubleClicked.connect(self.mouseDoubleClickEvent)
         self.refresh_intfacebutton.clicked.connect(self.refresh_interface)
@@ -383,6 +388,9 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         database_run.update_database_label_signal.connect(self.update_database_label)
         database_run.exec_()
 
+
+
+
     #
     # Refresh wireless network interface card and update combobo
     #
@@ -600,8 +608,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
     # Scan for available networks
     #
     def scan_network(self):
-        global scan_control
-        scan_control = 0
+        self.scan_control = 0
 
         self.wep_count = int()
         self.wpa_count = int()
@@ -626,14 +633,16 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
             self.wep_clientlabel.setText("None Detected")
             self.wpa_clientlabel.setText("None Detected")
             self.label_7.setText("<font Color=green>\t Initializing</font>")
-            threading.Thread(target=self.scan_wep).start()
+
+            self.scan_networks()
+
             self.scan_button.clicked.disconnect(self.scan_network)
             self.scan_button.clicked.connect(self.stop_scan_network)
 
+
     def stop_scan_network(self):
         global error_catch
-        global scan_control
-        scan_control = 1
+        self.scan_control = 1
         variables.exec_command('rm -r /tmp/fern-log/*.cap')
         variables.exec_command('killall airodump-ng')
         variables.exec_command('killall airmon-ng')
@@ -643,12 +652,13 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
         self.wpa_clientlabel.setText("None Detected")
         self.scan_button.clicked.disconnect(self.stop_scan_network)
         self.scan_button.clicked.connect(self.scan_network)
+        self.scanner.kill()
 
     def stop_network_scan(self):
-        global scan_control
-        scan_control = 1
+        self.scan_control = 1
         variables.exec_command('killall airodump-ng')
         variables.exec_command('killall airmon-ng')
+        self.scanner.kill();
         self.label_7.setText("<font Color=red>\t Stopped</font>")
 
     #
@@ -685,121 +695,89 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
     # WEP SCAN THREADING FOR AUTOMATIC SCAN OF NETWORK
     #
     ###################
-    def scan_process1_thread(self):
-        global error_catch
-        error_catch = variables.exec_command("airodump-ng --write /tmp/fern-log/zfern --output-format netxml \
-                                   %s" % (self.monitor_interface))  # FOR WEP
+
+    def scan_all_channels(self):
+        self.scanner.start("airodump-ng",["--write","/tmp/fern-log/zfern","--output-format","csv",self.monitor_interface])
+
+    def scan_channel(self):
+        self.scanner.start("airodump-ng",["--channel",variables.static_channel,"--write","/tmp/fern-log/zfern","--output-format","csv",self.monitor_interface])
 
 
-    ###################
-    def scan_process2_thread(self):
-        global error_catch
-        if bool(variables.xterm_setting):
-            display_mode = 'xterm -T "FERN (SCAN)" -geometry 100 -e'  # if True or if xterm contains valid ascii characters
-        else:
-            display_mode = ''
+    def check_csv_for_networks(self):
+        time.sleep(5)
+        self.wpa_count = 0
+        self.wep_count = 0
 
-        error_catch = variables.exec_command("%s 'airodump-ng -a --write /tmp/fern-log/zfern --output-format netxml\
-                                         %s'" % (display_mode, self.monitor_interface))  # FOR WEP
+        path = "/tmp/fern-log/zfern-01.csv"
+        while self.scan_control != 1:
+            if not os.path.exists(path):
+                time.sleep(1)
+                continue
+
+            try:
+                with open(path, newline='') as csvfile:
+                    scanData = csv.reader(csvfile)
+
+                    for row in scanData:
+                        length = len(row)
+                        if length > 0:
+                            if (variables.is_mac_address(row[0])) and (length >= 13):
+                                bssid = row[0].strip(" ")
+                                channel = row[3].strip(" ")
+                                power = row[8].strip(" ")
+                                speed = row[4].strip(" ")
+                                encryption = row[5].strip(" ")
+                                essid = row[13]
+
+                                if encryption.upper().startswith("WPA"):
+                                    self.wpa_count += 1
+                                    wpa_details[essid] = [bssid, channel, speed, power]
+
+                                if encryption.upper().startswith("WEP"):
+                                    self.wep_count += 1
+                                    wep_details[essid] = [bssid, channel, speed, power]
+
+                    if int(self.wep_count) > 0:
+                        self.wep_number_changed_signal.emit()
+                        self.wep_button_true_signal.emit()
+                    else:
+                        self.wep_button_false_signal.emit()
+
+                    if int(self.wpa_count) > 0:
+                        self.wpa_button_true_signal.emit()
+                        self.wpa_number_changed_signal.emit()
+                    else:
+                        self.wpa_button_false_signal.emit()
+
+            except Exception as e:
+                print("Error occurred during scan: ", e)
+
+            time.sleep(3)
 
 
-
-    ###########################
-    def scan_process3_thread(self):
-        global error_catch
-        error_catch = variables.exec_command("airodump-ng --channel %s --write /tmp/fern-log/zfern \
-                                    --output-format netxml %s" % (
-        variables.static_channel, self.monitor_interface))
-
-    #######################
-    def scan_process4_thread(self):
-        global error_catch
-        if bool(variables.xterm_setting):
-            display_mode = 'xterm -T "FERN (SCAN)" -geometry 100 -e'  # if True or if xterm contains valid ascii characters
-        else:
-            display_mode = ''
-
-        error_catch = variables.exec_command("%s 'airodump-ng -a --channel %s --write /tmp/fern-log/zfern \
-                                                --output-format netxml %s'" % (
-        display_mode, variables.static_channel, self.monitor_interface))
-
-
-    def scan_wep(self):
+    def scan_networks(self):
         global xterm_setting
-        variables.exec_command('rm -r /tmp/fern-log/*.netxml')
+        variables.exec_command("killall airodump-ng")
+        variables.exec_command('rm -r /tmp/fern-log/*.csv')
         variables.exec_command('rm -r /tmp/fern-log/*.cap')
-        variables.exec_command('rm -r /tmp/fern-log/WPA/*.netxml')
+        variables.exec_command('rm -r /tmp/fern-log/WPA/*.csv')
         variables.exec_command('rm -r /tmp/fern-log/WPA/*.cap')
 
 
         # Channel desision block
-        if scan_control == 0:
+        if self.scan_control == 0:
+            if self.scanner.state() == QtCore.QProcess.Running:
+                self.scanner.kill()
             if not variables.static_channel:
-                if len(variables.xterm_setting) == 0:
-                    threading.Thread(target=self.scan_process1_thread).start()
-                else:
-                    threading.Thread(target=self.scan_process2_thread).start()
+                self.scan_all_channels()
             else:
-                if len(variables.xterm_setting) == 0:
-                    threading.Thread(target=self.scan_process3_thread).start()
-                else:
-                    threading.Thread(target=self.scan_process4_thread).start()
-                    threading.Thread(target=self.scan_process4_thread1).start()
+                self.scan_channel()
 
-        time.sleep(5)
-        if scan_control != 1:
+        if self.scan_control != 1:
             self.label_7.setText("<font Color=green>\t Active</font>")
 
-        while scan_control != 1:
-            try:
-                time.sleep(2)
+        threading.Thread(target=self.check_csv_for_networks).start()
 
-                scan_tree = ElementTree.parse('/tmp/fern-log/zfern-01.kismet.netxml').getroot()  #
-
-                for access_point_info in scan_tree:
-                    ssid_info = access_point_info.find("SSID")
-                    is_essid_hidden = ssid_info.find("essid").attrib['cloaked']
-
-                    if is_essid_hidden == "false":
-
-                        # is_beacon = ssid_info.find("type").text == "Beacon"
-                        access_point = ssid_info.find("essid").text
-                        encryption = ssid_info.find("encryption").text
-
-                        mac_address = access_point_info.find("BSSID").text
-                        channel = access_point_info.find("channel").text
-                        power = access_point_info.find("snr-info").find("last_signal_dbm").text
-                        speed = access_point_info.find("maxseenrate").text
-
-                        if speed:
-                            speed = "%d" % (int(speed) / 1000)
-
-                        if str(encryption).upper().startswith("WPA"):
-                            if access_point not in wpa_details.keys():
-                                self.wpa_count += 1
-                                wpa_details[access_point] = [mac_address, channel, speed, power]
-
-                        if str(encryption).upper().startswith("WEP"):
-                            if access_point not in wep_details.keys():
-                                self.wep_count += 1
-                                wep_details[access_point] = [mac_address, channel, speed, power]
-
-
-                if int(self.wep_count) > 0:
-                    self.wep_number_changed_signal.emit()
-                    self.wep_button_true_signal.emit()
-                else:
-                    self.wep_button_false_signal.emit()
-
-                if int(self.wpa_count) > 0:
-                    self.wpa_button_true_signal.emit()
-                    self.wpa_number_changed_signal.emit()
-                else:
-                    self.wpa_button_false_signal.emit()
-
-
-            except Exception as e:
-                print("Error occurred during scan: ", e)
 
     def showEvent(self, event):
         self.timer.start()
