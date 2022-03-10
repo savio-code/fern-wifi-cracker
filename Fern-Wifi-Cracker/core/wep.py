@@ -574,7 +574,7 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
             association_string += str(subprocess.getstatusoutput('aireplay-ng -1 0 -a %s -h %s %s'%(variables.victim_mac,attacker_mac_address,monitor)))
             if'Association successful :-)' in association_string:
                 t = threading.Thread(target=self.successful_accociation_process)
-                t.sta4
+                t.start()
                 break
             if association_timer >= 1:
                 t2 = threading.Thread(target=self.unsuccessful_association_process)
