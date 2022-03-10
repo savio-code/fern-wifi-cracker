@@ -22,7 +22,7 @@ from core.settings import *
 
 from gui.main_window import *
 
-__version__ = 3.13
+__version__ = 3.14
 
 
 #

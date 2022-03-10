@@ -22,7 +22,7 @@ class wpa_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
     client_is_there_signal = QtCore.pyqtSignal()
     client_not_in_list_signal = QtCore.pyqtSignal()
     update_word_signal = QtCore.pyqtSignal('QString')
-    update_progressbar_signal = QtCore.pyqtSignal()
+    update_progressbar_signal = QtCore.pyqtSignal() 
     update_speed_signal = QtCore.pyqtSignal('QString')
     wpa_key_found_signal = QtCore.pyqtSignal()
     deauthenticating_signal = QtCore.pyqtSignal()

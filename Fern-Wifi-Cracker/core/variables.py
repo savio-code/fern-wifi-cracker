@@ -11,7 +11,7 @@ from core.fern import *
 #
 # WPS Variables
 #
-wps_functions = object()        # Instance of WPS class
+wps_functions = object()        # Instance of WPS class 
 
 
 #

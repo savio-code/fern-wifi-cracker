@@ -9,7 +9,7 @@ import subprocess
 
 
 def install_prerequsites():
-    modules = {"scapy":"scapy","PyQt5":"pyqt5"}
+    modules = {"scapy":"scapy","PyQt5":"pyqt5","csv":"csv"}
 
     for name in modules.keys():
         try:
