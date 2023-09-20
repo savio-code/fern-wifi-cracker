@@ -62,3 +62,34 @@ def create_directory():
 def cleanup():
     'Kill all running processes'
     os.system('killall airodump-ng aircrack-ng airmon-ng')
+
+initialize()
+
+if 'core' not in os.listdir(os.getcwd()):
+    restore_files()
+
+
+from core import *
+functions.database_create()
+from gui import *
+
+
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+    run = fern.mainwindow()
+
+    pixmap = QtGui.QPixmap("%s/resources/screen_splash.png" % (os.getcwd()))
+    screen_splash = QtWidgets.QSplashScreen(pixmap, QtCore.Qt.WindowStaysOnTopHint)
+    screen_splash.setMask(pixmap.mask())
+    screen_splash.show()
+    app.processEvents()
+
+    time.sleep(3)
+
+    screen_splash.finish(run)
+    run.show()
+    app.exec_()
+
+
+cleanup()
+sys.exit()
