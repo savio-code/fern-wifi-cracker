@@ -9,7 +9,7 @@ Prerequisites:
 * python-scapy
 
 
-To launch the program use the icon at "/usr/share/applications", Or from Terminal:
+To launch the program use the icon at "/amr/share/applications", Or from Terminal:
 
 $ python execute.py
 
