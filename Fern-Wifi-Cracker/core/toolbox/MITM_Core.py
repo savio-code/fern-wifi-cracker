@@ -191,7 +191,7 @@ class Fern_MITM_Class:
 
         def get_IP_Adddress(self):
             import re
-            regex = "inet addr:((\d+.){3}\d+)"
+            regex = r"inet addr:((\d+.){3}\d+)"
             sys_out = subprocess.getstatusoutput("ifconfig " + self.interface_card)[1]
             result = re.findall(regex,sys_out)
             if(result):

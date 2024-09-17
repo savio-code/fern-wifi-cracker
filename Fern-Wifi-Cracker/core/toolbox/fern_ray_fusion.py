@@ -293,7 +293,7 @@ class Ray_Fusion(QtWidgets.QDialog,Ui_ray_fusion):
 
         if(self.http_https_radio.isChecked()):
             self.bruteforce_core.set_attack_type("HTTP")
-            valid_http = re.compile("^(https|http)://\S*",re.IGNORECASE)            # HTTP/HTTPS url regular expression
+            valid_http = re.compile(r"^(https|http)://\S*",re.IGNORECASE)            # HTTP/HTTPS url regular expression
             if not valid_http.match(self.target_address):
                 QtWidgets.QMessageBox.warning(self,"Invalid HTTP Address","The HTTP(HyperText Transfer Protocol) address should be fully qualified:\n\nExample:\nhttp://10.18.122.15\nhttps://www.foobar.com\nhttp://www.foobar.com/sports/index.html")
                 return
