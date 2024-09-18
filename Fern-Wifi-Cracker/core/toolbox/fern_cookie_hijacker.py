@@ -247,7 +247,7 @@ class Fern_Cookie_Hijacker(QtWidgets.QDialog,Ui_cookie_hijacker):
                         monitor_output = subprocess.getstatusoutput("airmon-ng start %s %s" % (selected_interface,selected_channel))
 
                     if(monitor_output[0] == 0):
-                        monitor_interface = re.findall("mon\d+",monitor_output[1])
+                        monitor_interface = re.findall(r"mon\d+",monitor_output[1])
 
                         if(monitor_interface):
                             self.monitor_interface = monitor_interface[0]
@@ -549,7 +549,7 @@ class Fern_Cookie_Hijacker(QtWidgets.QDialog,Ui_cookie_hijacker):
                 self.mitm_activated_label.setText("<font color = green><b>Active Frequency: %s</b></font>" % (channel_info))
 
         if(self.ethernet_mode_radio.isChecked()):
-            if(not re.match("(\d+.){3}\d+",ip_wep_edit)):
+            if(not re.match(r"(\d+.){3}\d+",ip_wep_edit)):
                 QtWidgets.QMessageBox.warning(self,"Invalid IP Address","Please insert a valid IPv4 Address of the Default Gateway")
                 self.wep_key_edit.setFocus()
                 return

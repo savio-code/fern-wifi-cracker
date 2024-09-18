@@ -254,7 +254,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                 'https://raw.githubusercontent.com/savio-code/fern-wifi-cracker/master/Fern-Wifi-Cracker/version')
             online_response = online_response_check.read().decode("ascii",errors="ignore")
 
-            online_files = re.compile('total_files = \d+', re.IGNORECASE)
+            online_files = re.compile(r'total_files = \d+', re.IGNORECASE)
 
             for online_file_total in online_response.splitlines():
                 if re.match(online_files, online_file_total):
@@ -320,7 +320,7 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
                 online_response_string = ''
                 online_response = online_response_thread.read().decode("ascii",errors="ignore")
 
-                online_version = re.compile('version = \d+\.?\d+', re.IGNORECASE)
+                online_version = re.compile(r'version = \d+\.?\d+', re.IGNORECASE)
 
                 for version_iterate in online_response.splitlines():
                     if re.match(online_version, version_iterate):
@@ -520,11 +520,11 @@ class mainwindow(QtWidgets.QDialog, Ui_Dialog):
             monitor_interface_process = str(subprocess.getoutput("airmon-ng"))
 
 
-            regex = re.compile("mon\d", re.IGNORECASE)
+            regex = re.compile(r"mon\d", re.IGNORECASE)
             interfaces = regex.findall(monitor_interface_process)
 
             if len(interfaces) == 0:
-            	regex = re.compile("wlan\dmon", re.IGNORECASE)
+            	regex = re.compile(r"wlan\dmon", re.IGNORECASE)
             	interfaces = regex.findall(monitor_interface_process)
 
             	if len(interfaces) == 0:

@@ -81,7 +81,7 @@ def exec_command(command,directory = None):
 
 
 def is_mac_address(data):
-    return bool(re.match('^' + '[\:\-]'.join(['([0-9a-f]{2})'] * 6) + '$', data.lower()))
+    return bool(re.match(r'^' + r'[\:\-]'.join([r'([0-9a-f]{2})'] * 6) + r'$', data.lower()))
 
 
 ################## TOOL BOX VARIABLES #######################

